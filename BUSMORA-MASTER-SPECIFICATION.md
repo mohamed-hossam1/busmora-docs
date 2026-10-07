@@ -212,7 +212,7 @@ erDiagram
 4. **Employee-Derived Learning**: During task execution, employees identify reusable insights and emit candidate proposals with citations to `/brain/candidates`.
 
 **Strict Provenance Chain**:
-$$\text{Canonical Knowledge Item (Neo4j)} \longrightarrow \text{Source Document Record (PostgreSQL)} \longrightarrow \text{Raw Source Artifact (S3)}$$
+`Canonical Knowledge Item (Neo4j)` ──► `Source Document Record (PostgreSQL)` ──► `Raw Source Artifact (S3)`
 
 ### 4.3 Two-Stage Hybrid GraphRAG Engine
 During task execution, `busmora-ai` retrieves company context using a two-stage hybrid pipeline:
@@ -460,7 +460,7 @@ The PostgreSQL transactional database is strictly partitioned by `workspace_id`:
 
 #### 2. Amazon S3 Storage Layout
 Raw evidentiary documents, crawl snapshots, and uploads are partitioned deterministically:
-$$\text{s3://busmora-sources/}\{\text{workspace\_id}\}/\{\text{source\_type}\}/\{\text{timestamp}\}\_\{\text{filename}\}$$
+`s3://busmora-sources/{workspace_id}/{source_type}/{timestamp}_{filename}`
 - Example Crawler Snapshot: `s3://busmora-sources/ws-8f4b/crawler/20261007T120000Z_homepage.html`
 - Example Uploaded Performance CSV: `s3://busmora-sources/ws-8f4b/upload/20261007T143000Z_q3_performance.csv`
 
@@ -488,7 +488,7 @@ $$\text{s3://busmora-sources/}\{\text{workspace\_id}\}/\{\text{source\_type}\}/\
 All third-party OAuth access tokens and credentials are cryptographically protected using **AWS KMS Envelope Encryption**:
 - **Data Encryption Key (DEK)**: A unique DEK is generated per tenant integration.
 - **Workspace Encryption Context**: Encryption calls bind an explicit encryption context:
-  $$\text{EncryptionContext} = \{\text{workspace\_id}: \text{UUID}, \text{integration\_id}: \text{UUID}, \text{credential\_version}: \text{int}\}$$
+  `EncryptionContext = { workspace_id: UUID, integration_id: UUID, credential_version: int }`
 - Decryption succeeds only when the requesting process provides the identical `workspace_id`. Platform Admins cannot decrypt tenant credentials under any circumstances.
 
 ### 8.3 Custom Authentication Engine (`busmora-api`)
@@ -502,14 +502,14 @@ All third-party OAuth access tokens and credentials are cryptographically protec
 ## 9. Internal Quality Gate & Human-in-the-Loop Evaluation
 
 ### 9.1 Evaluation Philosophy & Authority
-Release readiness is governed by **Human Review** over representative execution data in **LangSmith**. BusMora explicitly avoids complex automated evaluation platforms or automated LLM-as-a-judge release gates.
+Release readiness is governed by **Human Review** over representative execution data in **LangSmith**. BusMora explicitly avoids complex automated evaluation platforms or automated LLM-as-a-judge release gates:
 
-$$\text{Representative Runs (Harness)} \longrightarrow \text{LangSmith & Temporal Traces} \longrightarrow \text{Human Review} \longrightarrow \text{Release Gate Decision}$$
+`Representative Runs (Harness)` ──► `LangSmith & Temporal Traces` ──► `Human Review` ──► `Release Gate Decision`
 
 ### 9.2 Evaluation Corpus: 84 Assessed Runs across 3 Hidden Truth Packets
 Three curated **Evaluation Companies** are maintained with hidden **Truth Packets** (company context, confirmed facts, brand rules, source documents, scenario prompts):
-- **48 Breadth Runs**: 8 representative scenarios $\times$ 3 companies $\times$ 2 independent runs.
-- **36 Repeated-Use Runs**: 3 composite scenarios $\times$ 3 companies $\times$ 2 context conditions (baseline vs. accumulated) $\times$ 2 runs per condition.
+- **48 Breadth Runs**: 8 representative scenarios × 3 companies × 2 independent runs.
+- **36 Repeated-Use Runs**: 3 composite scenarios × 3 companies × 2 context conditions (baseline vs. accumulated) × 2 runs per condition.
 - **Total**: **84 Assessed Runs**.
 
 #### The 8 Representative Evaluation Scenarios:
@@ -518,9 +518,9 @@ Three curated **Evaluation Companies** are maintained with hidden **Truth Packet
 3. **Brand-Grounded Content Package**: High-fidelity marketing copy adapted across channel formats without brand rule drift.
 4. **Performance Diagnosis & Recommendations**: Structured CSV ingestion, metric calculation, and actionable optimization plan.
 5. **Approval-Gated External Action**: Preparation of a social post, preview generation, approval hold, provider dispatch, and read-back verification.
-6. **Composite Multi-Area (Research $\to$ Plan $\to$ Content)**: Research findings flowing seamlessly into strategy and content creation without lost context.
-7. **Composite Multi-Area (Plan $\to$ Content $\to$ Execution)**: Strategy formulation leading directly to draft action, human approval, and dispatch.
-8. **Composite Multi-Area (Performance $\to$ Revision)**: Performance CSV analysis diagnosing issues and generating a corrective campaign/content package.
+6. **Composite Multi-Area (Research → Plan → Content)**: Research findings flowing seamlessly into strategy and content creation without lost context.
+7. **Composite Multi-Area (Plan → Content → Execution)**: Strategy formulation leading directly to draft action, human approval, and dispatch.
+8. **Composite Multi-Area (Performance → Revision)**: Performance CSV analysis diagnosing issues and generating a corrective campaign/content package.
 
 ### 9.3 Scored Dimensions & Rubric
 Two independent human reviewers score runs in LangSmith annotation queues:
@@ -548,21 +548,24 @@ To pass the Quality Gate and unlock pilot deployment:
 3. **At least 80% passing within each applicable Responsibility Area**.
 4. Both human reviewers assign `2` to all mandatory scenario dimensions.
 5. Zero material brand contradictions or hallucinations against confirmed Truth Packet facts.
-6. Treatment (GraphRAG) demonstrates $\ge 50\%$ reduction in clarification turns and brand corrections compared to Control.
+6. Treatment (GraphRAG) demonstrates ≥ 50% reduction in clarification turns and brand corrections compared to Control.
 7. Output delivered as a concise Markdown summary: `QUALITY_GATE_REPORT.md`.
 
 ---
 
 ## 10. 24-Week Delivery Roadmap & 4-Student Ownership Matrix
 
-### 10.1 4-Student 1-to-1 Repository Ownership Matrix
+### 10.1 4-Student End-to-End Vertical Slice Ownership Matrix
 
-| Student / Role | Primary Repository / Domain | Core Deliverables & Technical Responsibilities |
+All four team members are skilled **Full-Stack + AI Engineers**. Rather than siloing team members horizontally into isolated architectural layers (e.g. Frontend-only, Backend-only), BusMora adopts a **Vertical Feature Slice Ownership Model**. Every student builds and ships complete features **End-to-End** across the entire 4-service stack:
+`Next.js (busmora-web)` ──► `NestJS (busmora-api)` ──► `Temporal (busmora-workers)` ──► `LangGraph/FastAPI (busmora-ai)`
+
+| Student / Role | Vertical End-to-End Domain | Multi-Service Deliverables & Full-Stack Responsibilities |
 |---|---|---|
-| **Student 1**<br>Frontend Lead | `busmora-web` (Next.js) | - Client Workspace (`busmora.com/w/{slug}`) & Admin portal (`busmora.com/admin/*`)<br>- Dual-pane Task Workspace (Chat left 45%, Canvas right 55%)<br>- Reconnectable SSE client (`Last-Event-ID`)<br>- `/brain` Explorer & `/brain/candidates` Review Inbox<br>- `/settings/integrations` & JIT in-stream connect cards<br>- Task History (`/tasks`) & Audit Log viewer (`/audit`) |
-| **Student 2**<br>Backend & Platform Lead | `busmora-api` (NestJS) | - PostgreSQL transactional schema & Drizzle ORM migrations<br>- Custom Auth engine (Argon2id, Redis refresh tokens, JWTs)<br>- Workspace tenancy isolation & uniform membership permissions<br>- AWS KMS envelope encryption integration<br>- Domain gatekeeper (Tasks, Approvals, Brain ledger, Audit logs)<br>- Temporal client & Redis SSE gateway forwarder |
-| **Student 3**<br>Workflows & Integrations Lead | `busmora-workers` (Python Temporal Workers) | - Temporal Workflows (`TaskExecution`, `Onboarding`) & Activities<br>- Human-in-the-loop wait states (`signal_approve_action`, etc.)<br>- 24-hour approval expiration timer state machine<br>- Internal authenticated REST client calling `busmora-ai`<br>- Social Publishing MCP adapter (provider execution and read-back verification)<br>- Pre-dispatch idempotency locks and reconciliation logic |
-| **Student 4**<br>AI Runtime & Brain Lead | `busmora-ai` (Python / FastAPI) | - LangGraph runtime & ModelGateway (LLM routing, fallbacks, metrics)<br>- 4 Sub-agents (Research, Strategy, Content, CSV Performance intake)<br>- Business Brain storage (Neo4j Cypher + Qdrant vectors)<br>- Two-Stage GraphRAG engine & Control baseline route<br>- Shallow web crawler (max 10 pages) & candidate extraction<br>- LangSmith evaluation harness runner & dataset sync scripts |
+| **Student 1**<br>Full-Stack + AI Engineer | **Business Brain, Knowledge Ingestion & GraphRAG** | - **Web**: `/brain` Canonical Explorer, `/brain/candidates` Review Inbox, `/onboarding` guided crawl UI.<br>- **API**: Knowledge ledger, candidate review endpoints, S3 metadata records, Drizzle migrations.<br>- **Workers**: Temporal `OnboardingWorkflow`, shallow web crawling & candidate extraction activities.<br>- **AI**: Shallow crawler (10 pages), candidate extractor, Neo4j Cypher schemas, Qdrant vector collections, Two-Stage GraphRAG engine & control baseline. |
+| **Student 2**<br>Full-Stack + AI Engineer | **Task Workspace, Orchestration & Real-Time Streaming** | - **Web**: Dual-pane Task Workspace left conversational pane (45%), token streaming, step progress indicators, reconnectable SSE client (`Last-Event-ID`).<br>- **API**: Task lifecycle APIs (`/tasks`), Redis SSE stream publisher/forwarder, frozen configuration snapshot generator.<br>- **Workers**: Temporal `TaskExecutionWorkflow`, AI invocation client, streaming progress reporter to Redis.<br>- **AI**: LangGraph supervisor runtime, ModelGateway (multi-model routing, fallbacks, latency metrics), `ResearchSubAgent` & `StrategySubAgent`. |
+| **Student 3**<br>Full-Stack + AI Engineer | **Content Studio, Performance CSV Engine & Quality Gate** | - **Web**: Decision Canvas right pane (55%), artifact viewer/editor, performance CSV upload UI & metric cards, task history.<br>- **API**: Artifact persistence schemas, CSV parsing endpoints, artifact versioning, audit logging for artifacts.<br>- **Workers**: Structured CSV intake activities, deterministic KPI computations, artifact delivery steps.<br>- **AI**: `ContentProductionSubAgent`, `PerformanceIntakeSubAgent` (pandas metric calculation), LangSmith 84-run evaluation harness & Truth Packet test runners. |
+| **Student 4**<br>Full-Stack + AI Engineer | **Platform Admin, Governance, KMS Vault & Social MCP** | - **Web**: Platform Admin portal (`busmora.com/admin/*` - catalog, assembly form, building block registry), Approval Action cards with 24h timer, `/settings/integrations` & JIT connect cards, `/audit` viewer.<br>- **API**: Custom Auth (Argon2id, Redis refresh tokens, JWTs, `PlatformAdminGuard`), AWS KMS envelope encryption vault, OAuth callback routes.<br>- **Workers**: 24-hour approval timer state machine, signal listeners (`signal_approve_action`, `signal_revise`), Social Publishing MCP adapter (dispatch & read-back verification), pre-dispatch idempotency locks.<br>- **AI**: Building block registry schemas, Social Publishing MCP tool adapter, action proposal payloads, approval action validation. |
 
 ### 10.2 24-Week Milestone Schedule (Six 4-Week Milestones)
 
@@ -575,7 +578,7 @@ Month 5 (W17-20): [M5: E2E Integration & Quality Gate] ───► 84 Assessed 
 Month 6 (W21-24): [M6: Controlled Pilot & Hardening] ─────► 1-2 Pilot Businesses Active
 ```
 
-- **M1 (Weeks 1–4) — Foundations & Walking Skeleton**: Scaffold 4 repos; custom Auth; PostgreSQL Drizzle migrations; Temporal Cloud connected; **Walking Skeleton E2E Demo**: Web prompt $\to$ API $\to$ Temporal $\to$ Worker $\to$ AI stub $\to$ Redis $\to$ SSE $\to$ Web chat. Discovery interviews with 3–5 B2B firms.
+- **M1 (Weeks 1–4) — Foundations & Walking Skeleton**: Scaffold 4 repos; custom Auth; PostgreSQL Drizzle migrations; Temporal Cloud connected; **Walking Skeleton E2E Demo**: Web prompt → API → Temporal → Worker → AI stub → Redis → SSE → Web chat. Discovery interviews with 3–5 B2B firms.
 - **M2 (Weeks 5–8) — Business Brain & Ingestion**: Neo4j schemas & Qdrant collections; shallow website crawler & extractor; `/brain` Explorer & Candidate Inbox; Two-Stage GraphRAG retrieval; paired document control route.
 - **M3 (Weeks 9–12) — Marketing Employee Runtime**: ModelGateway; 4 LangGraph sub-agents (Research, Strategy, Content, CSV Performance intake); Platform Admin assembly form; frozen configuration JSON snapshot passing; dual-pane UI.
 - **M4 (Weeks 13–16) — Approval Lifecycle, OAuth Vault & Social Publishing MCP**: Immutable Approval Actions in PostgreSQL; 24h timers; JIT OAuth cards; live social text-post publishing and read-back verification on the selected pilot channel; curate 3 Truth Packets.
@@ -595,7 +598,7 @@ The BusMora platform was validated against a hypothetical **B2B Sales Outreach R
 ### 11.1 Verification Results across System Dimensions
 1. **Business Brain Compatibility**: The 9 predefined entity types accommodate 100% of Sales company context (`Offering` = products/pricing, `Audience` = ICP/buyer job titles, `Positioning` = value props/objection handling, `Brand Rule` = outreach tone). No Neo4j schema changes required.
 2. **Platform Admin Assembly**: The same form at `busmora.com/admin/*` configures the Sales Employee, attaching newly registered sub-agents (`LeadQualificationSubAgent`, `OutreachDraftingSubAgent`), tools (`EmailValidatorTool`), and MCPs (`EmailSendingMCP`).
-3. **Runtime & Orchestration Equivalence**: Follows the identical path: `busmora-api` creates frozen configuration snapshot $\to$ Temporal launches `TaskExecutionWorkflow` $\to$ LangGraph executes sub-agents $\to$ Redis streams SSE events to the dual-pane UI.
+3. **Runtime & Orchestration Equivalence**: Follows the identical path: `busmora-api` creates frozen configuration snapshot → Temporal launches `TaskExecutionWorkflow` → LangGraph executes sub-agents → Redis streams SSE events to the dual-pane UI.
 4. **Approval & Security Equivalence**: Email dispatch produces an immutable `Approval Action` card with exact recipient/body preview, 24h timer, pre-dispatch idempotency lock, and KMS encryption.
 5. **Domain-Neutral Primitives Enforced**: All database tables (`employees`, `tasks`, `approval_actions`), APIs (`/api/w/:slug/tasks`), and Temporal workflows (`TaskExecutionWorkflow`) are strictly domain-neutral from Day 1, ensuring seamless platform extensibility.
 
