@@ -74,7 +74,7 @@ The BusMora platform adheres to strict, domain-neutral terminology across all fo
 |---|---|
 | **Workspace** | The fundamental tenant boundary for exactly one Business (`1 Business = 1 Workspace = 1 Tenant`). Owns all resources: Brain knowledge, Employee activations, integrations, tasks, artifacts, and audit trails. |
 | **Workspace Membership** | The association binding a User to a Workspace. A User may belong to multiple Workspaces, but every request executes within one explicitly selected active Workspace. All members share uniform permissions in the MVP. |
-| **Platform Admin** | Internal platform operator (`admin.busmora.com`) who manages global Employee definitions, prompts, and registered building blocks. Has **zero access** to Workspace-owned task contents, Brain items, or credentials. |
+| **Platform Admin** | Internal platform operator (`busmora.com/admin/*`) who manages global Employee definitions, prompts, and registered building blocks. Has **zero access** to Workspace-owned task contents, Brain items, or credentials. |
 | **Authorized Company Human** | Any authenticated Workspace member with authority to promote/retire Canonical Knowledge Items and approve external Approval Actions. (In the MVP, all active Workspace members hold this role). |
 | **Employee** | The primary user-facing orchestrator (e.g., Marketing Employee). Decomposes business requests, coordinates Sub-agents and Tools, manages context, and owns task delivery. |
 | **Employee Configuration** | The Admin-managed definition of an Employee: name, description, system prompt, approval policy, and assigned Sub-agents, Tools, and MCP bindings. Published as immutable revisions (`rev-1`, `rev-2`). |
@@ -95,13 +95,13 @@ The BusMora platform adheres to strict, domain-neutral terminology across all fo
 
 ## 3. Dual-Portal Journeys & UX Contracts (`busmora-web`)
 
-Both portals reside within a single Next.js 15 monorepo (`busmora-web`), sharing a standardized design system (Tailwind CSS, Radix UI), but maintain strictly separated subdomains, route trees, sessions, and navigation shells.
+Both portals reside within a single Next.js 15 monorepo (`busmora-web`) hosted entirely under `busmora.com`, sharing a standardized design system (Tailwind CSS, Radix UI), but maintaining strictly separated route trees, sessions, and navigation shells (Platform Admin under `busmora.com/admin/*` and Client Workspace under `busmora.com/w/{slug}/*`).
 
 ```
 ┌────────────────────────────────────────────────────────────────────────┐
 │                              busmora-web                               │
 ├───────────────────────────────────┬────────────────────────────────────┤
-│   admin.busmora.com               │   app.busmora.com/w/{slug}         │
+│   busmora.com/admin/*             │   busmora.com/w/{slug}             │
 │   (Platform Admin Portal)         │   (Client Workspace Portal)        │
 │   - Employee Catalog              │   - Hybrid Onboarding (/onboarding)│
 │   - Assembly & Draft Editing Form │   - Brain Explorer (/brain)        │
@@ -113,8 +113,8 @@ Both portals reside within a single Next.js 15 monorepo (`busmora-web`), sharing
 └───────────────────────────────────┴────────────────────────────────────┘
 ```
 
-### 3.1 Platform Admin Portal (`admin.busmora.com`)
-- **Route Tree**: `/`, `/employees`, `/employees/new`, `/employees/:id/edit`, `/registry/building-blocks`.
+### 3.1 Platform Admin Portal (`busmora.com/admin/*`)
+- **Route Tree**: `/admin`, `/admin/employees`, `/admin/employees/new`, `/admin/employees/:id/edit`, `/admin/registry/building-blocks`.
 - **Employee Composition Form**:
   - `Name`: e.g., "Marketing Employee".
   - `Description`: Business-facing overview shown in client catalog.
@@ -127,7 +127,7 @@ Both portals reside within a single Next.js 15 monorepo (`busmora-web`), sharing
   - Active in-flight tasks remain pinned to the configuration revision active when the task started.
 - **Data Boundary Guarantee**: Platform Admin screens have zero database relationships or API routes connecting to tenant Brain items, chat transcripts, task artifacts, or integration secrets.
 
-### 3.2 Client Workspace Portal (`app.busmora.com/w/{workspace_slug}/...`)
+### 3.2 Client Workspace Portal (`busmora.com/w/{workspace_slug}/...`)
 
 #### 1. Hybrid Guided Onboarding with Skip (`/onboarding`)
 - Collects `Company Name` and an explicitly confirmed `Public Company Website URL`.
@@ -395,7 +395,7 @@ The BusMora platform is partitioned into **four distinct application repositorie
 ```
 ┌─────────────────────────────────────────────────────────────────────────────────────────┐
 │                                   busmora-web (Next.js)                                 │
-│  - Portals: admin.busmora.com & app.busmora.com/w/{slug}                                │
+│  - Portals: busmora.com/admin/* & busmora.com/w/{slug}                                  │
 │  - SSE Client: Reconnects via Last-Event-ID header                                      │
 └────────────────────────────────────┬────────────────────────────────────────────────────┘
                                      │ HTTP REST / SSE Stream
@@ -559,7 +559,7 @@ To pass the Quality Gate and unlock pilot deployment:
 
 | Student / Role | Primary Repository / Domain | Core Deliverables & Technical Responsibilities |
 |---|---|---|
-| **Student 1**<br>Frontend Lead | `busmora-web` (Next.js) | - Client Workspace (`app.busmora.com`) & Admin portal (`admin.busmora.com`)<br>- Dual-pane Task Workspace (Chat left 45%, Canvas right 55%)<br>- Reconnectable SSE client (`Last-Event-ID`)<br>- `/brain` Explorer & `/brain/candidates` Review Inbox<br>- `/settings/integrations` & JIT in-stream connect cards<br>- Task History (`/tasks`) & Audit Log viewer (`/audit`) |
+| **Student 1**<br>Frontend Lead | `busmora-web` (Next.js) | - Client Workspace (`busmora.com/w/{slug}`) & Admin portal (`busmora.com/admin/*`)<br>- Dual-pane Task Workspace (Chat left 45%, Canvas right 55%)<br>- Reconnectable SSE client (`Last-Event-ID`)<br>- `/brain` Explorer & `/brain/candidates` Review Inbox<br>- `/settings/integrations` & JIT in-stream connect cards<br>- Task History (`/tasks`) & Audit Log viewer (`/audit`) |
 | **Student 2**<br>Backend & Platform Lead | `busmora-api` (NestJS) | - PostgreSQL transactional schema & Drizzle ORM migrations<br>- Custom Auth engine (Argon2id, Redis refresh tokens, JWTs)<br>- Workspace tenancy isolation & uniform membership permissions<br>- AWS KMS envelope encryption integration<br>- Domain gatekeeper (Tasks, Approvals, Brain ledger, Audit logs)<br>- Temporal client & Redis SSE gateway forwarder |
 | **Student 3**<br>Workflows & Integrations Lead | `busmora-workers` (Python Temporal Workers) | - Temporal Workflows (`TaskExecution`, `Onboarding`) & Activities<br>- Human-in-the-loop wait states (`signal_approve_action`, etc.)<br>- 24-hour approval expiration timer state machine<br>- Internal authenticated REST client calling `busmora-ai`<br>- Social Publishing MCP adapter (provider execution and read-back verification)<br>- Pre-dispatch idempotency locks and reconciliation logic |
 | **Student 4**<br>AI Runtime & Brain Lead | `busmora-ai` (Python / FastAPI) | - LangGraph runtime & ModelGateway (LLM routing, fallbacks, metrics)<br>- 4 Sub-agents (Research, Strategy, Content, CSV Performance intake)<br>- Business Brain storage (Neo4j Cypher + Qdrant vectors)<br>- Two-Stage GraphRAG engine & Control baseline route<br>- Shallow web crawler (max 10 pages) & candidate extraction<br>- LangSmith evaluation harness runner & dataset sync scripts |
@@ -594,7 +594,7 @@ The BusMora platform was validated against a hypothetical **B2B Sales Outreach R
 
 ### 11.1 Verification Results across System Dimensions
 1. **Business Brain Compatibility**: The 9 predefined entity types accommodate 100% of Sales company context (`Offering` = products/pricing, `Audience` = ICP/buyer job titles, `Positioning` = value props/objection handling, `Brand Rule` = outreach tone). No Neo4j schema changes required.
-2. **Platform Admin Assembly**: The same form at `admin.busmora.com` configures the Sales Employee, attaching newly registered sub-agents (`LeadQualificationSubAgent`, `OutreachDraftingSubAgent`), tools (`EmailValidatorTool`), and MCPs (`EmailSendingMCP`).
+2. **Platform Admin Assembly**: The same form at `busmora.com/admin/*` configures the Sales Employee, attaching newly registered sub-agents (`LeadQualificationSubAgent`, `OutreachDraftingSubAgent`), tools (`EmailValidatorTool`), and MCPs (`EmailSendingMCP`).
 3. **Runtime & Orchestration Equivalence**: Follows the identical path: `busmora-api` creates frozen configuration snapshot $\to$ Temporal launches `TaskExecutionWorkflow` $\to$ LangGraph executes sub-agents $\to$ Redis streams SSE events to the dual-pane UI.
 4. **Approval & Security Equivalence**: Email dispatch produces an immutable `Approval Action` card with exact recipient/body preview, 24h timer, pre-dispatch idempotency lock, and KMS encryption.
 5. **Domain-Neutral Primitives Enforced**: All database tables (`employees`, `tasks`, `approval_actions`), APIs (`/api/w/:slug/tasks`), and Temporal workflows (`TaskExecutionWorkflow`) are strictly domain-neutral from Day 1, ensuring seamless platform extensibility.
