@@ -27,9 +27,9 @@
 ## 1. Executive Summary & Core Platform Mission
 
 ### 1.1 Strategic Positioning
-BusMora is a **Digital Workforce / AI Employee Platform** designed for startups and growing businesses that require recurring operational and marketing capacity but lack the budget to hire specialized full-time staff. 
+BusMora is an **AI Employee Platform** designed for startups and growing businesses that require recurring operational and marketing capacity but lack the budget to hire specialized full-time staff. 
 
-Rather than presenting an unconstrained visual workflow builder or hardcoding one-off automations, BusMora operates on a structured, role-based workforce paradigm:
+Rather than presenting an unconstrained visual workflow builder or hardcoding one-off automations, BusMora operates on a structured, role-based AI Employee paradigm:
 - **Platform Admins** assemble and configure specialized, production-ready AI Employees using engineering-registered building blocks (Sub-agents, deterministic Tools, and MCP connectors) via an internal Admin Dashboard.
 - **Business Owners & Authorized Humans** hire pre-configured Employees into their private Workspace, onboard company context into a provenance-backed **Business Brain**, delegate complex tasks, and oversee external actions under **strict, non-negotiable human approval**.
 
@@ -106,7 +106,7 @@ Both portals reside within a single Next.js 15 monorepo (`busmora-web`) hosted e
 │   - Employee Catalog              │   - Hybrid Onboarding (/onboarding)│
 │   - Assembly & Draft Editing Form │   - Brain Explorer (/brain)        │
 │   - Building Block Registry       │   - Candidate Inbox (/brain/cand.) │
-│   - Immutable Revision Publishing │   - Workforce Catalog (/workforce) │
+│   - Immutable Revision Publishing │   - AI Employees (/employees)      │
 │   - ZERO Tenant Data Access       │   - Dual-Pane Task Workspace       │
 │                                   │   - Settings & JIT OAuth Cards     │
 │                                   │   - Audit Logs (/audit)            │
