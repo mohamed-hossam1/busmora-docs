@@ -1,220 +1,311 @@
-# Product Requirements Document (PRD): BusMora AI Employee Platform & Marketing Employee (MVP)
+# Product Requirements Document (PRD): BusMora AI Employee Platform (MVP)
 
-## Problem Statement
-
-Growing businesses and startups (specifically digital-first B2B professional services firms with 10–49 employees) require continuous, recurring marketing and operational capacity to stay competitive—such as conducting competitor intelligence, crafting marketing strategies, producing brand-aligned content across channels, analyzing performance data, and distributing campaigns. However, these businesses cannot afford to hire dedicated, multi-person marketing teams or specialized full-time staff.
-
-Currently, when business operators turn to AI tools, they encounter two extremes, both of which fail them:
-1. **Unconstrained prompt wrappers and fragile visual workflow builders**: These require business operators to become prompt engineers and workflow debuggers. They suffer from frequent breakages, lack structured roles, and place the burden of system assembly onto non-technical business owners.
-2. **Context-blind and ungrounded generation**: Generic AI assistants lack deep, provenance-backed corporate memory. They hallucinate company capabilities, violate brand rules, drift off tone, and produce generic outputs that require extensive manual rework.
-
-Furthermore, autonomous AI agents pose significant reputational and financial risks. Business owners cannot trust an autonomous agent to publish directly to public social channels, modify live marketing campaigns, or spend company funds without strict human oversight. At the same time, existing tools force users to manually transfer research, drafts, CSV data, and copy across disconnected applications with no durable audit trail or execution safety.
-
-## Solution
-
-BusMora is an AI Employee Platform that delivers pre-configured, production-ready AI Employees to handle recurring business operations under non-negotiable human governance.
-
-The platform debuts with the **Marketing Employee** as its beachhead MVP, managing five bounded responsibility areas:
-1. **Research & Intelligence**: Conducting competitor, market, and audience research grounded in verified company context and bounded public web search to produce Decision-Ready Research Briefs.
-2. **Strategy & Planning**: Formulating multi-channel campaign strategies, quarterly objectives, and tactical marketing plans.
-3. **Content Production & Adaptation**: Producing brand-aligned copy, headlines, and channel-adapted post variations that adhere strictly to company brand voice guidelines.
-4. **Performance Interpretation**: Ingesting structured performance CSV data, validating schemas, computing deterministic KPIs, and synthesizing actionable diagnostic reports and strategic recommendations.
-5. **Approval-Governed External Execution**: Preparing and executing social media publications to authorized organization-owned channels (e.g., LinkedIn Organization Page or Facebook Page) via a provider-agnostic Social Publishing MCP connector.
-
-### Core Solution Pillars:
-- **Human-in-the-Loop Governance**: The system can never autonomously publish content, alter live campaigns, spend money, or alter canonical knowledge. All external side effects require explicit human approval via an immutable Approval Action with a full preview inspector and a 24-hour expiration timer.
-- **The Business Brain**: A company-scoped, provenance-backed repository of Canonical Company Knowledge structured around 9 predefined entity types. It is populated through guided onboarding web crawls (up to 10 pages), document uploads, and employee insights, all gated through a human Candidate Review Inbox (`/brain/candidates`).
-- **Two-Stage GraphRAG Engine**: Combines vector semantic retrieval in Qdrant with 1–2 hop subgraph expansion in Neo4j to retrieve deeply contextualized, hallucination-free knowledge with complete provenance.
-- **Dual-Pane Task Workspace**: An operational collaboration interface pairing a real-time conversational stream (left pane) with a rich Decision Canvas (right pane) that renders interactive Decision-Ready Artifacts and approval inspectors.
-- **Durable Orchestration (Temporal-First)**: Reliable, fault-tolerant execution handling long-running research, deferred schedules (e.g., "publish tomorrow at 4 PM"), and recurring cron workflows without external message brokers.
-- **Security & Privacy Boundary**: Complete Workspace tenant isolation, AWS KMS envelope encryption for third-party OAuth credentials, and a strict guarantee that Platform Admins have zero standing access to tenant data planes or secrets.
+> **Document Status**: Authoritative Product Requirements Document (PRD)  
+> **Release Target**: BusMora Beachhead MVP — The Marketing Employee  
+> **Primary ICP**: Digital-First B2B Professional Services Firms (10–49 Employees)  
+> **Companion Document**: [Master System Specification & Technical Architecture](BUSMORA-MASTER-SPECIFICATION.md) | [Technical Specification](SPEC.md)
 
 ---
 
-## User Stories
+## 1. Executive Summary & Vision
 
-### Hybrid Onboarding & Company Setup
-1. As an Authorized Company Human, I want to submit my company name and public website URL during onboarding, so that the platform can automatically discover and extract my company's foundational context.
-2. As an Authorized Company Human, I want the onboarding crawl to run asynchronously in the background and allow me to skip directly to the dashboard, so that I am not blocked while web pages are being crawled and analyzed.
-3. As an Authorized Company Human, I want to receive a persistent dashboard notification when candidate extraction completes, so that I know exactly when my company's initial context is ready for review.
-4. As an Authorized Company Human, I want the onboarding crawler to respect robots.txt and limit crawling to a maximum of 10 public pages, so that the platform extracts relevant information responsibly without scraping unwanted or private areas.
+### 1.1 Product Vision
+**BusMora** is an AI Employee platform built to deliver **autonomous operational capacity without autonomous business risk**. 
 
-### Business Brain & Canonical Knowledge Management
-5. As an Authorized Company Human, I want to explore my company's Canonical Knowledge organized strictly across 9 predefined entity types, so that I have a clear, structured view of our brand facts, offerings, audiences, and strategic rules.
-6. As an Authorized Company Human, I want to manually create new Knowledge Items under any of the 9 entity types, so that I can seed proprietary business facts directly into the Business Brain.
-7. As an Authorized Company Human, I want to edit existing active Knowledge Items, so that our canonical corporate knowledge accurately reflects current company positioning.
-8. As an Authorized Company Human, I want to retire outdated Knowledge Items without permanent UI deletion, so that old facts are excluded from GraphRAG retrieval while maintaining complete audit and historical provenance.
-9. As an Authorized Company Human, I want each Knowledge Item to display its source document provenance and confidence score, so that I can verify where each fact originated.
+Growing businesses struggle with recurring operational demands—such as competitor research, strategic planning, channel-adapted content creation, and data interpretation. Yet, hiring specialized full-time staff is cost-prohibitive, and existing AI solutions force operators to choose between two bad alternatives: generic, hallucinating chatbots that lack brand memory, or brittle visual workflow builders that require non-technical operators to become prompt engineers and pipeline debuggers.
 
-### Candidate Review Inbox
-10. As an Authorized Company Human, I want to view a dedicated Candidate Review Inbox (`/brain/candidates`) displaying extracted or proposed knowledge, so that unverified information is never automatically treated as canonical truth.
-11. As an Authorized Company Human, I want to see a side-by-side comparison between candidate statements and existing matching canonical items, so that I can easily spot conflicting statements or updates.
-12. As an Authorized Company Human, I want to "Approve as New" a candidate item, so that it becomes an active Knowledge Item in the Business Brain.
-13. As an Authorized Company Human, I want to "Edit & Approve" a candidate item, so that I can refine the wording before promoting it to canonical status.
-14. As an Authorized Company Human, I want to "Edit & Approve as Update" an existing item, so that the current canonical value is updated while retaining the previous version in the audit history.
-15. As an Authorized Company Human, I want to "Reject" candidate items that are inaccurate or irrelevant, so that they are discarded from the review queue.
-16. As an Authorized Company Human, I want candidate items to require individual review without bulk approval, so that our company memory maintains high factual integrity.
+BusMora introduces the **AI Employee** paradigm: pre-configured, role-specialized digital team members that join a company's private workspace, deeply absorb its brand and business truth into a provenance-backed **Business Brain**, and execute multi-step workflows under **strict, non-negotiable human governance**.
 
-### Dual-Pane Task Workspace & Collaboration
-17. As an Authorized Company Human, I want to initiate marketing tasks using natural language prompts within a dedicated task workspace, so that I can delegate complex marketing objectives to the Marketing Employee.
-18. As an Authorized Company Human, I want to see token-level streaming and real-time step progress indicators in the conversational pane, so that I understand exactly what research or analysis the employee is performing.
-19. As an Authorized Company Human, I want the task stream to automatically reconnect via Server-Sent Events (SSE) using the Last-Event-ID header after a network disruption, so that I do not lose in-flight task progress or streaming history.
-20. As an Authorized Company Human, I want to inspect Decision-Ready Artifacts (reports, briefs, strategy tables) on a dedicated full-fidelity Decision Canvas (right pane), so that I can review structured outputs without cluttering the chat history.
-21. As an Authorized Company Human, I want each task to clearly display the immutable Employee Configuration revision it was pinned to, so that I have full transparency regarding the exact instructions and models used for that run.
-22. As an Authorized Company Human, I want to provide 1-to-5 star ratings and feedback comments on completed tasks, so that the team can monitor and improve employee performance over time.
-
-### Marketing Employee Capabilities & Sub-Agents
-23. As an Authorized Company Human, I want the Marketing Employee to perform competitor and audience research and output a Decision-Ready Research Brief, so that I can make informed positioning decisions without conducting manual research.
-24. As an Authorized Company Human, I want the Marketing Employee to formulate goal-driven campaign strategies grounded in our active Strategic Goals and Brand Rules, so that our marketing initiatives directly support business objectives.
-25. As an Authorized Company Human, I want the Marketing Employee to produce brand-aligned copy and channel-adapted post variations, so that our messaging remains consistent across diverse distribution channels.
-26. As an Authorized Company Human, I want to upload marketing performance CSV files directly into a task, so that the Marketing Employee can validate schemas and compute key performance indicators.
-27. As an Authorized Company Human, I want the Marketing Employee to diagnose underperformance from uploaded CSV data and produce actionable optimization recommendations, so that I can optimize marketing ROI based on empirical data.
-28. As an Authorized Company Human, I want to run composite multi-step tasks (e.g., Research → Strategy → Content or Performance CSV → Revision), so that complex end-to-end marketing workflows are completed cohesively in a single task session.
-
-### Approval-Governed External Execution & Scheduling
-29. As an Authorized Company Human, I want any external social post prepared by the employee to be presented as an immutable Approval Action card, so that no external side effect can occur without my explicit consent.
-30. As an Authorized Company Human, I want to inspect the exact post preview, target organization channel, scheduled time, and payload on the Decision Canvas before approving, so that I have complete confidence in what will be published.
-31. As an Authorized Company Human, I want to click "Approve Now" on an action card to trigger immediate execution, so that verified content is published without unnecessary delay.
-32. As an Authorized Company Human, I want to schedule an approved post for a future publication date and time, so that the system automatically dispatches the post at the optimal moment.
-33. As an Authorized Company Human, I want scheduled posts to be held by durable orchestration timers that survive server restarts or network outages, so that publication timing remains dependable.
-34. As an Authorized Company Human, I want to cancel or reschedule a scheduled post prior to dispatch, so that I can retract or adjust planned publications if business priorities change.
-35. As an Authorized Company Human, I want approval actions to automatically expire after 24 hours if no action is taken, so that outdated or stale drafts are never inadvertently published.
-36. As an Authorized Company Human, I want to request changes or edits on a proposed approval action, so that the employee generates a revised proposal that supersedes the prior draft.
-37. As an Authorized Company Human, I want the system to execute a preflight reauthorization check when a scheduled post wakes up, so that expired or revoked OAuth tokens alert me immediately rather than failing silently.
-
-### Social Publishing & OAuth Integrations
-38. As an Authorized Company Human, I want an interactive Just-In-Time (JIT) OAuth Connect Card to appear directly in the chat stream when an employee prepares an action requiring an unconnected integration, so that I can connect the channel without leaving my workflow.
-39. As an Authorized Company Human, I want the in-flight task to automatically resume once JIT OAuth connection is completed, so that I do not have to restart or re-prompt the task.
-40. As an Authorized Company Human, I want to manage and view connection health across organization targets in `/settings/integrations`, so that I can monitor token status, expiration, and connected account names.
-41. As an Authorized Company Human, I want social publishing to strictly target authorized organization-owned Pages (e.g., LinkedIn Organization Pages, Facebook Pages) and prohibit personal profiles, so that personal privacy and corporate brand governance are safeguarded.
-42. As an Authorized Company Human, I want post publication to transition to success only after read-back verification confirms the post is live and publicly visible, so that I am guaranteed the action succeeded.
-43. As an Authorized Company Human, I want ambiguous network timeouts during dispatch to be reconciled via feed inspection rather than blind re-posting, so that accidental duplicate posts are completely avoided.
-
-### Platform Administration & Assembly
-44. As a Platform Admin, I want to manage an Employee Catalog at `/admin/employees`, so that I can define and maintain standardized AI Employees for the platform.
-45. As a Platform Admin, I want to configure an Employee's name, description, system prompt instructions, approval policies, and assigned sub-agents, tools, and MCP bindings, so that I can assemble specialized AI Employees from registered codebase components.
-46. As a Platform Admin, I want admin edits to create drafts and publish immutable configuration revisions (e.g., rev-1, rev-2), so that existing in-flight tasks remain pinned to their initial revision without disruption.
-47. As a Platform Admin, I want the admin portal to be strictly isolated with zero access to tenant Brain items, chat transcripts, task artifacts, or credentials, so that tenant confidentiality and data privacy are cryptographically and architecturally guaranteed.
-
-### Security, Multi-Tenancy & Audit Logging
-48. As an Authorized Company Human, I want all third-party OAuth access tokens and secrets to be encrypted using AWS KMS envelope encryption bound to my Workspace ID, so that my credentials can never be accessed or decrypted by other tenants or platform operators.
-49. As an Authorized Company Human, I want an immutable, append-only security audit log at `/audit`, so that every canonical knowledge promotion, approval decision, external execution attempt, and OAuth state change is recorded for governance.
-50. As an Authorized Company Human, I want my workspace data strictly partitioned by Workspace ID across relational, graph, vector, and object storage, so that zero cross-tenant data leakage can ever occur.
+### 1.2 Beachhead Product: The Marketing Employee
+For its MVP release, BusMora focuses exclusively on a single high-impact role: **The Marketing Employee**. 
+The Marketing Employee assumes five bounded responsibility areas:
+1. **Competitor & Market Intelligence**: Producing Decision-Ready Research Briefs grounded in verified business context.
+2. **Strategy & Campaign Planning**: Formulating quarterly and tactical multi-channel marketing roadmaps.
+3. **Brand-Aligned Content Production**: Crafting channel-adapted copy and messaging variants strictly compliant with corporate brand voice.
+4. **Performance Data Diagnosis**: Ingesting raw performance data (CSV), calculating deterministic KPIs, and synthesizing diagnostic reports.
+5. **Approval-Governed External Execution**: Preparing publication drafts and dispatching verified posts to authorized company social channels (e.g., LinkedIn/Facebook Company Pages) only after explicit human sign-off.
 
 ---
 
-## Implementation Decisions
+## 2. Problem Statement & Customer Validation
 
-### 1. Multi-Service Architecture & Boundaries
-The platform is partitioned into four distinct application modules:
-- **`busmora-web` (Client & Admin Portals)**: A single Next.js 15 application hosting both the Platform Admin portal (`busmora.com/admin/*`) and the Client Workspace portal (`busmora.com/w/{slug}/*`). The portals maintain strictly isolated route trees, sessions, and navigation shells.
-- **`busmora-api` (Core Business API)**: A NestJS application handling custom authentication (Argon2id password hashing, short-lived JWT access tokens, Redis-backed rotating refresh tokens), tenant workspace boundaries, Drizzle ORM persistence to PostgreSQL, Temporal workflow dispatch with frozen configuration snapshots, and an SSE gateway that forwards real-time execution events from Redis streams.
-- **`busmora-workers` (Durable Orchestration Workers)**: Python Temporal workers executing durable workflows (`TaskExecutionWorkflow`, `OnboardingWorkflow`), handling workflow signals (`approve`, `revise`, `cancel`, `oauth_connected`), managing 24-hour expiration timers and deferred schedule sleeps, acquiring pre-dispatch idempotency locks, and interfacing with external provider adapters.
-- **`busmora-ai` (Agent Intelligence & Knowledge Runtime)**: A FastAPI service hosting the `ModelGateway`, LangGraph sub-agent graph orchestration (Research, Strategy, Content, CSV Performance intake), shallow crawler (max 10 pages), candidate extractor, and the Two-Stage GraphRAG retrieval engine.
+### 2.1 The Core Market Problem
+Digital-first B2B professional services firms (consultancies, agencies, IT services, and advisory firms with 10–49 employees) face intense pressure to maintain active marketing and thought leadership. However:
+- **Budget & Hiring Constraints**: They cannot justify hiring a dedicated 3-to-5-person internal marketing team, and retaining external agencies is expensive and often disconnects from daily operational realities.
+- **The AI Prompt & Workflow Failure**:
+  - *Generic Chatbots*: Lack corporate memory, hallucinate services and capabilities, drift off-brand, and generate superficial content that requires heavy rework.
+  - *Visual Workflow Builders & Automation Tools*: Require non-technical founders to assemble nodes, troubleshoot API failures, and craft prompts, shifting the engineering burden onto the customer.
+- **The Autonomy Trust Gap**: Business operators cannot risk letting an autonomous AI agent publish directly to public brand channels, alter campaigns, or modify corporate truth without oversight. At the same time, manual copy-pasting across disconnected apps destroys productivity.
 
-### 2. Durable Orchestration Invariant (Temporal-First, No Message Broker)
-- All distributed task execution, durable activity retries, long-running waits, approval holds, 24-hour expiration timers, and deferred schedule timers are managed natively through **Temporal Cloud** (with a documented runbook for self-hosted Temporal migration).
-- **No separate message broker** (Kafka, RabbitMQ, Celery, or SQS) is deployed anywhere in the platform architecture.
-- When a task begins, `busmora-api` serializes the active Employee Configuration into an immutable JSON payload and passes it into the Temporal workflow input. In-flight tasks remain pinned to this frozen configuration snapshot regardless of future admin edits.
+### 2.2 Ideal Customer Profile (ICP)
+- **Company Size**: 10–49 employees (primary sweet spot: 20–49).
+- **Business Model**: Digital-first B2B services, technology consulting, specialized agencies.
+- **Current Marketing State**: Led by a founder/operator or a solo generalist marketer; active on at least one corporate channel (e.g., LinkedIn Company Page); owns historical performance data (analytics/CRM CSV exports).
+- **Core Buying Motivation**: Scaling consistent marketing execution without hiring headcount or managing complex software pipelines.
 
-### 3. Multi-Model Data Plane
-Specialized data planes handle distinct storage workloads:
-- **PostgreSQL**: Relational transactional domain state, users, workspaces, memberships, employees, configuration revisions, tasks, task records, approval actions, execution attempts, source document metadata, and immutable audit events.
-- **Neo4j**: Business Brain knowledge graph strictly enforcing the 9 predefined entity types (`CompanyProfile`, `Offering`, `Audience`, `BrandRule`, `Positioning`, `StrategicGoal`, `Channel`, `Competitor`, `CompanyFact`). Every Cypher query enforces tenant isolation (`WHERE n.workspace_id = $workspace_id AND n.status = 'active'`).
-- **Qdrant**: Vector embeddings (1536 dimensions, Cosine distance) for hybrid semantic retrieval, indexed on `workspace_id` and `status`.
-- **Amazon S3**: Object storage for raw evidentiary documents, crawl HTML snapshots, and uploaded CSV files partitioned deterministically: `s3://busmora-sources/{workspace_id}/{source_type}/{timestamp}_{filename}`.
-- **Redis**: Caching, rate limiting, and durable SSE replay stream buffers keyed by `task_id:{id}`.
+---
 
-### 4. Two-Stage Hybrid GraphRAG Engine
-Context retrieval for AI Employee prompts executes as a two-stage pipeline:
-- **Stage 1 (Vector Retrieval)**: Semantic similarity search in Qdrant filtered by `workspace_id` and `status == 'active'` returning Top-K seed Knowledge Item IDs.
-- **Stage 2 (Subgraph Expansion)**: Cypher query in Neo4j expanding 1–2 hops around seed items, traversing connected Audiences, Offerings, Brand Rules, and Competitor nodes, collecting full provenance and freshness metadata.
-- **Experimental Control Baseline**: In parallel, a document-only control route chunks raw S3 documents into Qdrant vectors without graph extraction to benchmark GraphRAG performance in the Quality Gate.
+## 3. User Personas & Jobs-to-be-Done (JTBD)
 
-### 5. Approval Action State Machine & External Execution
-Approval actions follow an immutable lifecycle with deterministic state transitions:
+### 3.1 Persona 1: Tariq — The Overwhelmed B2B Founder / Operator
+- **Role**: Managing Director / Co-founder at a 25-person tech consultancy.
+- **Pain Points**:
+  - Drowning in client delivery; marketing is sporadic and inconsistent.
+  - Wants company thought leadership and positioning, but lacks time to write or research.
+  - Fearful of AI "going rogue" or sounding generic and unprofessional.
+- **Job-to-be-Done**:  
+  *"When our market demands consistent presence and thought leadership, I want an intelligent team member who already knows our offerings and brand voice to prepare complete briefs and draft posts, so that I only spend 5 minutes reviewing and approving them without worrying about brand damage."*
+
+### 3.2 Persona 2: Layla — The Solo Marketing Lead
+- **Role**: Head of Marketing (Team of 1) at a 35-person professional services firm.
+- **Pain Points**:
+  - Responsible for everything: competitor research, writing copy, analyzing metrics, and posting.
+  - Context switching between spreadsheets, docs, and social networks kills strategic focus.
+  - Spends hours formatting CSV metrics and drafting multiple variations of the same message.
+- **Job-to-be-Done**:  
+  *"When I need to launch a new campaign or analyze monthly performance, I want an AI colleague to crunch the numbers, extract competitor insights, and prepare multi-channel copy variations, so that I can focus on strategic decisions rather than repetitive execution."*
+
+### 3.3 Persona 3: Karim — The Platform Administrator (Internal)
+- **Role**: BusMora Internal Operations & Product Assembly Lead.
+- **Pain Points**:
+  - Needs to deliver standardized, high-performing AI Employees without writing bespoke code for each tenant.
+  - Must ensure prompt revisions and tool configurations do not break in-flight customer tasks.
+  - Must uphold zero-access privacy guarantees regarding customer proprietary data.
+- **Job-to-be-Done**:  
+  *"When new tools or prompt improvements are developed, I want to assemble and publish versioned Employee configurations safely, so that all tenants receive consistent, tested capabilities without exposing customer data."*
+
+---
+
+## 4. Product Value Proposition & Core Solution Pillars
 
 ```
-[draft] ──(check OAuth unconnected)──► [awaiting_authorization] ──(JIT OAuth)──► [ready_for_approval]
-[draft] ──(check OAuth connected)────► [ready_for_approval]
-[ready_for_approval] ──(User approves)──────────────► [approved] ──► [executing]
-[ready_for_approval] ──(User schedules future time)──► [scheduled] ──► [executing (at timestamp)]
-[ready_for_approval] ──(User requests changes)──────► [superseded]
-[ready_for_approval] ──(User rejects)───────────────► [rejected]
-[ready_for_approval] ──(24h timer expires)──────────► [expired]
-[scheduled] ──────────(User cancels)───────────────► [cancelled]
-[executing] ──────────(Provider accepted + read-back verified)──► [succeeded]
-[executing] ──────────(Provider rejection)─────────────────────► [failed]
-[executing] ──────────(Network timeout / 5xx)──────────────────► [indeterminate] ──(Reconciliation)──► [succeeded / failed]
++-----------------------------------------------------------------------------------+
+|                               BUSMORA PLATFORM                                    |
++-----------------------------------------------------------------------------------+
+|  1. Pre-Configured AI Employee        |  2. The Business Brain                    |
+|     - Role-specialized digital staff  |     - Provenance-backed corporate memory  |
+|     - Marketing Employee beachhead    |     - 9 canonical business entity types   |
+|     - Multi-step bounded autonomy     |     - Human candidate review inbox        |
++---------------------------------------+-------------------------------------------+
+|  3. Non-Negotiable Human Governance   |  4. Dual-Pane Collaboration Workspace     |
+|     - Zero unapproved executions      |     - Conversational stream (left pane)   |
+|     - Immutable approval cards        |     - Decision Canvas (right pane)        |
+|     - 24-hour expiration timers       |     - Structured Decision-Ready Artifacts |
++---------------------------------------+-------------------------------------------+
+|  5. Safe Execution & Scheduling       |  6. Absolute Tenant Isolation             |
+|     - JIT social channel connection   |     - Zero cross-tenant data leakage      |
+|     - Read-back verification          |     - Zero platform admin standing access |
+|     - Durable scheduled dispatch      |     - Immutable audit trail               |
++-----------------------------------------------------------------------------------+
 ```
 
-- **Pre-Dispatch Lock**: `busmora-workers` creates an `execution_attempts` record with a unique `idempotency_key` before calling any external provider API.
-- **Read-Back Verification**: Succeeded state requires both an accepted provider response (HTTP 200/201) and an immediate follow-up read-back GET confirming public visibility.
-- **Indeterminate Reconciliation**: Ambiguous timeouts transition to `indeterminate` and trigger a feed inspection reconciliation query before any retry is considered.
-
-### 6. Provider-Agnostic Social Publishing MCP Connector (`mcp:social_publishing:v1`)
-- Core platform workflows interact with a generic Social Publishing MCP interface exposing: `get_connection_status`, `list_authorized_targets`, `preflight_action`, `execute_approved_action`, `get_execution_status`, and `remediate`.
-- Isolated provider adapters in `busmora-workers` translate calls to target networks (e.g., LinkedIn Organization Pages or Meta/Facebook Pages).
-- Strictly restricted to organization-owned targets; personal profile publishing is explicitly disallowed across all adapters.
-
-### 7. AWS KMS Envelope Encryption Vault
-- Integration OAuth access tokens and credentials are encrypted using AWS KMS envelope encryption.
-- Each integration generates a unique Data Encryption Key (DEK) bound to an explicit Workspace Encryption Context: `{ workspace_id, integration_id, credential_version }`.
-- Decryption requires an exact matching `workspace_id`. Platform Admins have zero access to DEKs or plaintext credentials.
-
-### 8. Reconnectable SSE Event Streaming
-- `busmora-ai` publishes execution events to a Redis Stream.
-- `busmora-api` streams events to `busmora-web` via Server-Sent Events with sequential message IDs.
-- Clients reconnecting after drops send `Last-Event-ID: {n}`, allowing `busmora-api` to replay missed tokens and cards from the Redis buffer without interrupting running Temporal workflows.
+1. **Pre-Configured AI Employee (Not a Blank Slate)**: Users hire an employee with defined job responsibilities, pre-assembled capabilities, and strict behavioral boundaries—not an empty prompt box or complicated node canvas.
+2. **The Business Brain (Company Truth with Provenance)**: A dedicated corporate memory structured around 9 business entities. All knowledge is traceable to source documents or website crawls, and new facts are promoted to canonical status only via human review.
+3. **Non-Negotiable Human-in-the-Loop Governance**: AI proposes; humans authorize. The system cannot publish content, alter live campaigns, spend money, or alter corporate facts without an explicit human signature.
+4. **Dual-Pane Task Workspace**: Combines a real-time conversational stream (for task delegation, step progress, and iterative feedback) with a dedicated **Decision Canvas** (for reviewing rich reports, strategy tables, and approval previews side-by-side).
+5. **Verifiable External Action**: Outbound actions to authorized organization channels feature pre-dispatch idempotency, scheduled release timers, and immediate read-back verification to guarantee publication accuracy without duplicates.
+6. **Enterprise-Grade Privacy & Auditability**: Workspaces are completely isolated. Platform administrators have zero standing access to customer knowledge or credentials, and all actions are recorded in an immutable audit trail.
 
 ---
 
-## Testing Decisions
+## 5. Goals & Success Metrics (KPIs)
 
-### What Makes a Good Test
-Tests must verify **external observable behavior** across defined system seams, not internal implementation mechanics or transient variables. A test passes if the system produces the correct HTTP response, triggers the expected durable state transition, emits the correct SSE events, and respects security and data integrity invariants.
+### 5.1 Business & Adoption Metrics
+| Metric | Definition | Target (MVP) |
+|---|---|---|
+| **Time to First Value (TTFV)** | Time from completing onboarding to inspecting the first Decision-Ready Artifact | < 15 minutes |
+| **Weekly Active Workspaces (WAW)** | Percentage of active workspaces delegating $\ge 2$ tasks per week | $\ge 60\%$ |
+| **Task Completion Rate** | Tasks reaching successful artifact generation without abandonment | $\ge 85\%$ |
+| **Onboarding Conversion Rate** | Users completing website crawl and approving initial context | $\ge 75\%$ |
 
-### The System Testing Seams
-1. **Primary End-to-End System Seam: Client HTTP REST / SSE & Temporal Workflow Seam**
-   - The primary seam for integration and end-to-end testing sits at the authenticated HTTP interface of `busmora-api` and the SSE event stream.
-   - Tests issue authenticated requests (creating tasks, querying brain items, submitting approvals), subscribe to SSE streams, and verify that the system moves through valid domain states.
-   - **External Test Adapters**: External dependencies (LLM APIs in `ModelGateway`, social network APIs in the Social Publishing MCP adapter, and target web pages in the crawler) are placed behind external adapters and mocked/stubbed during automated regression runs.
-2. **Evaluation Harness Seam: LangSmith 84-Run Quality Gate Seam**
-   - Release readiness is governed by a dedicated evaluation runner exercising the Marketing Employee over 84 runs across 3 hidden Truth Packets in LangSmith.
-   - Tests assert deterministic boundary invariants (valid JSON schemas, zero unapproved external calls, correct mathematical KPI calculations) and submit runs to two-reviewer blinded human grading.
+### 5.2 Quality & Trust Metrics
+| Metric | Definition | Target (MVP) |
+|---|---|---|
+| **Artifact Acceptance Rate** | Deliverables approved by the user with minor/no edits ($< 20\%$ diff) | $\ge 75\%$ |
+| **Autonomous Action Invariant** | Rate of external actions published without human approval | **0.00% (Strict Zero)** |
+| **Brand Voice Fidelity** | Human rating on brand alignment and tone consistency | $\ge 4.2 / 5.0$ |
+| **Knowledge Hallucination Rate** | Factually contradictory claims about company services | $< 2\%$ of generated claims |
 
-### Modules Tested
-- **`busmora-api` Core Gateway & Auth**: Authentication flows (Argon2id, JWTs, Redis refresh tokens), tenant workspace isolation guards, Drizzle relational schema migrations, task creation, and SSE replay logic.
-- **`busmora-workers` Durable Orchestration**: Temporal `TaskExecutionWorkflow` and `OnboardingWorkflow`, signal handling (`signal_approve_action`, `signal_cancel_action`), 24-hour expiration timers, deferred schedule sleeps, and pre-dispatch idempotency locking.
-- **`busmora-ai` Agent Runtime & GraphRAG**: LangGraph sub-agent graph execution, Pydantic structured output validation, ModelGateway fallback and retry handling, shallow crawler page boundary enforcement (max 10 pages), and Neo4j Cypher tenant filtering.
-- **Social Publishing MCP Adapter**: Organization channel preflight validation, simulated post dispatch, read-back verification assertions, and indeterminate feed reconciliation.
-- **KMS Vault & Security**: Envelope encryption and decryption assertions ensuring cross-workspace decryption attempts fail cryptographically.
-
-### Prior Art & Test Patterns
-- Prior art in the repository's engineering skills emphasizes testing through deep module interfaces using external seams (Michael Feathers' seam concepts), avoiding shallow pass-through mocks, and verifying state transitions and contract guarantees.
-
----
-
-## Out of Scope
-
-The following capabilities are explicitly out of scope for this MVP release:
-1. **Autonomous External Execution**: Autonomous posting, publishing, or live updating without explicit human approval is strictly prohibited.
-2. **Financial Transactions & Paid Ad Spend**: Managing live ad spend, credit cards, bidding engines, or modifying paid campaign budgets.
-3. **Personal Social Profile Publishing**: Publishing to personal LinkedIn or Facebook profiles (only organization-owned Pages/Channels are supported).
-4. **Visual Workflow Canvas / Node-Based Builders**: Drag-and-drop workflow builders or user-authored execution graphs (employees are configured via structured admin forms from engineering-registered building blocks).
-5. **Granular Multi-Role Workspace RBAC**: Custom roles or granular permission tiers within a tenant (all active Workspace members share uniform permissions in the MVP).
-6. **Broad Unbounded Web Crawling**: Crawling beyond 10 public pages or crawling dynamic, authenticated, or JavaScript-heavy single-page applications without explicit user setup.
-7. **Direct UI Hard-Deletion of Canonical Knowledge**: Hard deletion of Knowledge Items is prohibited; items can only be retired to preserve audit provenance.
-8. **Automated LLM-as-a-Judge Release Authority**: Automated LLM evaluation systems acting as gatekeepers; human review in LangSmith is the sole authority for release readiness.
-9. **Separate Message Brokers**: Deployment of Kafka, RabbitMQ, Celery, or SQS (Temporal handles all queues, timers, and workflows).
-10. **Additional AI Employee Roles in Initial Release**: Roles such as Sales Representative or Support Agent are deferred to post-MVP releases (although the architecture has been verified for extensibility).
+### 5.3 Efficiency Metrics
+| Metric | Definition | Target (MVP) |
+|---|---|---|
+| **Time Saved per Marketing Asset** | Reduction in hours spent researching and drafting campaigns vs. manual work | $\ge 70\%$ time reduction |
+| **Review Turnaround Time** | Time human spends reviewing and signing off an Approval Card | $< 2$ minutes per action |
 
 ---
 
-## Further Notes
+## 6. Detailed User Journeys
 
-- **24-Week Delivery Roadmap**: Structured across six 4-week milestones (M1: Foundations & Walking Skeleton, M2: Business Brain & GraphRAG, M3: Marketing Employee Sub-Agents, M4: Approvals & Social MCP, M5: Quality Gate Evaluation, M6: Controlled Pilot & Hardening).
-- **Vertical Slice Ownership**: The 4-student engineering team operates on an end-to-end vertical slice ownership model, with each student delivering features across the full stack (`busmora-web` → `busmora-api` → `busmora-workers` → `busmora-ai`).
-- **Core Planning Principle**: "Simplify implementation, not the agreed product contract." If schedule constraints arise, simplify implementation complexity (e.g. rely on managed cloud services or simpler forms) rather than eliminating agreed functional capabilities.
-- **Geographic Deployment**: Single-region cloud deployment in Frankfurt (`eu-central-1`).
+### Journey 1: Guided Onboarding & Instant Brain Seeding
+1. **Initiation**: The user signs up and enters their company name, domain, and public website URL.
+2. **Background Context Discovery**: The system initiates an automated shallow crawl (up to 10 public pages, respecting `robots.txt`).
+3. **Unblocked Progression**: The user is not blocked; they can explore the dashboard immediately while discovery runs asynchronously.
+4. **Completion Notification**: When extraction completes, a persistent notification alerts the user: *"Your company's context is ready for review."*
+5. **Candidate Review**: The user visits `/brain/candidates` to approve or adjust extracted knowledge facts (offerings, target audiences, brand rules).
+
+### Journey 2: Delegating a Task & Working in the Dual-Pane Workspace
+1. **Task Delegation**: In `/tasks`, the user prompts the Marketing Employee: *"Analyze our competitor X and propose a 3-post LinkedIn thought-leadership campaign highlighting our custom integration capability."*
+2. **Transparent Reasoning**: In the left pane, the user watches real-time streaming progress indicators (e.g., retrieving brand facts, crawling competitor public page, synthesizing strategy).
+3. **Canvas Inspection**: The right pane updates in real time to render a rich, formatted **Decision-Ready Research & Campaign Brief**.
+4. **Iterative Refinement**: The user replies in the chat: *"Tone down post 2 to sound more technical and less promotional."* The employee updates the canvas artifact in place.
+
+### Journey 3: Approving & Scheduling an External Social Post
+1. **Action Generation**: When the user requests publication, the employee produces an **Approval Action Card** on the Decision Canvas.
+2. **Inspection**: The card displays exact target channel (e.g., "Acme LinkedIn Page"), live rendered preview, proposed time, and action buttons.
+3. **Just-In-Time (JIT) Connection**: If the channel is not yet linked, a JIT connect prompt appears directly in the workflow. The user links the account and the task automatically resumes.
+4. **Governance Decision**:
+   - **Approve Now**: Immediately publishes with verified read-back.
+   - **Schedule for Later**: Sets a future timestamp (e.g., tomorrow at 10 AM).
+   - **Request Revision**: Requests changes, creating an updated draft and superseding the previous one.
+   - **Expire**: Unreviewed actions automatically expire after 24 hours to prevent accidental stale posting.
+
+### Journey 4: Uploading Performance CSV & Getting Strategic Insights
+1. **Data Upload**: The user drags and drops a raw performance export (e.g., monthly campaign impressions, clicks, conversions).
+2. **Deterministic Processing**: The employee validates headers, computes standardized KPIs (CTR, conversion rate, CPC changes), and flags anomalies.
+3. **Strategic Recommendations**: The canvas presents an executive diagnosis: what performed well, what underperformed, and three prioritized adjustments for next month's content strategy.
+
+---
+
+## 7. Functional Requirements
+
+### 7.1 Hybrid Onboarding & Company Context Discovery
+- **FR-1.1**: The system shall allow users to input company name, website URL, and primary industry during initial setup.
+- **FR-1.2**: Context discovery shall run asynchronously, allowing users to proceed to the workspace immediately without blocking.
+- **FR-1.3**: Automated crawler shall strictly respect `robots.txt` and cap public web extraction at a maximum of 10 pages.
+- **FR-1.4**: Context extraction shall categorize discovered facts into initial Candidate Knowledge items and notify the user upon completion.
+
+### 7.2 The Business Brain & Canonical Knowledge Management
+- **FR-2.1**: The Business Brain shall organize canonical knowledge strictly across 9 structured entity types:
+  1. `CompanyProfile` (mission, founding, core description)
+  2. `Offering` (products, services, solutions, packages)
+  3. `Audience` (buyer personas, ICP, industry verticals)
+  4. `BrandRule` (tone of voice, forbidden words, stylistic constraints)
+  5. `Positioning` (value propositions, differentiators, key messaging)
+  6. `StrategicGoal` (quarterly targets, active marketing objectives)
+  7. `Channel` (active distribution platforms, posting frequency)
+  8. `Competitor` (direct/indirect competitors, strengths, weaknesses)
+  9. `CompanyFact` (statistics, case study proof points, verifiable certifications)
+- **FR-2.2**: Users shall be able to manually create, view, edit, and retire Knowledge Items under any entity type.
+- **FR-2.3**: Knowledge Items cannot be permanently deleted from the UI; items are transitioned to `retired` status to preserve full audit provenance.
+- **FR-2.4**: Every Knowledge Item shall display its source provenance (original URL, document name, extraction timestamp) and verification state.
+
+### 7.3 Candidate Review Inbox (`/brain/candidates`)
+- **FR-3.1**: Extracted or proposed facts shall be isolated in a dedicated Candidate Inbox and never treated as canonical truth until approved.
+- **FR-3.2**: The inbox shall present side-by-side diff comparisons between proposed statements and existing active canonical items.
+- **FR-3.3**: Users shall have four distinct review actions for each candidate:
+  - *Approve as New*: Creates a new active canonical item.
+  - *Edit & Approve*: Allows wording adjustments prior to canonical promotion.
+  - *Edit & Approve as Update*: Replaces an existing canonical item while preserving audit history.
+  - *Reject*: Discards inaccurate or unwanted candidate facts.
+- **FR-3.4**: Bulk approval shall be explicitly prohibited to ensure intentional human review and maintain high factual integrity.
+
+### 7.4 Dual-Pane Task Workspace & Collaboration
+- **FR-4.1**: The workspace UI shall provide a dual-pane layout: a real-time conversation stream on the left, and a full-fidelity Decision Canvas on the right.
+- **FR-4.2**: The conversation pane shall render token-level streaming and visible step progress indicators (e.g., "Searching Brain...", "Synthesizing Brief...").
+- **FR-4.3**: The task stream shall automatically recover and resume state without progress loss upon network disconnection.
+- **FR-4.4**: The Decision Canvas shall render formatted Decision-Ready Artifacts (markdown, structured tables, visual cards) distinct from the chat stream.
+- **FR-4.5**: Each task shall visibly link to the exact, immutable Employee Configuration revision under which it was executed.
+- **FR-4.6**: Completed tasks shall allow user satisfaction ratings (1 to 5 stars) and qualitative feedback.
+
+### 7.5 Marketing Employee Capabilities
+- **FR-5.1 (Research & Intelligence)**: Shall autonomously conduct competitor and audience research and output a Decision-Ready Research Brief.
+- **FR-5.2 (Strategy & Planning)**: Shall formulate structured campaign roadmaps aligned with active company Strategic Goals and Brand Rules.
+- **FR-5.3 (Content Production)**: Shall generate channel-adapted copy variants (headlines, body copy, hashtags) strictly honoring defined brand voice rules.
+- **FR-5.4 (Performance Interpretation)**: Shall ingest structured marketing CSV files, validate column headers, compute deterministic metrics, and generate diagnostic reports with actionable recommendations.
+- **FR-5.5 (Multi-Step Tasks)**: Shall support composite workflows in a single task session (e.g., Research $\rightarrow$ Strategy $\rightarrow$ Content Variations).
+
+### 7.6 Approval-Governed External Execution & Scheduling
+- **FR-6.1**: Every proposed external side effect shall be rendered as an immutable **Approval Action Card** requiring explicit human action.
+- **FR-6.2**: The Approval Card shall present the exact target organization channel, live rendered preview, scheduled time, and payload.
+- **FR-6.3**: Users shall have the option to *Approve Immediately*, *Schedule for Future Date/Time*, *Request Changes*, or *Reject*.
+- **FR-6.4**: Scheduled actions shall survive system interruptions and dispatch automatically at the designated timestamp.
+- **FR-6.5**: Approval cards shall automatically expire after 24 hours of inactivity to prevent accidental publication of stale drafts.
+- **FR-6.6**: Users shall be able to cancel or reschedule any pending scheduled action prior to dispatch.
+- **FR-6.7**: Published actions shall confirm success only after performing a read-back verification confirming the post is live on the target network.
+
+### 7.7 Social Integrations & Channel Governance
+- **FR-7.1**: The platform shall provide Just-In-Time (JIT) connection cards inside the task flow when an action targets an unlinked channel.
+- **FR-7.2**: Social publishing shall be strictly restricted to verified **organization-owned Pages/Channels** (e.g., LinkedIn Company Page, Facebook Page); personal profile publishing is strictly prohibited.
+- **FR-7.3**: An integrations hub at `/settings/integrations` shall allow monitoring connection health, expiration status, and authorized target names.
+- **FR-7.4**: Network timeouts during dispatch shall trigger automated feed inspection to prevent duplicate posts.
+
+### 7.8 Platform Administration & Employee Assembly
+- **FR-8.1**: Platform Admins shall manage a centralized Employee Catalog at `/admin/employees`.
+- **FR-8.2**: Admins shall assemble AI Employees from registered capabilities, configuring names, descriptions, system prompts, approval policies, and assigned tools.
+- **FR-8.3**: Modifications to Employee definitions shall be published as immutable versioned revisions (`rev-1`, `rev-2`), ensuring running customer tasks are never broken by upstream prompt edits.
+- **FR-8.4**: The Admin Portal shall maintain strict architectural isolation, with zero standing access to customer workspace data, Brain facts, or credentials.
+
+### 7.9 Security, Multi-Tenancy & Audit Trail
+- **FR-9.1**: Workspaces shall be strictly isolated by Tenant ID across all data stores; cross-tenant access is structurally impossible.
+- **FR-9.2**: Third-party credentials and tokens shall be protected using workspace-bound envelope encryption.
+- **FR-9.3**: The platform shall provide an immutable, append-only security audit log at `/audit`, tracking all knowledge promotions, approvals, dispatches, and credential modifications.
+
+---
+
+## 8. Non-Functional Requirements (NFRs)
+
+### 8.1 Security & Compliance
+- **NFR-1.1 (Cryptographic Isolation)**: Customer credentials and OAuth tokens must be encrypted with keys bound to the specific workspace tenant.
+- **NFR-1.2 (Zero Admin Visibility)**: Platform administrators must have zero visibility into customer confidential Brain facts, task transcripts, or stored credentials.
+- **NFR-1.3 (Data Sovereignty)**: All data processing and storage must reside within the specified deployment region (`eu-central-1`).
+
+### 8.2 Reliability & Fault Tolerance
+- **NFR-2.1 (Durable Execution)**: Long-running research tasks, approval holds, and scheduled release timers must survive process crashes and server reboots without state loss.
+- **NFR-2.2 (Idempotent Dispatch)**: All outbound social publishing actions must be locked and idempotent; no network glitch may result in duplicate posts.
+- **NFR-2.3 (Availability)**: The client workspace portal must maintain $\ge 99.5\%$ operational availability during business hours.
+
+### 8.3 Performance & User Experience
+- **NFR-3.1 (Streaming Responsiveness)**: Time to first token in the conversational task pane must not exceed 2.5 seconds.
+- **NFR-3.2 (Seamless Reconnection)**: If network connectivity drops during an active task, the UI must re-establish the stream and restore missing events within 3 seconds of reconnection.
+- **NFR-3.3 (Canvas Rendering)**: Decision-Ready Artifacts must render smoothly without UI stutter, supporting full copy-to-clipboard and export.
+
+---
+
+## 9. Scope Management: MVP vs. Post-MVP
+
+### 9.1 In-Scope for MVP
+- Single AI Employee: **The Marketing Employee**.
+- Onboarding crawl (up to 10 pages) and Candidate Review Inbox.
+- Business Brain with 9 structured entity types and source provenance.
+- Dual-Pane Workspace (Conversation + Decision Canvas).
+- 4 primary deliverables: Research Briefs, Campaign Strategies, Brand-Aligned Copy, and CSV Performance Diagnostics.
+- Social Publishing to Organization Pages (LinkedIn / Facebook Pages) with immutable Approval Cards.
+- Scheduled publishing with 24-hour expiration timers.
+- JIT OAuth connection flow and `/settings/integrations` hub.
+- Platform Admin Employee Catalog with versioned configuration revisions.
+- Immutable `/audit` governance log.
+
+### 9.2 Explicitly Out of Scope for MVP
+| Excluded Capability | Rationale | Deferred To |
+|---|---|---|
+| **Autonomous External Posting** | Violates core safety invariant; 100% human-in-the-loop required. | Never (Core Platform Principle) |
+| **Paid Ad Spend & Budget Execution** | High financial liability; requires mature attribution modeling. | Post-MVP / V2 |
+| **Personal Social Profile Publishing** | Brand risk and personal account API compliance issues. | Out of Scope |
+| **Visual Node-Based Workflow Canvas** | Adds complexity; users want pre-configured employees, not DIY builders. | Excluded by Design |
+| **Granular Multi-Role RBAC** | All active workspace members share uniform permissions for MVP simplicity. | V1.2 |
+| **Deep / Dynamic Crawling (>10 Pages)** | Unbounded crawling risks scraping irrelevant noise and heavy SPA rendering costs. | V1.2 |
+| **Hard UI Deletion of Brain Items** | Deletion destroys provenance; retiring items preserves audit integrity. | Excluded by Design |
+| **Additional Employee Roles (Sales, Support)** | Focused beachhead required to prove marketing depth and quality. | V2 |
+
+---
+
+## 10. Product Risks & Mitigation Strategies
+
+| Risk | Impact | Probability | Mitigation Strategy |
+|---|---|---|---|
+| **User Review Fatigue** | Users find reviewing candidate facts or approvals burdensome and abandon the workflow. | Medium | Provide concise side-by-side diffs, highlight key changes, and enforce clean Decision-Ready previews that require $< 60$ seconds to assess. |
+| **Hallucinated Company Capabilities** | The employee suggests services or facts the company does not provide. | High | Strict GraphRAG retrieval grounded solely in active Canonical Knowledge Items; provenance citations displayed on all claims. |
+| **Token Expiry During Scheduled Dispatch** | A scheduled post fails at execution time because the customer's social OAuth token expired. | Medium | Automatic preflight reauthorization check when the schedule timer wakes up; immediate urgent notification sent if token is invalid. |
+| **CSV Formatting Variations** | Users upload non-standard or malformed performance CSV files. | High | Strict header validation and schema normalization with clear, user-friendly error guidance indicating missing required columns. |
+| **Accidental Duplicate Posts** | Network timeout causes retry of an already-posted social update. | Medium | Pre-dispatch idempotency locking and indeterminate state feed inspection before any retry attempt. |
+
+---
+
+## 11. Release Criteria & Quality Gates
+
+The Marketing Employee MVP shall be approved for general release only when the following release gates are met:
+1. **Deterministic Safety Gate**: 100% pass rate on boundary tests asserting zero unauthorized outbound API calls and zero unapproved knowledge promotions.
+2. **Quality Gate (Blinded Human Evaluation)**: 84 representative task evaluations across 3 distinct test company profiles achieving $\ge 85\%$ acceptance by independent human reviewers.
+3. **Durable Recovery Gate**: 100% recovery of in-flight tasks and scheduled dispatches across simulated worker restarts and network disconnects.
+4. **Security Audit Gate**: Zero cross-tenant data leakage and zero standing admin access verified by automated boundary regression tests.
 
