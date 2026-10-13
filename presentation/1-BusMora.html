@@ -1,0 +1,844 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>BusMora</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&family=Readex+Pro:wght@300;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* Layout: fixed 1920x1080 stage scaled to the window. RTL text, LTR for technical diagrams.
+   Palette: deep obsidian (#0c0c0d) with electric mint teal (#1cdcaa) matching the official website. */
+:root{
+  --ink:#0c0c0d; --panel:#131417; --panel-2:#191b22; --line:#22252e;
+  --text:#ffffff; --muted:#949db2;
+  --bus:#1cdcaa; --ok:#1cdcaa; --stop:#f43f5e; --sky:#38bdf8; --vio:#a855f7;
+  --f-display:'Plus Jakarta Sans','Readex Pro',system-ui,-apple-system,sans-serif;
+  --f-body:'Plus Jakarta Sans','IBM Plex Sans',system-ui,-apple-system,sans-serif;
+  --f-mono:'JetBrains Mono',ui-monospace,Menlo,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--ink);color:var(--text);font-family:var(--f-body);overflow:hidden;font-size:30px;letter-spacing:-0.01em}
+button{font:inherit;color:inherit}
+#app{height:100%;display:flex;flex-direction:column}
+#viewport{flex:1;min-height:0;position:relative;overflow:hidden;background:var(--ink)}
+#stage{position:absolute;left:50%;top:50%;width:1920px;height:1080px;transform-origin:center;background:radial-gradient(circle at 50% 0%,rgba(28,220,170,0.04) 0%,transparent 60%),var(--ink)}
+
+/* controls */
+#bar{flex:none;background:rgba(12,12,13,0.88);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid var(--line)}
+#prog{height:4px;background:rgba(255,255,255,0.06)}
+#prog i{display:block;height:100%;width:0;background:linear-gradient(90deg,#10b981,var(--bus));box-shadow:0 0 10px var(--bus);transition:width .35s cubic-bezier(.2,.8,.2,1)}
+.ctl{display:flex;align-items:center;gap:12px;padding:10px 20px;font-size:14px}
+.ctl .grow{flex:1}
+.ctl button{background:rgba(25,27,34,0.7);border:1px solid var(--line);border-radius:10px;padding:7px 16px;cursor:pointer;min-width:42px;font-weight:500;transition:all .2s ease;color:var(--text)}
+.ctl button:hover{border-color:var(--bus);color:var(--bus);background:rgba(28,220,170,0.08);box-shadow:0 0 14px rgba(28,220,170,0.2)}
+.ctl button:focus-visible{outline:2px solid var(--bus);outline-offset:2px}
+.ctl .mono{color:var(--muted);min-width:70px;text-align:center;font-weight:600}
+#notes{position:absolute;left:20px;right:20px;bottom:16px;z-index:5;background:rgba(18,19,24,0.96);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border:1px solid var(--bus);border-radius:16px;padding:16px 22px;max-height:42%;overflow:auto;box-shadow:0 20px 60px rgba(0,0,0,0.85),0 0 30px rgba(28,220,170,0.15)}
+#notes .mono{font-size:12px;color:var(--bus);letter-spacing:.14em;font-weight:700}
+#notes p{margin:8px 0 0;font-size:18px;line-height:1.75;color:#e2e8f0}
+
+/* slide frame */
+.slide{position:absolute;inset:0;display:none;flex-direction:column;padding:70px 110px 56px}
+.slide.active{display:flex}
+.head{display:flex;flex-direction:column;gap:10px;margin-bottom:22px}
+.kicker{font:600 24px var(--f-mono);letter-spacing:.16em;text-transform:uppercase;color:var(--bus);text-shadow:0 0 16px rgba(28,220,170,0.25)}
+h2{margin:0;font:700 66px/1.15 var(--f-display);letter-spacing:-.025em;text-wrap:balance;color:#ffffff}
+.sub{margin:0;font-size:33px;color:var(--muted);font-weight:400;line-height:1.4}
+.body{flex:1;min-height:0;position:relative}
+.dia{width:100%;height:100%;display:block;direction:ltr;overflow:visible}
+.withcap .dia, .withcap .win{height:calc(100% - 84px)}
+.cap{position:absolute;left:0;right:0;bottom:0;display:flex;flex-wrap:wrap;gap:16px;justify-content:center;font-size:32px;color:var(--muted);text-align:center}
+.cap strong{color:var(--text);font-weight:600}
+.tag{display:inline-flex;align-items:center;gap:12px;border:1px solid var(--line);background:var(--panel-2);border-radius:99px;padding:10px 26px;font-size:28px;color:var(--text);box-shadow:0 4px 16px rgba(0,0,0,0.3)}
+.tag.ok{border-color:var(--ok);color:var(--ok);background:rgba(28,220,170,0.08);box-shadow:0 0 20px rgba(28,220,170,0.12)}
+.tag.stop{border-color:var(--stop);color:var(--stop);background:rgba(244,63,94,0.08)}
+.mono{font-family:var(--f-mono)} .tx{font-family:var(--f-body)} .dsp{font-family:var(--f-display)}
+.muted{color:var(--muted)}
+
+/* animation primitives */
+.a{opacity:0}
+.slide.active .a{animation:rise .7s cubic-bezier(.2,.7,.2,1) var(--d,0s) both}
+.f{opacity:0}
+.slide.active .f{animation:fade .6s ease var(--d,0s) both}
+.pop{opacity:0;transform-box:fill-box;transform-origin:center}
+.slide.active .pop{animation:pop .55s cubic-bezier(.2,1.3,.4,1) var(--d,0s) both}
+.draw{stroke-dasharray:1 1;stroke-dashoffset:1;fill:none}
+.slide.active .draw{animation:draw var(--t,.8s) ease var(--d,0s) forwards}
+.lockg{opacity:0;transform-box:fill-box;transform-origin:center}
+.slide.active .lockg{animation:pop .55s cubic-bezier(.2,1.3,.4,1) var(--d,0s) both, fadeout .35s ease var(--d2,9s) forwards}
+.slide.active .unlockg{animation:fade .5s ease var(--d,0s) both}
+.cur{opacity:0}
+.slide.active .cur{animation:fade .3s ease var(--d,0s) both, cur 1s cubic-bezier(.5,0,.3,1) var(--d,0s) both}
+.press{transform-box:fill-box;transform-origin:center}
+.slide.active .press{animation:press .6s ease var(--d,0s) both}
+@keyframes rise{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@keyframes fadeout{to{opacity:0}}
+@keyframes pop{from{opacity:0;transform:scale(.6)}to{opacity:1;transform:scale(1)}}
+@keyframes draw{to{stroke-dashoffset:0}}
+@keyframes cur{from{transform:translate(var(--x0),var(--y0))}to{transform:translate(var(--x1),var(--y1))}}
+@keyframes press{0%{filter:brightness(1)}40%{filter:brightness(1.7)}100%{filter:brightness(1)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* timed (JS) elements */
+[data-at]{opacity:0;transform:translateY(14px);transition:opacity .5s ease,transform .5s ease}
+[data-at].on{opacity:1;transform:none}
+[data-off].off{opacity:0!important;pointer-events:none}
+
+/* cover */
+.cover{justify-content:space-between;padding-block:72px 64px}
+.cover-top{display:flex;justify-content:space-between;align-items:center}
+.cover-top .mono{font-size:24px}
+.mark{margin:0;font:800 240px/1 var(--f-display);letter-spacing:-.04em;text-align:left;color:#ffffff}
+.mark span{color:var(--bus);text-shadow:0 0 60px rgba(28,220,170,0.35)}
+.tagline{margin:24px 0 0;font-size:48px;color:#e2e8f0;font-weight:500;letter-spacing:-.02em}
+.cover-mid{display:flex;flex-direction:column;align-items:flex-start;margin-block:auto}
+.cover-team{display:flex;gap:24px;width:100%}
+.tm{flex:1;border-top:2px solid var(--c);padding-top:18px;display:flex;flex-direction:column}
+.tm b{font:600 28px var(--f-display);color:#ffffff;white-space:nowrap}
+
+/* why cards */
+.row3{display:flex;gap:36px;flex:1;min-height:0}
+.wcard{flex:1;background:linear-gradient(180deg,#16181f 0%,#121316 100%);border:1px solid var(--line);border-radius:26px;padding:40px;display:flex;flex-direction:column;gap:22px;box-shadow:0 12px 36px -8px rgba(0,0,0,0.5),0 0 1px 1px rgba(255,255,255,0.04)}
+.wcard h3{margin:0;font:700 50px/1.2 var(--f-display);color:#ffffff;letter-spacing:-.02em}
+.wcard p{margin:0;font-size:33px;line-height:1.55;color:var(--muted)}
+.wcard svg{width:170px;height:120px;direction:ltr}
+.foot{display:flex;justify-content:center;margin-top:30px}
+
+/* compare table */
+.cmp{display:grid;grid-template-columns:1.35fr 1fr 1fr 1fr;gap:0;border:1px solid var(--line);border-radius:26px;overflow:hidden;background:var(--panel);box-shadow:0 16px 40px rgba(0,0,0,0.5)}
+.cmp>div{padding:26px 28px;display:flex;align-items:center;justify-content:center;border-bottom:1px solid var(--line);font-size:32px;min-height:112px;text-align:center}
+.cmp>div:nth-child(4n+1){justify-content:flex-start;text-align:start;color:var(--text);font-weight:500}
+.cmp .h{font:600 28px var(--f-display);color:var(--muted);min-height:100px;background:var(--panel-2)}
+.cmp .me{background:rgba(28,220,170,0.08);border-inline:2px solid var(--bus)}
+.cmp .h.me{color:#0c0c0d;background:var(--bus);font-weight:700}
+.cmp>div:nth-last-child(-n+4){border-bottom:0}
+.cmp .me.last{border-bottom:2px solid var(--bus)}
+.dot{width:40px;height:40px;border-radius:50%;display:inline-block}
+.dot.full{background:var(--ok);box-shadow:0 0 12px rgba(28,220,170,0.4)}
+.dot.half{border:3px solid var(--bus);background:linear-gradient(90deg,var(--bus) 50%,transparent 50%)}
+.dot.none{border:3px solid var(--line)}
+.legend{display:flex;gap:34px;justify-content:center;margin-top:22px;font-size:26px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:12px}
+.legend .dot{width:26px;height:26px}
+.cmp.tight{grid-template-columns:.95fr 1fr 1fr 1.55fr}
+.cmp.tight>div{font-size:30px;min-height:0;padding:26px 28px;line-height:1.3;color:var(--muted)}
+.cmp.tight .ct{display:block;text-align:center}
+.cmp.tight>div:nth-child(4n+1) .ct{text-align:start}
+.cmp.tight>div:nth-child(4n+1){color:var(--text);font-weight:600}
+.cmp.tight .h{font-size:30px;padding:22px 28px}
+.cmp.tight .h:nth-child(4n+1){color:var(--muted)}
+.cmp.tight .me{color:#fff;font-weight:500}
+.cmp.tight .h.me{color:#0c0c0d;font-weight:700}
+.cmp.tight b{font-weight:700;color:var(--text)}
+.cmp.tight .me b{color:var(--bus)}
+.mk{vertical-align:middle;margin-inline-start:0;display:inline-grid;place-items:center;width:38px;height:38px;border-radius:50%;flex:none;margin-inline-end:12px;font:700 21px var(--f-mono)}
+.mk.n,.mk.y{line-height:1}
+.mk.y{background:rgba(28,220,170,.16);color:var(--bus)}
+.mk.n{background:rgba(244,63,94,.14);color:var(--stop)}
+.mk:last-child{margin-inline-end:0}
+
+/* task workspace mock */
+.win{direction:ltr;height:100%;border:1px solid var(--line);border-radius:26px;background:var(--panel);display:flex;flex-direction:column;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,0.65),0 0 1px 1px rgba(255,255,255,0.05)}
+.win-bar{display:flex;align-items:center;gap:22px;padding:16px 26px;background:var(--panel-2);border-bottom:1px solid var(--line)}
+.dots{display:flex;gap:8px}.dots i{width:14px;height:14px;border-radius:50%;background:var(--line)}
+.dots i:nth-child(1){background:#f43f5e}
+.dots i:nth-child(2){background:#f59e0b}
+.dots i:nth-child(3){background:#10b981}
+.url{flex:1;font:22px var(--f-mono);color:var(--muted)}
+.pin{border:1px solid var(--bus);color:var(--bus);background:rgba(28,220,170,0.08);border-radius:99px;padding:6px 18px;font:600 22px var(--f-mono)}
+.win-main{flex:1;display:grid;grid-template-columns:45% 55%;min-height:0}
+.chat{border-right:1px solid var(--line);padding:18px 24px 24px;display:flex;flex-direction:column;gap:11px;overflow-y:auto;overflow-x:hidden;scroll-behavior:smooth;background:rgba(15,16,20,0.5)}
+.chat::-webkit-scrollbar{width:6px}
+.chat::-webkit-scrollbar-track{background:transparent}
+.chat::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.18);border-radius:3px}
+.chat::-webkit-scrollbar-thumb:hover{background:var(--bus)}
+.panelname{font:600 18px var(--f-mono);letter-spacing:.14em;color:var(--muted);text-transform:uppercase;flex-shrink:0}
+.mu{align-self:flex-end;background:var(--panel-2);border:1px solid var(--line);padding:10px 18px;border-radius:18px 18px 4px 18px;font-size:23px;max-width:92%;color:#ffffff;flex-shrink:0}
+.steps{display:flex;flex-direction:column;gap:8px;font:20px/1.3 var(--f-mono);color:var(--muted);flex-shrink:0}
+.step{display:flex;gap:12px;align-items:center}
+.spin{width:20px;height:20px;border-radius:50%;border:2.5px solid var(--line);border-top-color:var(--bus);animation:spin .9s linear infinite;flex:none}
+.tick{width:20px;height:20px;border-radius:50%;background:var(--ok);position:relative;display:none;flex:none;box-shadow:0 0 10px rgba(28,220,170,0.4)}
+.tick::after{content:"";position:absolute;left:7px;top:2px;width:5px;height:10px;border:solid var(--ink);border-width:0 2.5px 2.5px 0;transform:rotate(45deg)}
+.step.done .spin{display:none}.step.done .tick{display:block}.step.done{color:var(--text)}
+.mai{font-size:23px;line-height:1.45;color:#ffffff;flex-shrink:0}
+.ask-box{border:1px solid rgba(28,220,170,0.3);background:linear-gradient(180deg,rgba(28,220,170,0.06) 0%,rgba(22,24,31,0.6) 100%);border-radius:14px;padding:10px 16px;display:flex;flex-direction:column;gap:4px}
+.ask-tag{font:700 16px var(--f-mono);color:var(--bus);letter-spacing:.08em}
+.stream{display:block;clip-path:inset(0 100% 0 0);transition:clip-path 1.8s steps(26)}
+.stream.on{clip-path:inset(0 0 0 0)}
+.appr{border:2px solid var(--bus);border-radius:16px;padding:12px 18px;background:linear-gradient(180deg,rgba(28,220,170,0.08) 0%,rgba(22,24,31,0.95) 100%);box-shadow:0 0 25px rgba(28,220,170,0.15);display:flex;flex-direction:column;gap:8px;flex-shrink:0;margin-bottom:12px}
+.appr .t{font:700 17px var(--f-mono);color:var(--bus);letter-spacing:.08em}
+.appr .d{font-size:23px;color:#ffffff}
+.btns{display:flex;gap:10px}
+.btn{border-radius:10px;padding:6px 18px;font-size:21px;border:2px solid var(--line);background:transparent;cursor:pointer}
+.btn.ok{background:var(--bus);border-color:var(--bus);color:var(--ink);font-weight:700;box-shadow:0 0 16px rgba(28,220,170,0.35)}
+.btn.stop{border-color:var(--stop);color:var(--stop);background:rgba(244,63,94,0.06)}
+.btn.ok.done{animation:press 1s ease 2}
+.canvas{position:relative;padding:26px 30px;background:rgba(18,19,24,0.4)}
+.cv{position:absolute;inset:26px 30px;display:flex;flex-direction:column;gap:16px}
+.cvh{display:flex;justify-content:space-between;align-items:center}
+.badge{border:1px solid var(--ok);color:var(--ok);background:rgba(28,220,170,0.08);border-radius:99px;padding:4px 16px;font:600 20px var(--f-mono)}
+.badge.y{border-color:var(--bus);color:var(--bus);background:rgba(28,220,170,0.08)}
+.tbl{border:1px solid var(--line);border-radius:16px;overflow:hidden;background:var(--panel-2)}
+.tbl div{display:flex;justify-content:space-between;gap:20px;padding:16px 22px;border-bottom:1px solid var(--line);font-size:27px}
+.tbl div:last-child{border:0}
+.tbl b{font-weight:600;color:var(--bus)}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:10px 24px;font:22px var(--f-mono);color:var(--muted)}
+.kv b{font-weight:500;color:var(--text)}
+.post{background:var(--ink);border:1px solid var(--line);border-radius:18px;padding:22px 26px;font-size:29px;line-height:1.65;box-shadow:inset 0 2px 6px rgba(0,0,0,0.4)}
+.post small{display:block;font:600 20px var(--f-mono);color:var(--muted);margin-bottom:8px;letter-spacing:.08em}
+.payload{font:20px/1.5 var(--f-mono);color:var(--muted);direction:ltr;background:var(--ink);border-radius:14px;padding:14px 18px}
+
+/* admin dashboard: assemble employee */
+.admin-win{flex:1;display:grid;grid-template-columns:46% 54%;min-height:0;direction:ltr}
+.admin-col{padding:26px 32px;display:flex;flex-direction:column;gap:16px}
+.admin-col.left{border-right:1px solid var(--line);background:rgba(15,16,20,0.4)}
+.admin-col.right{background:rgba(18,19,24,0.3)}
+.sec-title{font:700 18px var(--f-mono);letter-spacing:.12em;color:var(--bus);text-transform:uppercase;display:flex;align-items:center;gap:10px}
+.sec-title i{width:8px;height:8px;border-radius:50%;background:var(--bus)}
+.form-group{display:flex;flex-direction:column;gap:8px}
+.form-label{font:600 19px var(--f-mono);color:var(--muted)}
+.form-input{background:var(--ink);border:1px solid var(--line);border-radius:12px;padding:10px 16px;font:600 23px var(--f-mono);color:#ffffff}
+.inst-box{background:var(--ink);border:1px solid var(--line);border-radius:14px;padding:16px 20px;font:20px/1.65 var(--f-mono);color:#cbd5e1;box-shadow:inset 0 2px 6px rgba(0,0,0,0.5)}
+.inst-box p{margin:0 0 8px 0}
+.inst-box p:last-child{margin:0}
+.inst-box em{color:var(--bus);font-style:normal;font-weight:600}
+.inst-box span{color:#94a3b8}
+.policy-card{display:flex;align-items:center;gap:14px;background:rgba(28,220,170,0.06);border:1px solid rgba(28,220,170,0.3);border-radius:12px;padding:12px 18px;font:600 20px var(--f-mono);color:var(--bus)}
+.block-group{display:flex;flex-direction:column;gap:10px}
+.block-group-title{font:600 19px var(--f-mono);color:var(--muted);display:flex;justify-content:space-between;align-items:center}
+.block-group-title small{font-size:16px;color:var(--bus);font-weight:700}
+.chips-grid{display:flex;flex-wrap:wrap;gap:10px}
+.chip{display:inline-flex;align-items:center;gap:10px;background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:9px 16px;font:600 21px var(--f-mono);color:#ffffff;transition:all .2s ease}
+.chip.active{border-color:var(--bus);background:rgba(28,220,170,0.08);box-shadow:0 0 16px rgba(28,220,170,0.12)}
+.chip-dot{width:18px;height:18px;border-radius:50%;background:var(--ok);position:relative;flex:none}
+.chip-dot::after{content:"";position:absolute;left:6px;top:2px;width:4px;height:9px;border:solid var(--ink);border-width:0 2.5px 2.5px 0;transform:rotate(45deg)}
+.chip-role{font-size:16px;color:var(--muted);font-weight:400;margin-left:4px}
+.pub-bar{margin-top:auto;padding-top:14px;border-top:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:18px}
+.pub-btn{background:var(--bus);color:var(--ink);border:none;border-radius:12px;padding:12px 32px;font:700 24px var(--f-mono);cursor:pointer;box-shadow:0 0 24px rgba(28,220,170,0.35)}
+.rev-badge{display:inline-flex;align-items:center;gap:10px;font:600 20px var(--f-mono);color:var(--ok);background:rgba(28,220,170,0.08);border:1px solid var(--ok);border-radius:99px;padding:8px 20px}
+
+/* tech stack */
+.stack{display:flex;flex-direction:column;gap:16px}
+.srow{display:flex;align-items:center;gap:26px;min-height:96px}
+.slab{width:320px;flex:none;font:600 30px var(--f-display);color:var(--muted)}
+.tiles{display:flex;gap:14px;flex-wrap:wrap}
+.tile{display:inline-flex;align-items:center;gap:14px;background:linear-gradient(180deg,#171922 0%,#131419 100%);border:1px solid var(--line);border-radius:16px;padding:14px 24px;font:600 27px var(--f-mono);direction:ltr;box-shadow:0 8px 20px rgba(0,0,0,0.35);color:#ffffff}
+.tile i{width:34px;height:34px;border-radius:9px;background:var(--c);color:var(--ink);display:grid;place-items:center;font:700 20px var(--f-mono);font-style:normal}
+
+/* decisions */
+.dcard{flex:1;background:linear-gradient(180deg,#16181f 0%,#121316 100%);border:1px solid var(--line);border-radius:26px;padding:30px 34px;display:flex;flex-direction:column;gap:14px;box-shadow:0 12px 36px rgba(0,0,0,0.5)}
+.dcard svg{width:100%;height:270px;direction:ltr}
+.dcard h3{margin:0;font:700 46px/1.2 var(--f-mono);direction:ltr;text-align:start;color:#ffffff}
+.dcard .why{font-size:30px;color:var(--bus);font-weight:600}
+.dcard p{margin:0;font-size:30px;line-height:1.55;color:var(--muted)}
+
+/* quality gate */
+.q{display:grid;grid-template-columns:900px 1fr;gap:56px;flex:1;min-height:0;align-content:start}
+.sq{display:grid;grid-template-columns:repeat(12,64px);gap:10px;direction:ltr;justify-content:start}
+.sq i{width:64px;height:64px;border-radius:13px;background:var(--bus);box-shadow:0 0 10px rgba(28,220,170,0.3)}
+.sq i.b{background:var(--sky);box-shadow:0 0 10px rgba(56,189,248,0.3)}
+.sqleg{display:flex;flex-direction:column;gap:12px;margin-top:22px;font-size:28px}
+.sqleg span{display:flex;align-items:center;gap:14px}
+.sqleg i{width:26px;height:26px;border-radius:7px;display:inline-block;flex:none}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:22px;align-content:start}
+.stat{background:linear-gradient(180deg,#16181f 0%,#121316 100%);border:1px solid var(--line);border-radius:22px;padding:26px 30px;display:flex;flex-direction:column;gap:6px;box-shadow:0 12px 36px rgba(0,0,0,0.5)}
+.stat b{font:800 96px/1.05 var(--f-display);color:var(--bus);direction:ltr;text-align:start;text-shadow:0 0 35px rgba(28,220,170,0.3)}
+.stat span{font-size:28px;color:var(--muted);line-height:1.4}
+.pipe{display:flex;align-items:center;gap:8px;margin-top:26px;font-size:23px;flex-wrap:wrap}
+.pipe span{background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:8px 12px;color:#ffffff}
+.pipe em{font-style:normal;color:var(--bus);font-weight:700}
+
+/* closing */
+.end{flex-direction:row;align-items:center;gap:60px}
+.endtxt{flex:0 0 720px;display:flex;flex-direction:column;gap:26px}
+.big{font:800 120px/1 var(--f-display);color:var(--bus);text-shadow:0 0 50px rgba(28,220,170,0.35)}
+.endtxt h2{font-size:58px}
+.endvis{flex:1;min-width:0;height:100%}
+.endvis svg{width:100%;height:100%;direction:ltr}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-delay:0s!important;animation-iteration-count:1!important;transition:none!important}
+  [data-at]{opacity:1;transform:none}
+}
+</style>
+<div id="app">
+  <div id="viewport">
+    <div id="stage" dir="ltr" lang="en"></div>
+    <div id="notes" hidden dir="rtl"><span class="mono">SPEAKER NOTES</span><p id="notes-text"></p></div>
+  </div>
+  <div id="bar" dir="ltr">
+    <div id="prog"><i id="prog-fill"></i></div>
+    <div class="ctl">
+      <button id="prev" aria-label="Previous">‹</button>
+      <span id="count" class="mono">01 / 18</span>
+      <button id="next" aria-label="Next">›</button>
+      <span class="grow"></span>
+      <button id="nbtn">Notes (N)</button>
+      <button id="fbtn">Fullscreen (F)</button>
+    </div>
+  </div>
+</div>
+<script>
+/* ============ Easy-to-edit settings ============ */
+const META = { line: 'Project presentation · October 2026' };
+const MEMBERS = [
+  { name: 'Mohamed Hossam', c: 'var(--bus)' },
+  { name: 'Ammar Alaa', c: 'var(--sky)' },
+  { name: 'Abdelrahman Mohamed', c: 'var(--ok)' },
+  { name: 'Abdelrahman Emad', c: 'var(--vio)' },
+  { name: 'Adham Ali', c: '#f59e0b' }
+];
+const TEAM = [
+  { name: 'Mohamed Hossam', role: 'Business Brain & GraphRAG', c: 'var(--bus)' },
+  { name: 'Ammar Alaa', role: 'Task Workspace & Streaming', c: 'var(--sky)' },
+  { name: 'Abdelrahman Mohamed', role: 'Content, CSV & Quality Gate', c: 'var(--ok)' },
+  { name: 'Abdelrahman Emad', role: 'Admin, Approvals & KMS', c: 'var(--vio)' }
+];
+
+/* ============ Drawing helpers ============ */
+const W = 1700, m = x => W - x;
+const KF = [];
+const rnd = (s = 7) => () => (s = (s * 16807) % 2147483647) / 2147483647;
+const st = (d, x = '') => `style="--d:${d}s${x}"`;
+const isAr = s => /^[^A-Za-z؀-ۿ]*[؀-ۿ]/.test(String(s).replace(/<[^>]+>/g, ''));
+
+function kf(name, xs, dw, mv) {
+  let total = 0; const pts = [];
+  xs.forEach((x, i) => { pts.push([total, x]); total += dw[i]; pts.push([total, x]); if (i < xs.length - 1) total += mv; });
+  let s = `@keyframes ${name}{`;
+  pts.forEach(([t, x]) => { s += `${(t / total * 100).toFixed(3)}%{transform:translateX(${x}px)}`; });
+  KF.push(s + '}');
+  return total;
+}
+
+function txt(x, y, s, o = {}) {
+  const { cls = 'tx', a = 'middle', size = 30, fill = 'var(--text)', d = null, w = 500, extra = '' } = o;
+  const dir = isAr(s) ? 'direction:rtl;' : '';
+  return `<text x="${x}" y="${y}" text-anchor="${a}" class="${cls}${d !== null ? ' f' : ''}" style="${dir}font-size:${size}px;fill:${fill};font-weight:${w};${d !== null ? `--d:${d}s;` : ''}${extra}">${s}</text>`;
+}
+function lines(x, y, arr, lh, o = {}) { return arr.map((s, i) => txt(x, y + i * lh, s, o)).join(''); }
+
+function clip(n, tx, ty, pad = 6) {
+  const dx = tx - n.x, dy = ty - n.y;
+  const sx = dx !== 0 ? (n.w / 2 + pad) / Math.abs(dx) : Infinity;
+  const sy = dy !== 0 ? (n.h / 2 + pad) / Math.abs(dy) : Infinity;
+  const s = Math.min(sx, sy);
+  return [n.x + dx * s, n.y + dy * s];
+}
+function arrow(x1, y1, x2, y2, o = {}) {
+  const { c = 'var(--muted)', w = 3, d = 0, t = .7, head = 16, dashed = false } = o;
+  const a = Math.atan2(y2 - y1, x2 - x1);
+  const bx = x2 - head * .8 * Math.cos(a), by = y2 - head * .8 * Math.sin(a);
+  const p = (ang, len) => [x2 - len * Math.cos(a + ang), y2 - len * Math.sin(a + ang)].map(n => n.toFixed(1)).join(',');
+  return `<path class="draw" pathLength="1" d="M${x1.toFixed(1)} ${y1.toFixed(1)}L${bx.toFixed(1)} ${by.toFixed(1)}" stroke="${c}" stroke-width="${w}" stroke-linecap="round" style="--d:${d}s;--t:${t}s"/>` +
+    `<polygon class="f" points="${x2.toFixed(1)},${y2.toFixed(1)} ${p(.42, head)} ${p(-.42, head)}" fill="${c}" style="--d:${(d + t * .85).toFixed(2)}s"/>`;
+}
+function edge(a, b, o = {}) {
+  const [x1, y1] = clip(a, b.x, b.y), [x2, y2] = clip(b, a.x, a.y);
+  return arrow(x1, y1, x2, y2, o);
+}
+function line(x1, y1, x2, y2, o = {}) {
+  const { c = 'var(--line)', w = 3, d = 0, t = .7 } = o;
+  return `<path class="draw" pathLength="1" d="M${x1} ${y1}L${x2} ${y2}" stroke="${c}" stroke-width="${w}" stroke-linecap="round" style="--d:${d}s;--t:${t}s"/>`;
+}
+function node(n, label, o = {}) {
+  const { sub, fill = 'var(--panel-2)', stroke = 'var(--line)', tc = 'var(--text)', d = 0, mono = false, sw = 2, r = 16, size = 28, subsize = 22, dash = '' } = o;
+  const ty = sub ? n.h / 2 - 2 : n.h / 2 + size * .34;
+  return `<g transform="translate(${n.x - n.w / 2},${n.y - n.h / 2})"><g class="pop" style="--d:${d}s">` +
+    `<rect width="${n.w}" height="${n.h}" rx="${r}" fill="${fill}" stroke="${stroke}" stroke-width="${sw}" ${dash ? `stroke-dasharray="${dash}"` : ''}/>` +
+    txt(n.w / 2, ty, label, { cls: mono ? 'mono' : 'tx', size, fill: tc }) +
+    (sub ? txt(n.w / 2, n.h / 2 + subsize + 2, sub, { size: subsize, fill: 'var(--muted)', cls: 'tx', w: 400 }) : '') +
+    `</g></g>`;
+}
+const grp = (d, inner) => `<g class="pop" style="--d:${d}s">${inner}</g>`;
+const fgrp = (d, inner) => `<g class="f" style="--d:${d}s">${inner}</g>`;
+
+const ic = {
+  person: (x, y, s, c = 'var(--text)') => `<g transform="translate(${x},${y}) scale(${s / 100})" fill="${c}"><circle cx="0" cy="-22" r="20"/><path d="M-42 40Q-42 0 0 0Q42 0 42 40Z"/></g>`,
+  robot: (x, y, s, c = 'var(--bus)') => `<g transform="translate(${x},${y}) scale(${s / 100})"><line x1="0" y1="-52" x2="0" y2="-34" stroke="${c}" stroke-width="5" stroke-linecap="round"/><circle cx="0" cy="-58" r="7" fill="${c}"/><rect x="-46" y="-34" width="92" height="72" rx="20" fill="var(--panel-2)" stroke="${c}" stroke-width="5"/><circle cx="-18" cy="0" r="9" fill="${c}"/><circle cx="18" cy="0" r="9" fill="${c}"/><rect x="-16" y="18" width="32" height="6" rx="3" fill="${c}" opacity=".6"/></g>`,
+  lock: (x, y, s, c, open = false) => `<g transform="translate(${x},${y}) scale(${s / 100})"><rect x="-30" y="-6" width="60" height="48" rx="10" fill="${c}"/><path d="${open ? 'M-18 -6V-22Q-18 -42 0 -42Q18 -42 18 -28' : 'M-18 -6V-22Q-18 -42 0 -42Q18 -42 18 -22V-6'}" fill="none" stroke="${c}" stroke-width="9" stroke-linecap="round"/><circle cx="0" cy="18" r="6" fill="var(--ink)"/></g>`,
+  check: (x, y, s, c, d = 0) => `<g transform="translate(${x},${y}) scale(${s / 40})"><path class="draw" pathLength="1" d="M-14 0L-4 10L16 -12" stroke="${c}" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" style="--d:${d}s;--t:.4s"/></g>`,
+  cross: (x, y, s, c) => `<g transform="translate(${x},${y}) scale(${s / 40})" stroke="${c}" stroke-width="6" stroke-linecap="round"><path d="M-12 -12L12 12M12 -12L-12 12"/></g>`,
+  doc: (x, y, w, h, c = 'var(--muted)') => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="12" fill="var(--panel-2)" stroke="${c}" stroke-width="2"/>`,
+  bus: (s = 1) => `<g transform="scale(${s})"><rect x="-34" y="-20" width="68" height="34" rx="9" fill="var(--bus)"/><rect x="-26" y="-13" width="14" height="11" rx="2" fill="var(--ink)"/><rect x="-7" y="-13" width="14" height="11" rx="2" fill="var(--ink)"/><rect x="12" y="-13" width="14" height="11" rx="2" fill="var(--ink)"/><circle cx="-19" cy="14" r="7" fill="var(--ink)" stroke="var(--bus)" stroke-width="3"/><circle cx="19" cy="14" r="7" fill="var(--ink)" stroke="var(--bus)" stroke-width="3"/></g>`
+};
+
+const head = (k, t, s = '') => `<div class="head"><div class="kicker a" ${st(0)}>${k}</div><h2 class="a" ${st(.08)}>${t}</h2>${s ? `<p class="sub a" ${st(.16)}>${s}</p>` : ''}</div>`;
+const dia = (inner, cap = '', vb = '0 0 1700 740') => `<div class="body ${cap ? 'withcap' : ''}"><svg class="dia" viewBox="${vb}">${inner}</svg>${cap ? `<div class="cap a" ${st(5)}>${cap}</div>` : ''}</div>`;
+const S = (cls, inner) => `<section class="slide ${cls}">${inner}</section>`;
+
+/* ============ Slides ============ */
+const slides = [];
+
+/* 1 — Cover */
+slides.push({
+  notes: 'عرّف المشروع في جملة: BusMora منصة موظفين بالذكاء الاصطناعي للشركات الصغيرة الناشئة، مع فريق العمل: Mohamed Hossam, Ammar Alaa, Abdelrahman Mohamed, Abdelrahman Emad, Adham Ali.',
+  html() {
+    return S('cover', `
+      <div class="cover-top"><span class="kicker a" ${st(0)}>AI Employee Platform</span><span class="mono muted a" ${st(.1)}>${META.line}</span></div>
+      <div class="cover-mid">
+        <h1 class="mark a" ${st(.1)}><span>Bus</span>Mora</h1>
+        <p class="tagline a" ${st(.25)}>AI employees for startups and growing businesses</p>
+      </div>
+      <div class="cover-team">${MEMBERS.map((m, i) => `<div class="tm a" style="--c:${m.c};--d:${.4 + i * .08}s"><b>${m.name}</b></div>`).join('')}</div>`);
+  }
+});
+
+/* 2 — The problem */
+slides.push({
+  notes: 'الشركات اللي بنستهدفها من 10 لـ 49 موظف، عندها قنوات ومحتوى وبيانات، بس مفيش فريق تسويق. الشخص الواحد بيشيل بحث وكتابة وتحليل ونشر، وموظف متخصص بدوام كامل مش في الميزانية.',
+  html() {
+    const cx = 850, cy = 370;
+    const items = ['Market research', 'Strategy', 'Writing content', 'Performance analysis', 'Social posting', 'Reports', 'Competitor tracking'];
+    let ln = '', nd = '';
+    items.forEach((t, i) => {
+      const a = -Math.PI / 2 + i * 2 * Math.PI / items.length;
+      const x = cx + 500 * Math.cos(a), y = cy + 285 * Math.sin(a);
+      ln += line(x, y, cx, cy, { c: 'var(--line)', d: .5 + i * .1, t: .6 });
+      nd += node({ x, y, w: 290, h: 68 }, t, { d: .3 + i * .1, size: 27, fill: 'var(--panel)' });
+    });
+    const person = `<circle cx="${cx}" cy="${cy}" r="112" fill="var(--panel)" stroke="var(--stop)" stroke-width="4"/>
+      <circle cx="${cx}" cy="${cy}" r="120" fill="none" stroke="var(--stop)" stroke-width="3"><animate attributeName="r" values="120;158;120" dur="2.2s" repeatCount="indefinite"/><animate attributeName="opacity" values=".8;0;.8" dur="2.2s" repeatCount="indefinite"/></circle>` + ic.person(cx, cy + 14, 130);
+    return S('', head('The problem', 'One person. More marketing work than they can carry.') + dia(ln + person + nd));
+  }
+});
+
+/* 3 — The solution */
+slides.push({
+  notes: 'الحل موظف AI جاهز: صاحب الشركة بيطلب بجملة، الموظف بيقرا معلومات الشركة، بيطلب أي معلومات ناقصة، وبيبحث وبيكتب، وبيسلّم شغل جاهز للقرار. القرار دايماً عند الإنسان.',
+  html() {
+    const rowsY = [332, 380, 428, 476];
+    const steps = [
+      'Reads Business Brain',
+      'Ask for missing informations.',
+      'Does the research',
+      'Writes the plan'
+    ];
+    let s = '';
+    s += grp(.3, `<rect x="20" y="90" width="340" height="470" rx="26" fill="var(--panel)" stroke="var(--line)" stroke-width="2"/>` +
+      txt(190, 140, 'REQUEST', { cls: 'mono', size: 22, fill: 'var(--muted)' }) + ic.person(190, 230, 110, 'var(--text)') +
+      `<rect x="46" y="330" width="288" height="190" rx="24" fill="var(--panel-2)"/>` +
+      lines(190, 380, ['Draft a campaign', 'plan for', 'next quarter'], 44, { size: 31 }));
+    s += arrow(368, 325, 435, 325, { c: 'var(--bus)', d: .9, w: 4 });
+    s += grp(1.2, `<rect x="445" y="90" width="390" height="470" rx="26" fill="var(--panel)" stroke="var(--bus)" stroke-width="3"/>` +
+      txt(640, 140, 'EMPLOYEE', { cls: 'mono', size: 22, fill: 'var(--bus)' }) + ic.robot(640, 235, 120));
+    steps.forEach((t, i) => {
+      s += `<circle cx="482" cy="${rowsY[i]}" r="17" fill="none" stroke="var(--ok)" stroke-width="3" class="f" style="--d:${1.5 + i * .5}s"/>` + ic.check(482, rowsY[i], 22, 'var(--ok)', 1.75 + i * .5);
+      s += txt(512, rowsY[i] + 10, t, { size: 24, a: 'start', d: 1.5 + i * .5 });
+    });
+    s += arrow(845, 325, 930, 325, { c: 'var(--bus)', d: 3.4, w: 4 });
+    s += grp(3.8, `<rect x="940" y="90" width="320" height="470" rx="26" fill="var(--panel)" stroke="var(--line)" stroke-width="2"/>` +
+      txt(1100, 140, 'ARTIFACT', { cls: 'mono', size: 22, fill: 'var(--muted)' }) +
+      `<rect x="985" y="170" width="230" height="270" rx="14" fill="var(--panel-2)"/>` + txt(1100, 215, 'Campaign Plan', { cls: 'mono', size: 23 }) +
+      [250, 285, 320, 355, 390].map((y, i) => `<rect x="1010" y="${y}" width="${i % 2 ? 150 : 180}" height="9" rx="4.5" fill="var(--line)"/>`).join('') +
+      `<rect x="985" y="470" width="230" height="52" rx="26" fill="none" stroke="var(--bus)" stroke-width="2"/>` + txt(1100, 505, 'Decision-ready', { size: 25, fill: 'var(--bus)' }));
+    s += arrow(1268, 325, 1360, 325, { c: 'var(--bus)', d: 4.4, w: 4 });
+    s += grp(4.8, `<rect x="1370" y="90" width="300" height="470" rx="26" fill="var(--panel)" stroke="var(--ok)" stroke-width="3"/>` +
+      txt(1520, 140, 'YOU', { cls: 'mono', size: 22, fill: 'var(--ok)' }) + ic.person(1520, 235, 110, 'var(--text)') +
+      `<rect x="1410" y="340" width="220" height="68" rx="16" fill="var(--ok)"/>` + txt(1520, 386, 'Approve', { cls: 'mono', size: 30, fill: 'var(--ink)', w: 500 }) +
+      txt(1520, 470, 'You decide', { size: 31 }));
+    return S('', head('The solution', 'A ready-made AI employee you hire and supervise') + dia(s, 'It understands your company, delivers work ready for a decision, <strong>and never acts without your approval</strong>'));
+  }
+});
+
+/* 4 — Business Brain */
+slides.push({
+  notes: 'الـ Business Brain هو ذاكرة الشركة. بنبدأ من رابط الموقع: crawler بيقرا لحد 10 صفحات ويطلع معلومات مرشّحة، وصاحب الشركة بيراجع واحدة واحدة. المعلومة المعتمدة بتتحفظ في 9 أنواع ثابتة مرتبطة ببعض، وكل معلومة ليها مصدر.',
+  html() {
+    const flow = [['Website URL', 'Company site'], ['Crawler', 'Up to 10 pages'], ['Candidates', 'Extracted facts'], ['Human review', 'You approve'], ['Active', 'Knowledge Item']];
+    let s = '';
+    const fp = flow.map((f, i) => ({ x: 150 + i * 350, y: 56, w: 250, h: 84 }));
+    fp.forEach((p, i) => { s += node(p, flow[i][0], { sub: flow[i][1], d: .2 + i * .3, size: 27, subsize: 21, stroke: i === 3 ? 'var(--ok)' : 'var(--line)', sw: i === 3 ? 3 : 2, fill: 'var(--panel)' }); if (i) s += edge(fp[i - 1], p, { d: .45 + i * .3, t: .4, c: 'var(--bus)' }); });
+    const oy = 150, G = {
+      Company: { x: 230, y: 300, l: 'Company Profile' }, Fact: { x: 230, y: 520, l: 'Company Fact' }, Channel: { x: 230, y: 70, l: 'Channel' },
+      Brand: { x: 640, y: 70, l: 'Brand Rule' }, Offer: { x: 840, y: 300, l: 'Offering' }, Pos: { x: 1240, y: 70, l: 'Positioning' },
+      Aud: { x: 1450, y: 300, l: 'Audience' }, Goal: { x: 840, y: 520, l: 'Strategic Goal' }, Comp: { x: 1300, y: 520, l: 'Competitor' }
+    };
+    const E = [['Company', 'Offer'], ['Company', 'Brand'], ['Offer', 'Aud'], ['Pos', 'Offer'], ['Pos', 'Aud'], ['Goal', 'Offer'], ['Comp', 'Offer'], ['Channel', 'Brand'], ['Fact', 'Company']];
+    let g = '';
+    E.forEach((e, i) => { const a = G[e[0]], b = G[e[1]]; g += line(a.x, a.y, b.x, b.y, { c: 'var(--line)', w: 3, d: 1.9 + i * .12, t: .5 }); });
+    Object.keys(G).forEach((k, i) => { const n = { x: G[k].x, y: G[k].y, w: 260, h: 70 }; g += node(n, G[k].l, { mono: true, size: 25, d: 1.7 + i * .1, fill: 'var(--panel)', stroke: k === 'Company' ? 'var(--bus)' : 'var(--line)', sw: k === 'Company' ? 3 : 2 }); });
+    s += `<g transform="translate(0,${oy})">${g}</g>`;
+    return S('', head('Company memory', 'Business Brain') + dia(s));
+  }
+});
+
+/* 5 — GraphRAG */
+slides.push({
+  notes: 'ده الاسترجاع على مرحلتين. الأولى بحث في Qdrant بفلتر الـ workspace يرجّع كام معلومة قريبة من السؤال، نسميها seeds. التانية في Neo4j بنوسّع حواليهم خطوة أو اتنين فنجيب الجمهور والعروض والقواعد المرتبطة، ومعاها المصدر. كل ده بيتحط في الـ prompt. وعندنا مسار تحكم بيعتمد على نصوص خام عشان نقيس الفرق فعلاً.',
+  html() {
+    let s = '';
+    const panel = (x, w, d, k, t) => grp(d, `<rect x="${x}" y="10" width="${w}" height="620" rx="26" fill="var(--panel)" stroke="var(--line)" stroke-width="2"/>`) + txt(x + 32, 62, k, { cls: 'mono', size: 22, fill: 'var(--bus)', a: 'start', d }) + txt(x + 32, 104, t, { cls: 'mono', size: 27, a: 'start', d });
+    s += panel(0, 520, .1, 'STAGE 1', 'Qdrant · vector search');
+    s += panel(590, 540, .1, 'STAGE 2', 'Neo4j · expand 1-2 hops');
+    s += panel(1200, 500, .1, 'OUTPUT', 'Context assembly');
+    s += txt(32, 146, 'workspace_id = acme AND status = active', { cls: 'mono', size: 19, fill: 'var(--muted)', a: 'start', d: .4 });
+    const r = rnd(5); const seeds = [4, 11, 17];
+    for (let i = 0; i < 24; i++) {
+      const x = 50 + r() * 420, y = 190 + r() * 400, isS = seeds.includes(i);
+      s += `<circle cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" r="${isS ? 13 : 9}" fill="${isS ? 'var(--bus)' : 'var(--muted)'}" class="f" style="--d:${isS ? 2.2 : .5 + i * .05}s;${isS ? '' : 'opacity:.55'}"/>` +
+        (isS ? `<circle cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" r="22" fill="none" stroke="var(--bus)" stroke-width="3" class="f" style="--d:2.4s"/>` : '');
+    }
+    s += txt(260, 614, 'Top-K seeds', { cls: 'mono', size: 21, fill: 'var(--bus)', d: 2.6 });
+    s += arrow(526, 330, 584, 330, { c: 'var(--bus)', d: 2.8, t: .4 });
+    const sd = [{ x: 660, y: 270 }, { x: 660, y: 390 }, { x: 660, y: 510 }], h1 = [{ x: 850, y: 210 }, { x: 850, y: 330 }, { x: 850, y: 450 }, { x: 850, y: 570 }], h2 = [{ x: 1040, y: 270 }, { x: 1040, y: 390 }, { x: 1040, y: 510 }];
+    const L = (a, b, d) => line(a.x, a.y, b.x, b.y, { c: 'var(--line)', w: 3, d, t: .5 });
+    [[0, 0], [0, 1], [1, 1], [1, 2], [2, 2], [2, 3]].forEach((e, i) => { s += L(sd[e[0]], h1[e[1]], 3.2 + i * .1); });
+    [[0, 0], [1, 0], [2, 1], [3, 2], [1, 1]].forEach((e, i) => { s += L(h1[e[0]], h2[e[1]], 4.3 + i * .1); });
+    sd.forEach((p, i) => { s += `<g class="pop" style="--d:${3 + i * .1}s"><circle cx="${p.x}" cy="${p.y}" r="22" fill="var(--bus)"/></g>`; });
+    h1.forEach((p, i) => { s += `<g class="pop" style="--d:${3.6 + i * .1}s"><circle cx="${p.x}" cy="${p.y}" r="19" fill="var(--panel-2)" stroke="var(--sky)" stroke-width="4"/></g>`; });
+    h2.forEach((p, i) => { s += `<g class="pop" style="--d:${4.7 + i * .1}s"><circle cx="${p.x}" cy="${p.y}" r="17" fill="var(--panel-2)" stroke="var(--muted)" stroke-width="3"/></g>`; });
+    s += txt(660, 160, 'seeds', { cls: 'mono', size: 20, fill: 'var(--bus)', d: 3 }) + txt(850, 160, '1 hop', { cls: 'mono', size: 20, fill: 'var(--sky)', d: 3.6 }) + txt(1040, 160, '2 hops', { cls: 'mono', size: 20, fill: 'var(--muted)', d: 4.7 });
+    s += arrow(1136, 330, 1194, 330, { c: 'var(--bus)', d: 5.2, t: .4 });
+    ['Offering', 'Audience', 'Brand Rule', 'Competitor', 'Provenance'].forEach((t, i) => {
+      s += node({ x: 1450, y: 168 + i * 74, w: 400, h: 58 }, t, { mono: true, size: 24, d: 5.6 + i * .15, fill: 'var(--panel-2)', stroke: i === 4 ? 'var(--ok)' : 'var(--line)', r: 12 });
+    });
+    s += arrow(1450, 520, 1450, 552, { c: 'var(--bus)', d: 6.5, t: .3, head: 12 });
+    s += node({ x: 1450, y: 590, w: 400, h: 56 }, 'LangGraph system prompt', { mono: true, size: 22, d: 6.7, stroke: 'var(--bus)', sw: 3, fill: 'var(--panel)', r: 12 });
+    return S('', head('GraphRAG', 'Two-stage retrieval') + dia(s, 'Compared against a raw-chunk control: <strong>target is 50% or more fewer clarification turns and brand corrections</strong>', '0 0 1700 640'));
+  }
+});
+
+/* 5b — The employee evolves */
+slides.push({
+  notes: 'الـ Brain مش ثابت، وفي 4 مصادر بتغذّيه: الـ Onboarding (الـ crawler لحد 10 صفحات)، والإدخال اليدوي، والـ agent نفسه من خلال المهام (لو لقى معلومة عامة ناقصة بيسأل عنها، أو لو ناتج المهمة زي تحليل المنافسين فيه معلومة قيّمة بيقترحها على الـ node المناسب)، وأخيراً تعديلات المستخدم لو كانت عامة مش خاصة بالمهمة دي. كل المصادر دي بتعدّي على نفس البوابة: Candidate ثم مراجعة بشرية ثم Active. يعني الموظف بيتطور من غير ما يغيّر الحقيقة لوحده.',
+  html() {
+    const SRC = [
+      { t: 'Onboarding', d: ['The crawler (up to 10 pages)', 'extracts candidate facts from', 'the website'] },
+      { t: 'Manual', d: ['The user adds or edits', 'Knowledge Items directly'] },
+      { t: 'The agent itself', d: ['(from tasks)', '(a) General missing information:', 'the agent asks, and the answer', 'becomes a candidate', '(b) Valuable task output (e.g. a', 'competitor analysis): proposed', 'as a candidate on the right node', '(e.g. Competitor)'] },
+      { t: 'User feedback', d: ['A generic change, not specific', 'to that task (e.g. “make the tone', 'calmer”), becomes a candidate', '(e.g. a BrandRule)'] }
+    ];
+    const FL = [
+      { x: 180, l: 'Sources', sub: '4 ways in', st: 'var(--bus)' },
+      { x: 630, l: 'Candidate', sub: 'Proposed', st: 'var(--bus)' },
+      { x: 1080, l: 'Human Review', sub: 'You approve', st: 'var(--ok)' },
+      { x: 1530, l: 'Active', sub: 'Business Brain', st: 'var(--bus)' }
+    ];
+    let s = '';
+    const fy = 60;
+    FL.forEach((f, i) => {
+      s += node({ x: f.x, y: fy, w: 320, h: 100 }, f.l, { sub: f.sub, mono: true, size: 27, subsize: 21, d: .2 + i * .3, fill: 'var(--panel)', stroke: f.st, sw: 3 });
+      if (i) s += arrow(FL[i - 1].x + 166, fy, f.x - 166, fy, { c: 'var(--bus)', d: .45 + i * .3, t: .4, w: 4 });
+    });
+    const cw = 407, gap = 24, top = 230, ch = 320;
+    const cx = SRC.map((_, i) => i * (cw + gap) + cw / 2);
+    s += line(180, fy + 52, 180, 176, { c: 'var(--bus)', w: 3, d: 1.6, t: .3 });
+    s += line(cx[0], 176, cx[3], 176, { c: 'var(--bus)', w: 3, d: 1.9, t: .6 });
+    SRC.forEach((r, i) => {
+      const x = i * (cw + gap), hi = i === 2;
+      s += arrow(cx[i], 176, cx[i], top - 4, { c: 'var(--bus)', d: 2.4 + i * .1, t: .25, w: 3, head: 12 });
+      s += grp(2.5 + i * .25, `<rect x="${x}" y="${top}" width="${cw}" height="${ch}" rx="20" fill="var(--panel)" stroke="${hi ? 'var(--bus)' : 'var(--line)'}" stroke-width="${hi ? 3 : 2}"/>` +
+        `<circle cx="${x + 38}" cy="${top + 40}" r="20" fill="var(--bus)"/>` + txt(x + 38, top + 48, String(i + 1), { cls: 'mono', size: 22, fill: 'var(--ink)', w: 700 }) +
+        txt(x + 72, top + 49, r.t, { cls: 'dsp', size: 27, a: 'start', w: 700 }) +
+        r.d.map((l, k) => txt(x + 24, top + 100 + k * 26, l, { size: 20, a: 'start', fill: (hi && k === 0) ? 'var(--bus)' : 'var(--muted)', w: 400 })).join(''));
+    });
+    return S('', head('Continuous learning', 'The employee doesn’t just work for you. It learns your business') +
+      dia(s, 'All four sources pass through the same gate: <strong>the employee learns without ever changing the truth on its own</strong>', '0 0 1700 580'));
+  }
+});
+
+/* 6 — Marketing Employee */
+slides.push({
+  notes: 'أول موظف هو Marketing Employee. عنده خمس مسؤوليات: بحث، استراتيجية، محتوى، تحليل أداء من ملف CSV، وتنفيذ بنشر بوست واحد على صفحة الشركة. التنفيذ هو الوحيد اللي بيعدّي على موافقة بشرية.',
+  html() {
+    const cx = 850, cy = 370;
+    const defs = [['Research', 'Competitors & market'], ['Strategy', 'Campaign plan'], ['Content', 'Copy per channel'], ['Performance', 'CSV analysis'], ['Execution', 'Posts after approval']];
+    const pos = defs.map((_, i) => { const a = -Math.PI / 2 + i * 2 * Math.PI / 5; return { x: cx + 640 * Math.cos(a), y: cy + 270 * Math.sin(a), w: 330, h: 118 }; });
+    let s = '';
+    const c = { x: cx, y: cy, w: 200, h: 200 };
+    pos.forEach((p, i) => { s += edge(c, p, { c: i === 4 ? 'var(--bus)' : 'var(--line)', d: .6 + i * .25, t: .6, w: i === 4 ? 4 : 3 }); });
+    s += grp(.2, `<circle cx="${cx}" cy="${cy}" r="108" fill="var(--panel)" stroke="var(--bus)" stroke-width="4"/>` + ic.robot(cx, cy - 8, 120) + txt(cx, cy + 150, 'Marketing Employee', { cls: 'dsp', size: 30, w: 500, fill: 'var(--text)' }));
+    pos.forEach((p, i) => {
+      s += node(p, defs[i][0], { sub: defs[i][1], d: .9 + i * .25, mono: true, size: 31, stroke: i === 4 ? 'var(--bus)' : 'var(--line)', sw: i === 4 ? 3 : 2, fill: 'var(--panel)' });
+    });
+    s += fgrp(2.4, ic.lock(pos[4].x + 130, pos[4].y - 50, 40, 'var(--bus)'));
+    return S('', head('The first employee', 'Marketing Employee: five responsibilities') + dia(s));
+  }
+});
+
+/* 7 — Owner journey */
+slides.push({
+  notes: 'ده اليوزر فلو من أول التسجيل لحد النشر. أول تلات خطوات بتتعمل مرة واحدة: تسجيل، رابط الموقع، مراجعة المعرفة. بعد كده الاستخدام اليومي: مهمة، متابعة لايف، موافقة، نشر. لاحظ إن الـ Onboarding مش بيحجب المستخدم، يقدر يدخل على طول.',
+  html() {
+    const stops = [130, 370, 610, 850, 1090, 1330, 1570];
+    const xs = stops.map(x => x - 130);
+    const dws = [1.2, 1.4, 1.4, 1.4, 1.4, 2.6, 2.2];
+    const total = kf('journey', xs, dws, 1.0);
+    const L = [['Sign up', '+ Workspace', '/signup'], ['Add website', 'company URL', '/onboarding'], ['Review', 'extracted facts', '/brain/candidates'], ['Give a task', 'to the employee', '/tasks'], ['Follow along', 'live progress', 'SSE stream'], ['Approve', 'the action', 'Approval'], ['Publish', '+ verify', 'Read-back']];
+    let s = line(130, 330, 1570, 330, { c: 'var(--line)', w: 6, d: .3, t: 1.2 });
+    let acc = 0; const arrive = []; dws.forEach(d => { arrive.push(acc); acc += d + 1.0; });
+    stops.forEach((x, i) => {
+      const dec = i === 5, a = (arrive[i] + .3).toFixed(2);
+      s += `<g transform="translate(${x},330)"><g class="pop" style="--d:${.5 + i * .1}s"><circle r="${dec ? 44 : 34}" fill="var(--ink)" stroke="${dec ? 'var(--ok)' : 'var(--line)'}" stroke-width="${dec ? 6 : 4}"/>` +
+        `<circle r="${dec ? 38 : 28}" fill="${dec ? 'var(--ok)' : 'var(--bus)'}" class="f" style="--d:${a}s;"/></g></g>`;
+      s += txt(x, 338, String(i + 1), { cls: 'mono', size: 28, fill: 'var(--ink)', w: 600, d: a });
+      s += txt(x, 228, L[i][2], { cls: 'mono', size: 21, fill: dec ? 'var(--ok)' : 'var(--muted)', d: .6 + i * .1 });
+      s += txt(x, 425, L[i][0], { size: 28, w: 500, d: .6 + i * .1 }) + txt(x, 461, L[i][1], { size: 26, w: 400, fill: 'var(--muted)', d: .6 + i * .1 });
+    });
+    s += `<g transform="translate(130,282)"><g style="animation:journey ${total}s ease-in-out infinite">${ic.bus(1.25)}</g></g>`;
+    const br = (x1, x2, y, label, c, d) => line(x1, y, x2, y, { c, w: 4, d, t: .8 }) + line(x1, y - 14, x1, y, { c, w: 4, d, t: .3 }) + line(x2, y - 14, x2, y, { c, w: 4, d, t: .3 }) + txt((x1 + x2) / 2, y + 48, label, { size: 31, fill: c, d: d + .5, w: 500 });
+    s += br(130, 610, 560, 'One-time setup', 'var(--sky)', 1.2);
+    s += br(850, 1570, 560, 'Everyday use', 'var(--bus)', 1.6);
+    return S('', head('User flow', "The business owner's journey") + dia(s));
+  }
+});
+
+/* 8 — Task screen */
+slides.push({
+  notes: 'ده Task Workspace: شاشة من لوحين. الشمال محادثة مع الموظف بتتدفق لحظة بلحظة: بعد ما بيقرا الـ Business Brain بيكتشف إن تفاصيل الخدمة الجديدة مش كاملة، فبيسأل المستخدم عنها عشان يكمّل بدقة من غير ما يهلوس. المستخدم بيرد، والموظف بيكمل بحث وصياغة لحد كارت الموافقة. اليمين هو الـ Decision Canvas والمعاينة الدقيقة للإجراء.',
+  html() {
+    return S('', head('The main screen', 'Task screen: conversation + results') + `<div class="body"><div class="win a" ${st(.2)}>
+      <div class="win-bar"><span class="dots"><i></i><i></i><i></i></span><span class="url">busmora.com/w/acme/tasks/4f2a</span><span class="pin">Marketing Employee v2</span></div>
+      <div class="win-main">
+        <div class="chat">
+          <div class="panelname">Conversation</div>
+          <div class="mu" data-at="400">Draft a LinkedIn post about our new service</div>
+          <div class="steps">
+            <div class="step" data-at="1000" data-done="2000"><i class="spin"></i><i class="tick"></i>Reading Business Brain</div>
+          </div>
+          <div class="mai" data-at="2200"><span style="color:var(--bus);font-weight:600;font-size:20px;display:block;margin-bottom:4px;font-family:var(--f-mono)">MISSING INFO NEEDED</span>Checked Business Brain. What are the key features and launch date for this service?</div>
+          <div class="mu" data-at="4000">Automated lead qualification, launching Nov 1st.</div>
+          <div class="steps" data-at="4600">
+            <div class="step" data-at="4800" data-done="6000"><i class="spin"></i><i class="tick"></i>Researching competitor pricing…</div>
+            <div class="step" data-at="6000" data-done="7200"><i class="spin"></i><i class="tick"></i>Drafting post</div>
+          </div>
+          <div class="mai" data-at="7300">I drafted a post in your brand voice. Review it first.</div>
+          <div class="appr" data-at="8400">
+            <div class="t">APPROVAL NEEDED</div>
+            <div class="d">LinkedIn post for Acme Corp's page</div>
+            <div class="btns"><span class="btn ok" data-done="11000">Approve</span><span class="btn">Edit</span><span class="btn stop">Reject</span></div>
+          </div>
+        </div>
+        <div class="canvas">
+          <div class="cv" data-at="5500" data-off="8700">
+            <div class="cvh"><span class="panelname">Decision canvas</span><span class="badge">Decision-ready</span></div>
+            <div class="tbl"><div><span>Competitor A</span><b>22% higher pricing</b></div><div><span>Competitor B</span><b>No monthly report</b></div><div><span>Our opening</span><b>Analysis ready in a day</b></div></div>
+          </div>
+          <div class="cv" data-at="8800">
+            <div class="cvh"><span class="panelname">Action inspector</span><span class="badge y">Awaiting approval</span></div>
+            <div class="kv"><span>Target</span><b>Acme Corp · LinkedIn Page</b><span>Schedule</span><b>Now</b><span>Expires</span><b>in 24h</b></div>
+            <div class="post"><small>EXACT TEXT THAT WILL BE POSTED</small>Marketing doesn't need a big budget. It needs a system. Our new automated lead qualification tool launches Nov 1st — AI drafts the plan, you approve it.</div>
+          </div>
+        </div>
+      </div></div></div>`);
+  }
+});
+
+/* 9 — Architecture */
+slides.push({
+  notes: 'أربع خدمات: الويب Next.js، الـ API على NestJS، الـ Workers على Temporal بـ Python، وخدمة الـ AI على FastAPI وLangGraph. الأصفر هو طريق الطلب، والأزرق هو طريق الأحداث الراجعة: الـ AI بيكتب في Redis Stream والـ API بيبعتها للمتصفح بـ SSE. وتحت كله طبقة البيانات. لو المتصفح فصل الشغل مبيقفش.',
+  html() {
+    const B = [
+      { x: 150, l: 'busmora-web', st: 'Next.js 15', n: 'Admin + Workspace' }, { x: 616, l: 'busmora-api', st: 'NestJS', n: 'Auth · Tenancy · SSE' },
+      { x: 1082, l: 'busmora-workers', st: 'Python · Temporal', n: 'Workflows · Timers · MCP' }, { x: 1548, l: 'busmora-ai', st: 'FastAPI · LangGraph', n: 'Agents · GraphRAG' }
+    ];
+    let s = '', bx = '';
+    B.forEach((b, i) => {
+      bx += grp(.2 + i * .25, `<rect x="${b.x - 150}" y="50" width="300" height="170" rx="22" fill="var(--panel)" stroke="${i === 1 || i === 2 ? 'var(--bus)' : 'var(--line)'}" stroke-width="2.5"/>` +
+        txt(b.x, 108, b.l, { cls: 'mono', size: 27, w: 500 }) + txt(b.x, 156, b.st, { cls: 'dsp', size: 27, fill: 'var(--bus)' }) + txt(b.x, 196, b.n, { size: 22, fill: 'var(--muted)', w: 400 }));
+    });
+    const lab = ['REST + SSE', 'Temporal', 'REST'];
+    for (let i = 0; i < 3; i++) {
+      const x1 = B[i].x + 154, x2 = B[i + 1].x - 154;
+      s += arrow(x1, 135, x2, 135, { c: 'var(--bus)', d: .8 + i * .25, t: .4, w: 4 }) + txt((x1 + x2) / 2, 110, lab[i], { cls: 'mono', size: 20, fill: 'var(--muted)', d: 1 + i * .25 });
+    }
+    const rp = 'M1620 222V292H150V228';
+    s += `<path class="draw" pathLength="1" d="${rp}" stroke="var(--sky)" stroke-width="3" stroke-dasharray="1 1" style="--d:1.8s;--t:1.4s"/>`;
+    s += `<polygon class="f" points="150,224 140,242 160,242" fill="var(--sky)" style="--d:3s"/>`;
+    s += fgrp(2.6, `<rect x="640" y="268" width="420" height="48" rx="24" fill="var(--ink)" stroke="var(--sky)" stroke-width="2"/>` + txt(850, 301, 'events · Redis Stream → SSE', { cls: 'mono', size: 22, fill: 'var(--sky)' }));
+    [616, 1082, 1470].forEach((x, i) => { s += line(x, 222, x, 428, { c: 'var(--line)', w: 3, d: 2.2 + i * .15, t: .5 }); });
+    s += fgrp(2.4, `<rect x="0" y="430" width="1700" height="290" rx="28" fill="var(--panel)" stroke="var(--line)" stroke-width="2"/>` + txt(36, 478, 'DATA PLANE', { cls: 'mono', size: 22, fill: 'var(--muted)', a: 'start' }) + txt(1664, 478, 'eu-central-1 · Frankfurt', { cls: 'mono', size: 22, fill: 'var(--muted)', a: 'end' }));
+    const T = [['PostgreSQL', 'Domain state'], ['Redis', 'Cache · SSE buffer'], ['Neo4j', 'Knowledge graph'], ['Qdrant', 'Vectors'], ['Amazon S3', 'Raw sources']];
+    T.forEach((t, i) => { s += node({ x: 170 + i * 340, y: 600, w: 296, h: 130 }, t[0], { sub: t[1], mono: true, size: 29, subsize: 23, d: 2.8 + i * .2, fill: 'var(--panel-2)' }); });
+    s += `<circle r="10" fill="var(--bus)"><animateMotion dur="4.5s" begin="2s" repeatCount="indefinite" path="M300 135L1398 135"/></circle>`;
+    s += `<circle r="9" fill="var(--sky)"><animateMotion dur="5s" begin="3s" repeatCount="indefinite" path="M1620 222V292H150V228"/></circle>`;
+    s += bx;
+    return S('', head('Architecture', '4 services + a data plane') + dia(s));
+  }
+});
+
+/* 10 — Admin journey */
+slides.push({
+  notes: 'من الداشبورد الأدمن بيجمّع الموظف بوضوح من 4 عناصر أساسية: بيديله الـ Instructions (System Prompt) وقواعد الأمان، ويختار الـ Sub-agents المسؤولة عن المراحل (بحث، استراتيجية، محتوى، تحليل)، والأدوات (Web Search وGraphRAG وCSV)، ويربط الـ MCP للنشر الخارجي. ولما يضغط Publish بتتسجل نسخة ثابتة rev-2. والأدمن مالوش أي وصول لبيانات العميل.',
+  html() {
+    return S('', head('Admin dashboard', 'Assemble the employee: instructions, sub-agents, tools & MCP') + `<div class="body withcap">
+      <div class="win a" ${st(.2)}>
+        <div class="win-bar">
+          <span class="dots"><i></i><i></i><i></i></span>
+          <span class="url">busmora.com/admin/employees/builder</span>
+          <span class="pin">Employee Builder · rev-2</span>
+        </div>
+        <div class="admin-win">
+          <div class="admin-col left">
+            <div class="sec-title"><i></i>1. Identity & Instructions</div>
+            <div class="form-group">
+              <span class="form-label">Employee Name</span>
+              <div class="form-input">Marketing Employee</div>
+            </div>
+            <div class="form-group">
+              <span class="form-label">System Instructions (Prompt)</span>
+              <div class="inst-box">
+                <p>• <em>Role:</em> Autonomous Marketing Employee for Acme Corp.</p>
+                <p>• <em>Knowledge:</em> Ground all facts and voice in <em>Business Brain</em>.</p>
+                <p>• <em>Execution:</em> Coordinate assigned Sub-Agents and Tools.</p>
+                <p>• <em>Guardrail:</em> <span>Never execute external actions without approval.</span></p>
+              </div>
+            </div>
+            <div class="policy-card">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              Human Approval: Mandatory for external publishing
+            </div>
+          </div>
+          <div class="admin-col right">
+            <div class="sec-title"><i></i>2. Select Building Blocks</div>
+            <div class="block-group">
+              <div class="block-group-title"><span>Sub-agents (4 assigned)</span><small>Autonomous roles</small></div>
+              <div class="chips-grid">
+                <div class="chip active"><span class="chip-dot"></span>ResearchSubAgent</div>
+                <div class="chip active"><span class="chip-dot"></span>StrategySubAgent</div>
+                <div class="chip active"><span class="chip-dot"></span>ContentSubAgent</div>
+                <div class="chip active"><span class="chip-dot"></span>PerformanceSubAgent</div>
+              </div>
+            </div>
+            <div class="block-group">
+              <div class="block-group-title"><span>Tools (3 enabled)</span><small>Execution capabilities</small></div>
+              <div class="chips-grid">
+                <div class="chip active"><span class="chip-dot"></span>Web Search</div>
+                <div class="chip active"><span class="chip-dot"></span>GraphRAG Query</div>
+                <div class="chip active"><span class="chip-dot"></span>CSV Analytics Engine</div>
+              </div>
+            </div>
+            <div class="block-group">
+              <div class="block-group-title"><span>MCP Servers (Model Context Protocol)</span><small>External action provider</small></div>
+              <div class="chips-grid">
+                <div class="chip active"><span class="chip-dot"></span>social_publishing:v1 <span class="chip-role">(LinkedIn OAuth)</span></div>
+              </div>
+            </div>
+            <div class="pub-bar">
+              <button class="pub-btn">Publish Revision</button>
+              <span class="rev-badge"><span class="chip-dot"></span>rev-2 · Deployed & Immutable</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>`);
+  }
+});
+
+/* 10b — Comparison */
+slides.push({
+  notes: 'ده الفرق بينا وبين الأدوات التانية. الـ AI العام لازم تشرحله شركتك كل مرة ومفيهوش ذاكرة ولا تعلم. وأدوات الـ workflow زي n8n ممتازة للأتمتة الثابتة، نفس الـ input بيدي نفس الـ output، لكن مش مناسبة لشغل محتاج فهم وقرار كل مرة، وإنت اللي بتبنيها. BusMora الموظف فيه عارف شركتك من الـ Business Brain، وبيتعلم مع الوقت، وهو orchestrator بيختار الـ sub-agents والأدوات في كل مرة حسب المهمة، يعني مفيش workflow ثابت. وهو متخصص وجاهز، وأي نشر لازم يعدّي على موافقتك، والمعلومات ليها مصدر.',
+  html() {
+    const Y = '<span class="mk y">✓</span>', N = '<span class="mk n">✕</span>';
+    const R = [
+      ['Business awareness', N, N, Y + 'Business Brain'],
+      ['Learns over time', N, N, Y + 'From 4 sources'],
+      ['Execution model', 'Single response', 'Fixed workflow', '<b>Dynamic orchestrator</b>'],
+      ['Specialization', N, N, Y + 'Ready marketing employee'],
+      ['Who builds it?', 'You', 'You', '<b>Pre-configured</b>'],
+      ['Approval before publishing', N, 'Optional', Y + 'Mandatory'],
+      ['Hallucination control', N, N, Y + 'GraphRAG + sources']
+    ];
+    const hdr = ['Criterion', 'General AI', 'n8n and similar', 'BusMora'].map((h, i) => `<div class="h${i === 3 ? ' me' : ''}">${h}</div>`).join('');
+    const rows = R.map((r, ri) => r.map((c, ci) => `<div class="${ci === 3 ? 'me' : ''}${ci === 3 && ri === R.length - 1 ? ' last' : ''}"><span class="ct">${c}</span></div>`).join('')).join('');
+    return S('', head('Why BusMora', 'Not another chatbot. Not another workflow builder') +
+      `<div class="body"><div class="cmp tight a" ${st(.3)}>${hdr}${rows}</div></div>`);
+  }
+});
+
+/* 11 — Tech stack */
+slides.push({
+  notes: 'ده التك ستاك كامل حسب الطبقات. اختيار الأدوات كان على حسب الشغل: Next.js وNestJS للمنتج، وبايثون للـ AI والـ workers لأنها بيئة LangGraph، وكل قاعدة بيانات ليها دور واضح. مفيش Kafka ولا RabbitMQ لأن Temporal بيغطي التوزيع والتايمرات.',
+  html() {
+    const R = [
+      ['Frontend', [['Next.js 15', 'N'], ['Tailwind CSS', 'T'], ['Radix UI', 'R']], 'var(--sky)'],
+      ['API', [['NestJS', 'N'], ['Drizzle ORM', 'D'], ['Argon2id + JWT', 'A']], 'var(--sky)'],
+      ['Orchestration', [['Temporal Cloud', 'T'], ['Python Workers', 'P'], ['MCP', 'M']], 'var(--bus)'],
+      ['AI', [['FastAPI', 'F'], ['LangGraph', 'L'], ['ModelGateway', 'G'], ['LangSmith', 'S']], 'var(--vio)'],
+      ['Data', [['PostgreSQL', 'P'], ['Neo4j', 'N'], ['Qdrant', 'Q'], ['Redis', 'R'], ['Amazon S3', 'S']], 'var(--ok)'],
+      ['Security & hosting', [['AWS KMS', 'K'], ['eu-central-1', 'E'], ['Datadog APM', 'D']], 'var(--stop)']
+    ];
+    const rows = R.map((r, i) => `<div class="srow"><div class="slab a" ${st(.2 + i * .3)}>${r[0]}</div><div class="tiles">${r[1].map((t, k) => `<span class="tile a" style="--c:${r[2]};--d:${(.35 + i * .3 + k * .08).toFixed(2)}s"><i>${t[1]}</i>${t[0]}</span>`).join('')}</div></div>`).join('');
+    return S('', head('Tech stack', "What we're building with") + `<div class="stack">${rows}</div>`);
+  }
+});
+
+/* ============ المحرك ============ */
+(function () {
+  const stage = document.getElementById('stage');
+  const N = slides.length;
+  const htmls = slides.map(s => s.html());
+  const ks = document.createElement('style'); ks.textContent = KF.join('\n'); document.head.appendChild(ks);
+  stage.innerHTML = htmls.join('');
+  const els = Array.from(stage.querySelectorAll('.slide'));
+  const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let cur = -1; const timers = [];
+  const $ = id => document.getElementById(id);
+
+  function fit() {
+    const v = $('viewport'), s = Math.min((v.clientWidth - 32) / 1920, v.clientHeight / 1080);
+    stage.style.transform = `translate(-50%,-50%) scale(${Math.max(s, .05)})`;
+  }
+  function timed(el) {
+    el.querySelectorAll('.chat').forEach(c => { c.scrollTop = 0; });
+    el.querySelectorAll('[data-at],[data-off],[data-done]').forEach(n => { n.classList.remove('on', 'off', 'done'); });
+    el.querySelectorAll('[data-at]').forEach(n => {
+      const t = +n.dataset.at;
+      if (reduce) {
+        n.classList.add('on');
+        const c = n.closest('.chat');
+        if (c) c.scrollTop = c.scrollHeight;
+      } else {
+        timers.push(setTimeout(() => {
+          n.classList.add('on');
+          const c = n.closest('.chat');
+          if (c) c.scrollTo({ top: c.scrollHeight, behavior: 'smooth' });
+        }, t));
+      }
+    });
+    el.querySelectorAll('[data-off]').forEach(n => { const t = +n.dataset.off; if (!reduce) timers.push(setTimeout(() => n.classList.add('off'), t)); });
+    el.querySelectorAll('[data-done]').forEach(n => { const t = +n.dataset.done; if (reduce) n.classList.add('done'); else timers.push(setTimeout(() => n.classList.add('done'), t)); });
+  }
+  function go(n) {
+    n = Math.max(0, Math.min(N - 1, n)); if (n === cur) return;
+    timers.forEach(clearTimeout); timers.length = 0;
+    if (cur >= 0) els[cur].classList.remove('active');
+    cur = n; const el = els[cur]; el.classList.add('active');
+    el.querySelectorAll('svg').forEach(s => { try { s.setCurrentTime(0); s.unpauseAnimations(); } catch (e) { } });
+    timed(el);
+    $('prog-fill').style.width = ((cur + 1) / N * 100) + '%';
+    $('count').textContent = String(cur + 1).padStart(2, '0') + ' / ' + String(N).padStart(2, '0');
+    $('notes-text').textContent = slides[cur].notes || '';
+    try { history.replaceState(null, '', '#s' + (cur + 1)); } catch (e) { }
+  }
+  const next = () => go(cur + 1), prev = () => go(cur - 1);
+  $('next').onclick = next; $('prev').onclick = prev;
+  $('nbtn').onclick = () => { $('notes').hidden = !$('notes').hidden; };
+  $('fbtn').onclick = () => { try { document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen(); } catch (e) { } };
+  document.addEventListener('keydown', e => {
+    const k = e.key;
+    if (['ArrowRight', 'ArrowDown', 'PageDown', ' ', 'Enter'].includes(k)) { e.preventDefault(); next(); }
+    else if (['ArrowLeft', 'ArrowUp', 'PageUp', 'Backspace'].includes(k)) { e.preventDefault(); prev(); }
+    else if (k === 'Home') go(0); else if (k === 'End') go(N - 1);
+    else if (k === 'n' || k === 'N') $('nbtn').click();
+    else if (k === 'f' || k === 'F') $('fbtn').click();
+  });
+  let tx = null;
+  document.addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, { passive: true });
+  document.addEventListener('touchend', e => { if (tx === null) return; const dx = e.changedTouches[0].clientX - tx; tx = null; if (Math.abs(dx) > 60) (dx < 0 ? next : prev)(); }, { passive: true });
+  window.addEventListener('resize', fit);
+  fit();
+  const h = parseInt((location.hash || '').replace('#s', ''), 10);
+  window.go = go;
+  go(h >= 1 && h <= N ? h - 1 : 0);
+  window.addEventListener('hashchange', () => {
+    const nh = parseInt((location.hash || '').replace('#s', ''), 10);
+    if (nh >= 1 && nh <= N) go(nh - 1);
+  });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
+})();
+</script>
+
+</body></html>
