@@ -8,62 +8,93 @@
 
 ```
 busmora-docs/
-├── project-docs/                 # Product discovery, PRD, business model & evaluation
-│   ├── product-discovery-summary.md
-│   ├── business-model-value-proposition.md
-│   ├── prd.md
-│   ├── mvp-definition.md
-│   ├── evaluation.md
-│   ├── decision-registry.md
+├── core/                         # The 4 Canonical Specifications
+│   ├── prd.md                    # Product Requirements Document (PRD v2.0)
+│   ├── SYSTEM-ARCHITECTURE.md    # Canonical System Architecture v1.0
+│   ├── BACKEND-TECHNICAL-DESIGN.md# Backend Monolith & Worker Design
+│   ├── FRONTEND-TECHNICAL-DESIGN.md# Frontend CSR & Event Shell Design
 │   └── README.md
-├── architecture/                 # System architecture, technical designs & domain model
-│   ├── SYSTEM-ARCHITECTURE.md
-│   ├── BACKEND-TECHNICAL-DESIGN.md
-│   ├── FRONTEND-TECHNICAL-DESIGN.md
-│   ├── domain/                   # Domain-Driven Design (Glossary, Contexts, Models, Events)
-│   ├── decisions/                # Requirements analysis, constraints, options & benchmarks
+├── domain/                       # Domain-Driven Design (DDD) Specifications
+│   ├── GLOSSARY.md               # Ubiquitous Language & Terminology
+│   ├── contexts.md               # Bounded Contexts & Subdomain Boundaries
+│   ├── model.md                  # Tactical Domain Aggregates & Invariants
+│   ├── events.md                 # Domain Events Catalog & Outbox Schemas
 │   └── README.md
-├── diagrams/                     # Design canvases & architectural diagrams
+├── strategy/                     # Product, Business & Governance Strategy
+│   ├── business-model-value-proposition.md # 4-Pillar Moat & Pricing Tiers
+│   ├── mvp-definition.md         # 24-Week MVP Scope & Sarah Persona Journeys
+│   ├── evaluation.md             # Arabic Evaluation Rubric & Brain Benchmark
+│   ├── decision-registry.md      # Authoritative Decision Registry (D-01 to D-54)
+│   └── README.md
+├── research/                     # Discovery, Benchmarks & Deep Analysis
+│   ├── product/                  # Customer & Market Research
+│   │   └── product-discovery-summary.md # Pain points, interviews, competition
+│   ├── technical/                # Architectural Exploration & Trade-off Benchmarks
+│   │   ├── 00-requirements-analysis.md # Historical audit & gap analysis
+│   │   ├── 01-constraints.md     # Binding constraints & hard gates (G1–G5)
+│   │   ├── 02-options.md         # Deep options analysis (B1–B3, FE-1–FE-3)
+│   │   ├── 03-benchmark.md       # Objective benchmark & scoring matrix
+│   │   └── 04-decision.md        # Architectural decision record (B1+A1, FE-1)
+│   └── README.md
+├── diagrams/                     # Architecture & Workflow Diagrams (Excalidraw)
 │   ├── project-draw.excalidraw
 │   └── README.md
-├── presentation/                 # Product pitch deck & presentation slides
+├── presentation/                 # Stakeholder Pitch Decks
 │   └── 1-BusMora.html
-└── Vault/                        # Obsidian team workspace (Initiatives, Features, Skills, Rules)
+└── Vault/                        # Obsidian Knowledge Base & Execution Engine
     ├── 00 - Home.md
     ├── 01 - Initiatives/
     ├── 02 - Features/
     ├── 03 - Skills/
-    └── 04 - Rules/
+    ├── 04 - Rules/
+    └── Templates/
 ```
 
 ---
 
-## 1. Product & Strategy Specifications (`project-docs/`)
+## 1. Core Specifications (`core/`)
 
-The product strategy and functional specifications are maintained in [**`project-docs/`**](./project-docs/README.md):
+The 4 canonical documents defining the functional and architectural contract are in [**`core/`**](./core/README.md):
 
-* [**Product Discovery Summary**](./project-docs/product-discovery-summary.md) — The pain points ("Manual Work Multipliers", "Editing Trap", "Tool Amnesia"), beachhead customer profile, and product vision.
-* [**Business Model & Value Proposition**](./project-docs/business-model-value-proposition.md) — 4-pillar defensibility moat, competitive positioning, and cost-derived pricing tiers.
-* [**Product Requirements Document (PRD v2.0)**](./project-docs/prd.md) — Core functional (FR) and non-functional (NFR) requirements, sub-agent capabilities, and acceptance criteria.
-* [**MVP Definition**](./project-docs/mvp-definition.md) — 24-week full-scope release boundaries, Sarah persona, and core user journeys.
-* [**Evaluation Plan**](./project-docs/evaluation.md) — Rubrics for Arabic fluency, dialect fit (Egyptian, Gulf, MSA), blind Brain treatment-vs-control testing, and execution reliability.
-* [**Decision Registry**](./project-docs/decision-registry.md) — Authoritative historical record of product and architecture decisions (D-01 to D-54).
+* [**Product Requirements Document (`prd.md`)**](./core/prd.md) — Core functional (FR) and non-functional (NFR) requirements, sub-agent capabilities, and acceptance criteria.
+* [**System Architecture v1.0 (`SYSTEM-ARCHITECTURE.md`)**](./core/SYSTEM-ARCHITECTURE.md) — 4 deployables, 8 process roles, Platform-Centred backend style, Amendment A1 (internal HTTP for quick replies $\le 3\text{s}$ and Brain search), multi-tenant isolation, and KMS envelope encryption.
+* [**Backend Technical Design (`BACKEND-TECHNICAL-DESIGN.md`)**](./core/BACKEND-TECHNICAL-DESIGN.md) — NestJS modular monolith across 13 business modules, Drizzle ORM (sole writer), ambient Unit of Work, contract system, Temporal workflows, and read-only views with RLS for Python compute.
+* [**Frontend Technical Design (`FRONTEND-TECHNICAL-DESIGN.md`)**](./core/FRONTEND-TECHNICAL-DESIGN.md) — Next.js 14+ client-rendered application (CSR) prepared for Workspace Event Shell (FE-3), feature-by-context boundaries, React Query caching, central security gateways, and RTL-first styling.
 
 ---
 
-## 2. Technical Architecture & Design (`architecture/`)
+## 2. Domain-Driven Design (`domain/`)
 
-The system architecture and internal engineering designs are maintained in [**`architecture/`**](./architecture/README.md):
+The domain taxonomy and aggregate models are in [**`domain/`**](./domain/README.md):
 
-* [**System Architecture v1.0**](./architecture/SYSTEM-ARCHITECTURE.md) — The canonical system-level architecture: 4 deployables, 8 process roles, Platform-Centred backend style, Amendment A1 (internal HTTP for quick replies ≤ 3s and Brain search), multi-tenant isolation, and KMS envelope encryption.
-* [**Backend Technical Design**](./architecture/BACKEND-TECHNICAL-DESIGN.md) — Internal design of `busmora-backend`: NestJS modular monolith across 13 business modules, Drizzle ORM (sole writer), ambient Unit of Work, contract system, Temporal workflows, and read-only views with RLS for Python compute.
-* [**Frontend Technical Design**](./architecture/FRONTEND-TECHNICAL-DESIGN.md) — Internal design of `busmora-frontend`: Next.js 14+ client-rendered application (CSR) prepared for Workspace Event Shell (FE-3), feature-by-context boundaries, React Query caching, central security gateways, and RTL-first styling.
-* [**Domain-Driven Design (`domain/`)**](./architecture/domain/) — Canonical [Glossary](./architecture/domain/GLOSSARY.md), 11 [Bounded Contexts](./architecture/domain/contexts.md), tactical [Domain Model](./architecture/domain/model.md), and [Domain Events](./architecture/domain/events.md).
-* [**Architecture Decisions & Benchmarks (`decisions/`)**](./architecture/decisions/) — Evidence-based records: requirements analysis, constraints, options benchmarking (B1–B3, FE-1–FE-3), and final adoption decisions.
+* [**Ubiquitous Language & Glossary (`GLOSSARY.md`)**](./domain/GLOSSARY.md) — Canonical terminology, forbidden synonyms, and lifecycle statuses.
+* [**Bounded Contexts (`contexts.md`)**](./domain/contexts.md) — Clear boundaries and ownership across Core (Business Brain), Supporting, and Generic contexts.
+* [**Domain Model (`model.md`)**](./domain/model.md) — Aggregates, entity lifecycles, and domain invariants.
+* [**Domain Events (`events.md`)**](./domain/events.md) — Immutable domain event catalog, payload schemas, and transactional outbox conventions.
 
 ---
 
-## 3. Team Knowledge Base (`Vault/`)
+## 3. Product & Business Strategy (`strategy/`)
+
+Business models, release boundaries, and decision records are in [**`strategy/`**](./strategy/README.md):
+
+* [**Business Model & Value Proposition**](./strategy/business-model-value-proposition.md) — 4-pillar defensibility moat, competitive positioning, and cost-derived Stripe tiers.
+* [**MVP Definition**](./strategy/mvp-definition.md) — 24-week full-scope release boundaries, Sarah persona, and 7 core user journeys.
+* [**Evaluation Plan**](./strategy/evaluation.md) — Rubrics for Arabic fluency, dialect fit (Egyptian, Gulf, MSA), blind Brain treatment-vs-control testing, and execution reliability.
+* [**Decision Registry**](./strategy/decision-registry.md) — Authoritative historical record of product and architecture decisions (D-01 to D-54).
+
+---
+
+## 4. Research & Benchmarks (`research/`)
+
+Discovery findings and architecture trade-off exploration records are in [**`research/`**](./research/README.md):
+
+* [**Product Discovery**](./research/product/product-discovery-summary.md) — The pain points ("Manual Work Multipliers", "Editing Trap", "Tool Amnesia"), customer profiles, and vision.
+* [**Technical Research & Decisions**](./research/technical/) — 5-stage benchmark process: [00 Requirements Analysis](./research/technical/00-requirements-analysis.md), [01 Constraints & Criteria](./research/technical/01-constraints.md), [02 Architecture Options](./research/technical/02-options.md), [03 Options Benchmark](./research/technical/03-benchmark.md), and [04 Final Decision Record](./research/technical/04-decision.md).
+
+---
+
+## 5. Team Knowledge Base (`Vault/`)
 
 The team uses the **Obsidian Vault** as an interactive knowledge and execution tracking layer:
 * [**00 - Home.md**](./Vault/00%20-%20Home.md) — Entry point and navigation map.

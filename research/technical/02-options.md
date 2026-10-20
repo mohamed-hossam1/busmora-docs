@@ -1,9 +1,9 @@
 # 02 — Architecture Options
 
 > **Design only.** No code, no recommendation. Scoring against the gates and weights in [01-constraints.md §4](./01-constraints.md) is the next step.
-> **Inputs read in full (2026-10-17):** all seven `project-docs/` files, [00-requirements-analysis.md](./00-requirements-analysis.md), [01-constraints.md](./01-constraints.md), and `domain/` ([GLOSSARY](../domain/GLOSSARY.md), [contexts](../domain/contexts.md), [model](../domain/model.md), [events](../domain/events.md)). Reading log in the appendix.
+> **Inputs read in full (2026-10-17):** all project documentation files, [00-requirements-analysis.md](./00-requirements-analysis.md), [01-constraints.md](./01-constraints.md), and `domain/` ([GLOSSARY](../../domain/GLOSSARY.md), [contexts](../../domain/contexts.md), [model](../../domain/model.md), [events](../../domain/events.md)). Reading log in the appendix.
 > **Reference knowledge:** you named "architecture-patterns", "microservices-patterns" and "api-design-principles" as references. No skill or document by those names exists on this machine, so general knowledge of those pattern catalogues was used instead: modular monolith, process manager, entity workflow, transactional outbox, projections, API composition, BFF, contract-first APIs. These are patterns, not technologies.
-> **Vocabulary** follows [GLOSSARY.md](../domain/GLOSSARY.md): Post, Post Version, Approval, Review, Knowledge Item, Task, Clarification, Canvas and so on.
+> **Vocabulary** follows [GLOSSARY.md](../../domain/GLOSSARY.md): Post, Post Version, Approval, Review, Knowledge Item, Task, Clarification, Canvas and so on.
 
 ---
 
@@ -28,7 +28,7 @@ The options combine these technologies differently. They add none. Some options 
 - **Four deployables** (D-26): `busmora-web`, `busmora-api`, `busmora-workers`, `busmora-ai`. An option may run one deployable as several **process roles**: the same codebase and image, started with a different entrypoint and scaled separately. A process role is not a new service.
 - **Two standalone repositories, settled and final** (your decision of 2026-10-18; 01 R-5): `busmora-backend` (api + workers + ai) and `busmora-frontend` (web). This supersedes the single monorepo in TA §12.3; TA itself is not edited (01 R-4). Because it is settled, it is **not** counted as a deviation against any option.
 - **Gates** G1, G2, G3 and G5 (G4 withheld), plus every Settled or Doc-derived item in 01.
-- **Domain:** the 11 bounded contexts in [contexts.md](../domain/contexts.md) and the events in [events.md](../domain/events.md).
+- **Domain:** the 11 bounded contexts in [contexts.md](../../domain/contexts.md) and the events in [events.md](../../domain/events.md).
 
 ### 0.3 Common to all three backend options
 
@@ -383,7 +383,7 @@ This option pulls hardest on F3, F6 and F8. It assigns each bounded context to t
 - **Python (`busmora-ai`)** owns the AI-heavy contexts: Business Brain (retrieval and Qdrant are Python-only), Marketing Employee and Market Intelligence.
 
 The services integrate in three ways:
-- **Domain events** ([events.md](../domain/events.md)) through a transactional outbox, with Redis Streams as transport.
+- **Domain events** ([events.md](../../domain/events.md)) through a transactional outbox, with Redis Streams as transport.
 - **Internal HTTP** where the user needs an immediate answer.
 - **Temporal** only where durability over time is needed (TA §1.2: "Temporal for durability, LangGraph for intelligence").
 

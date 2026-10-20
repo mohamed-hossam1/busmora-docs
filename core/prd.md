@@ -3,7 +3,7 @@
 ## AI Marketing Employee — BusMora Platform
 
 > Version 2.0 — October 2026
-> Status: Baselined — reflects the decisions in [decision-registry.md](./decision-registry.md).
+> Status: Baselined — reflects the decisions in [decision-registry.md](../strategy/decision-registry.md).
 
 ---
 
@@ -248,7 +248,7 @@ The Brain represents company knowledge as a **Concept Graph** consisting of Majo
   1. **Vector Seed:** Query embedding similarity search in Qdrant retrieves the most relevant approved concept nodes.
   2. **Relational Expansion:** SQL traversal in PostgreSQL retrieves connected neighbor nodes within **1–2 hops** via `brain_edges`.
 - Combined seed + neighbor graph context is injected into agent prompts, ensuring cohesive, cross-functional understanding without context bloat.
-- A parallel **document-only control retrieval route** supports the Brain value measurement in [evaluation.md](./evaluation.md).
+- A parallel **document-only control retrieval route** supports the Brain value measurement in [evaluation.md](../strategy/evaluation.md).
 
 #### FR-023: Knowledge Lifecycle
 - **Candidate → Approved**: User explicitly approves.
@@ -613,7 +613,7 @@ publish_x(text, media_ids?) → { tweet_id, url }
 
 ## 7. User Journeys & Workflows
 
-> Detailed user journeys are documented in [MVP Definition](./mvp-definition.md#6-core-user-journeys). Key workflows below.
+> Detailed user journeys are documented in [MVP Definition](../strategy/mvp-definition.md#6-core-user-journeys). Key workflows below.
 
 ### 7.1 Onboarding Workflow
 
@@ -1003,7 +1003,7 @@ The primary measure of success is an **evidence-backed product decision**: the p
 
 ### 15.2 Product Quality Targets
 
-These are internal quality targets measured by the evaluation process in [evaluation.md](./evaluation.md):
+These are internal quality targets measured by the evaluation process in [evaluation.md](../strategy/evaluation.md):
 
 | Metric | Target | Measurement |
 |---|---|---|

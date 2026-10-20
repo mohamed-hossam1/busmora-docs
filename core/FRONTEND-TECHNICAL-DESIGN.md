@@ -2,7 +2,7 @@
 
 > **Version:** 1.0 · **Status:** Accepted for build · **Date:** 2026-10-18
 > **Scope:** the internal software architecture of the `busmora-frontend` repository (`busmora-web`, Next.js).
-> **Builds on:** [SYSTEM-ARCHITECTURE.md](./SYSTEM-ARCHITECTURE.md) (FE-1 now, FE-3 later; contract; auth), [BACKEND-TECHNICAL-DESIGN.md](./BACKEND-TECHNICAL-DESIGN.md) (API conventions), [domain/](./domain/) and `project-docs/`.
+> **Builds on:** [SYSTEM-ARCHITECTURE.md](./SYSTEM-ARCHITECTURE.md) (FE-1 now, FE-3 later; contract; auth), [BACKEND-TECHNICAL-DESIGN.md](./BACKEND-TECHNICAL-DESIGN.md) (API conventions), [domain/](../domain/), [strategy/](../strategy/), and [prd.md](./prd.md).
 > **Design only:** no code. Folder structures are trees.
 > **Rule kept:** no technology beyond those named in the source documents. Anything else needed is listed as a gap (Appendix A) and not chosen.
 > **Reference knowledge:** the repository's `codebase-design` skill (modules, interfaces, seams, depth) and `domain-modeling` (language, ADR format), applied in the same way as the backend design.
@@ -324,7 +324,7 @@ The frontend's model layer holds **view models and display rules only**. The bac
 | `settings` | `WorkspaceSettingsView` (Business Time Zone, UI language) | — |
 | `notifications` | `NotificationView` (kind, subject link, read) | Unread count |
 
-**Glossary rule:** view-model names and labels use [domain/GLOSSARY.md](./domain/GLOSSARY.md) terms (Post, Post Version, Approval, Review, Knowledge Item, Candidate, Task, Clarification, Canvas). Translations are in the i18n catalogues, not in code.
+**Glossary rule:** view-model names and labels use [domain/GLOSSARY.md](../domain/GLOSSARY.md) terms (Post, Post Version, Approval, Review, Knowledge Item, Candidate, Task, Clarification, Canvas). Translations are in the i18n catalogues, not in code.
 
 ---
 

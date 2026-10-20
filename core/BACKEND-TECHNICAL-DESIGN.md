@@ -2,7 +2,7 @@
 
 > **Version:** 1.0 · **Status:** Accepted for build · **Date:** 2026-10-18
 > **Scope:** the internal software architecture of the `busmora-backend` repository: `busmora-api` (NestJS), `busmora-workers` (Python), `busmora-ai` (Python).
-> **Builds on:** [SYSTEM-ARCHITECTURE.md](./SYSTEM-ARCHITECTURE.md) (system-level decisions, unchanged here), [domain/](./domain/) (language, contexts, model, events), and `project-docs/`.
+> **Builds on:** [SYSTEM-ARCHITECTURE.md](./SYSTEM-ARCHITECTURE.md) (system-level decisions, unchanged here), [domain/](../domain/) (language, contexts, model, events), [strategy/](../strategy/), and [prd.md](./prd.md).
 > **Design only:** no code. Folder structures are trees.
 > **Rule kept:** no technology beyond those named in the source documents. Where this design needs something the docs don't name, it's listed as a gap (Appendix A) and not chosen.
 > **Reference knowledge:** module, interface, seam, adapter, depth and "one adapter = hypothetical seam" come from the repository's `codebase-design` skill. The domain vocabulary and ADR format come from `domain-modeling`. "architecture-patterns" and "api-design-principles" are not installed, so general pattern knowledge stands in for them.
@@ -479,7 +479,7 @@ busmora-backend/
 
 ## 6. Domain layer per module
 
-The vocabulary follows [domain/GLOSSARY.md](./domain/GLOSSARY.md). Storage names that differ from it are noted in §7.2.
+The vocabulary follows [domain/GLOSSARY.md](../domain/GLOSSARY.md). Storage names that differ from it are noted in §7.2.
 
 Everything in this section is **internal** to its module. Aggregates, value objects and policies never leave it. The events listed are **internal domain events**; each module maps the ones others need into **public, versioned event contracts** in its `contract/<m>.events.ts` (§3.5). Cross-module inputs and outputs are **contract types**, never these domain classes.
 

@@ -11,3 +11,4 @@ This directory holds architecture, system topology, and workflow visualization c
   * Real-time Canvas visualization and execution pipeline
   * Dual-Memory Business Brain schemas and edge traversals
   * Production hardening pillars and reference UI layouts
+
