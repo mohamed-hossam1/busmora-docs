@@ -1,6 +1,6 @@
 # Bounded Contexts
 
-> Sources: `project-docs/` (canonical per 01 R-1), [00-requirements-analysis.md](../00-requirements-analysis.md) and [01-constraints.md](../01-constraints.md). Vocabulary: [GLOSSARY.md](./GLOSSARY.md).
+> Sources: `project-docs/` (canonical per 01 R-1), [00-requirements-analysis.md](../decisions/00-requirements-analysis.md) and [01-constraints.md](../decisions/01-constraints.md). Vocabulary: [GLOSSARY.md](./GLOSSARY.md).
 > Contexts are **language and ownership boundaries**, not deployables. How they map onto the four services (D-26) is decided in the architecture step.
 
 ## 1. Classification

@@ -1,7 +1,7 @@
 # BusMora — System Architecture
 
 > **Version:** 1.0 · **Status:** Accepted · **Date:** 2026-10-18
-> **Built from:** `project-docs/` (canonical product docs), `architecture/00-requirements-analysis.md`, `01-constraints.md`, `02-options.md`, `03-benchmark.md`, `04-decision.md`, and `architecture/domain/`.
+> **Built from:** `project-docs/` (canonical product docs), `architecture/decisions/00-requirements-analysis.md`, `01-constraints.md`, `02-options.md`, `03-benchmark.md`, `04-decision.md`, and `architecture/domain/`.
 > **Scope:** the complete architecture of the first release (the 24-week Marketing Employee release), plus its planned growth path. This document is self-contained; the source files hold the detailed evidence behind it.
 > **Rule kept:** no technology appears here that is not already in those documents.
 
