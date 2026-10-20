@@ -135,11 +135,12 @@ The marketing software landscape has transitioned across three distinct generati
 
 ### 4.1 Model
 
-* **Structure:** Tiered monthly/annual SaaS subscription per Workspace, billed through Stripe.
-* **Pilot:** A paid pilot with 1–3 businesses using a single flat pilot price, used to validate willingness to pay before the wider tier rollout.
+* **Structure:** Tiered monthly/annual SaaS subscription per Workspace (derived empirically from real usage).
+* **Pilot:** A paid pilot with 1–3 businesses billed at a flat price outside the app (in-product Stripe billing and plan gating are deferred for the first release, as Stripe does not directly support Egyptian or Saudi merchant accounts).
+* **Usage & Cost Metering from Day One:** Every token, crawl, image generation, and X post is recorded in PostgreSQL per workspace and per task (`usage_records`) to establish empirical cost data that directly calibrates post-pilot pricing tiers.
 * **Rationale:** Predictable for SMB budgets; aligns with the concept of "hiring" a fractional marketing employee at a fraction of human payroll.
 
-### 4.2 Pricing Tiers (cost-derived)
+### 4.2 Planned Post-Pilot Pricing Tiers (Cost-Derived)
 
 Tiers are derived from **measured per-channel API and compute costs**, not set by intuition. Platform publishing costs are a first-class input:
 

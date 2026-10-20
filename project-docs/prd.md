@@ -237,7 +237,7 @@ The Brain represents company knowledge as a **Concept Graph** consisting of Majo
 
 #### FR-021: Brain Page UI (Interactive Graph & Management Canvas)
 - **Visual Graph Canvas (React Flow):** Renders approved and candidate nodes as an interactive, draggable network graph. Edge lines display relationship labels.
-- **Node Inspection & Editing:** Clicking any node opens a structured side panel/modal allowing the user to view, edit JSON properties, or delete the node.
+- **Node Inspection & Editing:** Clicking any node opens a structured side panel/modal allowing the user to view, edit JSON properties, or retire the node (soft delete preserving audit history).
 - **Candidate Review Stream:** Shows notification badges for pending candidate nodes/edges extracted from crawling or completed tasks.
 - **Manual Node & Edge Creation:** Users can add new nodes and manually draw edges between existing entities.
 - **Filter & Search:** Filter by category, relationship type, or full-text search.
@@ -478,6 +478,7 @@ The chat supports the following message types:
 
 #### FR-085: Brand-Template Visuals
 - For image-required channels, the system produces a **brand-template composite**: a generated background/imagery plus a deterministic brand overlay (logo, colors, typography).
+- Brand assets are detected strictly from the website crawl (no direct document or PDF ingestion); if undetectable, clean fallbacks (business name as text, neutral palette, default fonts) are used and remain editable in the Brain.
 - Generated visuals are cached by template and dimension.
 - Every generated visual is human-approved before publishing.
 
@@ -593,7 +594,8 @@ publish_x(text, media_ids?) → { tweet_id, url }
 | Prompt injection defense | Crawled content sanitized and quarantined within explicit data boundaries; system prompts protected from manipulation. |
 
 ### NFR-004: Scalability
-- System should handle ≥ 100 concurrent workspaces.
+- System capacity sized for paid pilot (1–3 workspaces; ≤ 2 concurrent tasks and 1 crawl per workspace).
+- Architecture supports ≥ 100 concurrent workspaces, proven via a stubbed load test with mocked LLM and crawler calls.
 - Crawling jobs should be queued and rate-limited to prevent resource exhaustion.
 - Agent tasks should be queued and processed asynchronously via durable workflows.
 
@@ -850,18 +852,22 @@ When an agent needs Brain context:
 | Action | Approval Required? | Approval Type |
 |---|---|---|
 | Research and analysis | No | Results shown in chat |
-| Content generation | No | Content shown in chat; user copies manually |
-| Content Calendar generation | No | Calendar shown for review |
-| Publishing a post | **Yes** | Batch Review |
-| Connecting a platform | **Yes** | OAuth consent flow |
+| Content generation | No | Content shown in chat; any social post can be sent to Batch Review for publishing |
+| Content Calendar generation | No | Calendar shown for review; items sent to Batch Review |
+| Publishing a post | **Yes** | Batch Review (binds to an immutable `PostVersion`) |
+| Connecting a platform | **Yes** | OAuth consent flow (prompted lazily) |
 
 ### 11.2 Approval State Machine
 
 A simplified, explicit state machine governs every externally visible action:
 `draft → pending_approval → approved | rejected → scheduled → publishing → published | failed`
+(with `cancelled` and `expired` states supported)
 
+- **Version Binding:** An approval binds to a single, immutable `PostVersion`. Any edit or regeneration creates a new version and returns the post to `pending_approval`.
+- **Expiry:** A post still pending when its scheduled time passes becomes `expired` (can be rescheduled).
+- **Cancellation:** Allowed from `approved` or `scheduled` before `publishing`.
 - Each transition records an audit event.
-- Each execution attempt is stored with an idempotency key.
+- Each execution attempt is stored with an idempotency key and verified via read-back.
 
 ### 11.3 Batch Approval Workflow
 
@@ -901,8 +907,8 @@ Crawling runs behind rotating proxies with a bounded headless-browser pool.
 
 | Platform | API | Auth Method | Key Limitations |
 |---|---|---|---|
-| **Facebook Pages** | Meta Graph API v21+ | OAuth 2.0 (Page Access Token) | Requires Business Verification + App Review for production |
-| **Instagram Business** | Instagram Content Publishing API | OAuth 2.0 (via Meta) | 100 posts/24h limit; two-step container model; no built-in scheduling |
+| **Facebook Pages** | Meta Graph API v21+ | OAuth 2.0 (Page Access Token) | Pilot runs in Meta Tester Mode (≤ 50 testers); production requires Business Verification + App Review |
+| **Instagram Business** | Instagram Content Publishing API | OAuth 2.0 (via Meta) | 50 posts/24h limit; two-step container model; JPEG format only; public URL required |
 | **X (Twitter)** | X API v2 | OAuth 2.0 | Pay-per-use: $0.015/plain post, $0.20/post with URL |
 
 ### 12.3 OAuth Token Management
@@ -1006,7 +1012,7 @@ These are internal quality targets measured by the evaluation process in [evalua
 | Task completion | ≥ 85% | % of tasks that produce a usable result |
 | Time to value | ≤ 15 min | Time from signup to first useful output |
 | Research quality | Real data | Reports contain verifiable, sourced data |
-| Content relevance | ≥ 70% | % of content usable without major edits |
+| Content relevance | ≥ 75% | % of content usable without major edits (PRD §2.2 / EVAL) |
 | Arabic quality | Meets rubric | All dimensions ≥ 4, none < 3 |
 | Brain value | ≥ 50% fewer clarifications/corrections | Blind treatment vs. document-only control |
 | Brain growth | ≥ 20 items | Approved items after 5 tasks |

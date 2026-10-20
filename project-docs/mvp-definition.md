@@ -47,12 +47,12 @@ BusMora Marketing Employee — One Release, Full Scope
 
 | Component | Description |
 |---|---|
-| **SaaS Foundation** | Auth (registration/login), Workspace creation, navigation, multi-tenant isolation |
-| **Website Crawler** | Background job: crawl → extract text → LLM analysis → knowledge candidates (bounded to public pages) |
+| **SaaS Foundation** | Auth (registration/login), Workspace creation, navigation, multi-tenant isolation, 4 deployables (`web`, `api`, `workers`, `ai`) across 2 standalone repos (`busmora-backend`, `busmora-frontend`) |
+| **Website Crawler** | Background job: crawl → extract text → LLM analysis → knowledge candidates (bounded to public pages ≤ 10 pages, ≤ 5 min) |
 | **Business Brain** | Relational Concept Graph (`brain_nodes` + `brain_edges` in Postgres with Qdrant vectors), Vector Seed + 1–2 Hop Expansion retrieval, candidate lifecycle, interactive React Flow graph canvas, provenance, conflict and freshness handling, audit log |
-| **Chat Interface** | Hybrid chat with structured forms, free-text clarification, "Search yourself" option, message history |
-| **Workflow Visualization** | Full canvas with agent nodes, animated connections, real-time status via SSE |
-| **Router** | Classifies user input (simple question vs. complex task) and selects the processing path |
+| **Chat Interface** | Hybrid chat with structured forms, free-text clarification, "Search yourself" option, message history; fast-path quick replies via internal HTTP |
+| **Workflow Visualization** | Full canvas with agent nodes, animated connections, real-time status via SSE from Redis Streams |
+| **Router** | Classifies user input (simple question vs. complex task vs. ambiguous); simple replies answered directly, complex delegated |
 | **Orchestrator** | Brain lookup → missing-info detection → clarification → sub-agent delegation → result collection → knowledge extraction |
 | **Market Research Agent** | Crawlers (Reddit, YouTube, Web) → data collection → LLM analysis → structured research report |
 | **Competitor Analysis Agent** | Crawl competitor websites + Facebook Ads Library → comparison analysis → structured report |
@@ -60,14 +60,14 @@ BusMora Marketing Employee — One Release, Full Scope
 | **Image Generation** | Brand-template visuals (generated background/imagery + deterministic brand overlay) for image-required channels |
 | **Campaign Planner Agent** | Generate content calendars based on Brain + research results |
 | **Performance Interpretation** | Validate structured CSV input, compute deterministic KPIs, and produce a diagnosis with recommendations |
-| **Social Media Poster Agent** | Post to Facebook, Instagram, and X via the MCP Server; report success and failure per post |
-| **OAuth Integration** | Meta (FB + IG) and X — token exchange, encrypted storage, refresh, and preflight checks |
-| **MCP Server** | `publish_facebook()`, `publish_instagram()`, `publish_x()` tool implementations with idempotency and read-back verification |
-| **Batch Approval UI** | Review grid with edit/approve/reject per item, bulk actions, and scheduled publishing |
+| **Social Media Poster Agent** | Formats posts before approval; deterministic publish workflow executes via MCP Server to Facebook, Instagram (50/24h limit), and X with read-back verification |
+| **OAuth Integration** | Meta (FB + IG) and X — token exchange, encrypted storage via KMS envelope encryption, refresh, and preflight checks (Meta pilot runs in tester mode) |
+| **MCP Server** | `publish_facebook()`, `publish_instagram()`, `publish_x()` tool implementations with idempotency and read-back verification embedded in publish worker |
+| **Batch Approval UI** | Review grid with edit/approve/reject per item, bulk actions, and scheduled publishing bound to immutable Post Versions |
 | **Deliverables System** | Central storage for all AI-generated outputs, browsable by user |
 | **Knowledge Extraction** | Post-task analysis → extract reusable knowledge → create candidates → add to Brain |
-| **Bilingual Foundation** | Arabic + English support in UI (full RTL) and native content generation |
-| **Evaluation & Observability** | Human-reviewed scenario evaluation; LLM tracing, cost, and latency tracking |
+| **Bilingual Foundation** | Arabic + English support in UI (full RTL) and native content generation in Egyptian, Gulf, and MSA |
+| **Evaluation & Observability** | Human-reviewed scenario evaluation; LLM tracing, cost, and latency tracking in Langfuse; per-workspace usage metering from day one |
 
 ---
 
@@ -78,12 +78,14 @@ BusMora Marketing Employee — One Release, Full Scope
 | Other AI Employees (Sales, Support, etc.) | Vertical focus — a future controlled release; extensibility proven by paper design |
 | LinkedIn posting | Organization-page API approval is selective and often denied |
 | TikTok posting | Strict UI/UX audit requirements |
+| In-product billing (Stripe checkout) | Pilot charged externally; usage & cost metering ships from day one; Stripe unavailable directly for Egypt/KSA merchants |
 | Paid ad management (Meta Ads, Google Ads) | Spends real money — out of scope for this release |
 | Automatic performance analytics APIs | Requires extensive, permission-heavy integrations; CSV input covers the use case |
 | Multi-user workspaces | Target user is a single person; adds auth complexity |
-| Document upload & extraction | Brain populated via crawling + conversations + tasks instead |
+| Document upload & extraction | Brain populated via crawling + conversations + tasks instead (CSV only upload) |
 | Advanced Brain governance automation | Conflict auto-resolution deferred; conflicts are surfaced to the human |
 | Native mobile app | Web responsive is sufficient |
+| Instant Brain Audit lead magnet | Out of scope for MVP release |
 
 ---
 
@@ -158,9 +160,9 @@ Sarah opens Marketing Employee
     → Employee shows structured form:
         📋 Tone: [🔘 Formal 🔘 Casual 🔘 Professional 🔘 Friendly]
         📋 Language style: [🔘 Technical 🔘 Simple 🔘 Storytelling]
-        📋 Dialect: [🔘 Modern Standard Arabic 🔘 Egyptian 🔘 Gulf 🔘 Levantine]
+        📋 Dialect: [🔘 Modern Standard Arabic 🔘 Egyptian 🔘 Gulf]
         📋 Sample text that represents your brand: [____________]
-    → Sarah fills in → Brain updated
+    → Sarah fills in → Candidate rule created for review in Brain (or approved immediately if manual entry)
     → Employee: "Great! Now I can write content that matches your brand voice.
                  What's the next task?"
 ```

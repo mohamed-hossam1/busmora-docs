@@ -30,45 +30,54 @@
 ### 1.1 High-Level Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────────────┐
-│                         USER (Browser)                              │
-│  ┌──────────┐ ┌──────────┐ ┌──────────────┐ ┌──────────┐           │
-│  │ Chat UI  │ │  Brain   │ │ Deliverables │ │ Settings │           │
-│  │ + Canvas │ │  Graph   │ │   Browser    │ │ + OAuth  │           │
-│  └────┬─────┘ └────┬─────┘ └──────┬───────┘ └────┬─────┘           │
-│       └────────────┴──────────────┴──────────────┘                  │
-│                       Next.js (RTL)                                 │
-└───────────────────────────────┬─────────────────────────────────────┘
-                                │ HTTPS + SSE
+┌────────────────────────────────────────────────────────────────────────┐
+│                         USER (Browser)                                 │
+│  ┌──────────┐ ┌──────────┐ ┌──────────────┐ ┌──────────┐ ┌──────────┐  │
+│  │ Chat UI  │ │  Canvas  │ │    Brain     │ │Deliverab.│ │ Settings │  │
+│  └────┬─────┘ └────┬─────┘ └──────┬───────┘ └────┬─────┘ └────┬─────┘  │
+│       └────────────┴──────────────┴──────────────┴────────────┘        │
+│                       busmora-web (Next.js 14+ RTL)                    │
+└───────────────────────────────┬────────────────────────────────────────┘
+                                │ HTTPS (REST) + SSE per Task
                                 ▼
-┌───────────────────────────────────────────────────────────────────────┐
-│                    PLATFORM SERVICE — busmora-api (NestJS)           │
-│  Auth (Argon2id + JWT + Redis refresh) · Workspaces · Brain CRUD      │
-│  Tasks · Deliverables · OAuth callbacks · SSE Gateway · Rate limiting │
-└───────────────────────────────┬───────────────────────────────────────┘
-                                │ Temporal Client
-                                ▼
-┌───────────────────────────────────────────────────────────────────────┐
-│                    TEMPORAL CLOUD (Durable Workflows)                 │
-│   TaskExecutionWorkflow · OnboardingWorkflow · Signals · Timers       │
-└───────────────────────────────┬───────────────────────────────────────┘
+┌────────────────────────────────────────────────────────────────────────┐
+│               PLATFORM SERVICE — busmora-api (NestJS)                  │
+│       ★ SOLE DOMAIN WRITER · Drizzle Migrations · Single Source ★       │
+│  ┌─────────────────────────────────┐ ┌───────────────────────────────┐ │
+│  │ api-http: Auth · Workspaces ·   │ │ api-activities (TS Worker):   │ │
+│  │ REST · SSE Gateway · KMS Encrypt│ │ Persist steps · Transitions · │ │
+│  │ Rate limiting · Temporal Client │ │ Candidates · Audit · Usage    │ │
+│  └────────────────┬────────────────┘ └───────────────▲───────────────┘ │
+└───────────────────┼───────────────────────────────────┼────────────────┘
+                    │ Internal HTTP (A1)                │
+                    │ (Quick reply ≤ 3s / Retrieval)    │
+                    ▼                                   │
+┌───────────────────────────────┐                       │ Activities
+│ busmora-ai (ai-http, FastAPI) │                       │
+└───────────────────────────────┘                       │
+                    ▲                                   │
+                    │                                   │
+┌───────────────────┴───────────────────────────────────┴────────────────┐
+│                    TEMPORAL CLOUD (Durable Workflows)                  │
+│   TaskExecutionWorkflow · OnboardingWorkflow · PostReleaseWorkflow     │
+└───────────────────────────────┬────────────────────────────────────────┘
                                 │ Activities
                                 ▼
-┌───────────────────────────────────────────────────────────────────────┐
-│              WORKER + AI SERVICE — busmora-workers / busmora-ai       │
-│  ┌───────────────────────────────────────────────────┐               │
-│  │                LangGraph Engine                    │               │
-│  │  Router → Orchestrator → Sub-Agents → Assembly     │               │
-│  │  Knowledge Extractor · Event Emitter               │               │
-│  └───────────────────────────────────────────────────┘               │
-│  Scrapling crawlers · PDF/CSV parsing · LiteLLM · KMS vault           │
-│  MCP Server (Social Publishing)                                       │
-└───────┬──────────────┬──────────────┬──────────────┬─────────────────┘
+┌────────────────────────────────────────────────────────────────────────┐
+│              WORKER + AI COMPUTE (Python Stateless)                    │
+│  ┌──────────────────────────────────────────────────────────────────┐  │
+│  │ busmora-workers: workers-workflows (Sequencing)                  │  │
+│  │                  workers-publish (MCP tools, KMS Decrypt, Verify)│  │
+│  ├──────────────────────────────────────────────────────────────────┤  │
+│  │ busmora-ai:      ai-agent (LangGraph Engine · LiteLLM · Extractor│  │
+│  │                  ai-crawl (Scrapling crawlers · Proxies · Pool)  │  │
+│  └──────────────────────────────────────────────────────────────────┘  │
+└───────┬──────────────┬──────────────┬──────────────┬───────────────────┘
         ▼              ▼              ▼              ▼
   ┌──────────┐   ┌──────────┐   ┌──────────┐   ┌──────────────┐
   │PostgreSQL│   │  Qdrant  │   │  Redis   │   │Object Storage│
-  │relational│   │ vectors  │   │ streams  │   │ snapshots +  │
-  │+ graph  │   │          │   │ + cache  │   │ images       │
+  │(Single   │   │(Vectors, │   │(Streams  │   │(Snapshots,   │
+  │Writer)   │   │Derived)  │   │ & Cache) │   │ Visuals, CSV)│
   └──────────┘   └──────────┘   └──────────┘   └──────────────┘
 ```
 
@@ -76,13 +85,14 @@
 
 | Principle | Application |
 |---|---|
-| **One release, full scope** | Interfaces and schemas support the entire product from day one. |
-| **Autonomous Execution Layer** | Architecture turns strategic decisions into end-to-end completed workflows (research → copy → visual composite → schedule → verified publishing) with zero manual handoffs across external tools. |
-| **Temporal for durability, LangGraph for intelligence** | Temporal owns the durable business workflow and approval signals; LangGraph owns fast AI reasoning. Clean boundary. |
-| **Anti-Amnesia Knowledge Grounding** | All agent reasoning loops are strictly grounded via two-stage retrieval (Qdrant vector seed + PostgreSQL graph expansion) from the Business Brain, eliminating blank-slate context loss. |
-| **Fast Human-in-the-Loop Governance** | Batch approval gates are asynchronous and optimized for rapid (<15 min) human review, eliminating the babysitting burden while guaranteeing zero unapproved external writes. |
-| **Hybrid backend** | NestJS owns the user-facing API; FastAPI owns AI workloads. Communication via Temporal activities. |
-| **Multi-tenant by default** | Every query includes `workspace_id`. Qdrant uses payload filtering; PostgreSQL uses foreign keys. |
+| **One release, full scope** | Interfaces and schemas support the entire product from day one across two standalone repositories (`busmora-backend` and `busmora-frontend`). |
+| **Platform-Centred (Sole Writer)** | `busmora-api` (NestJS) is the single owner and only writer of all domain data. Python services are stateless compute behind Temporal and never write domain tables. |
+| **Temporal for durability, LangGraph for intelligence** | Temporal owns durable workflows, approval holds, and scheduling; LangGraph owns fast AI reasoning. |
+| **Fast synchronous path (Amendment A1)** | Two synchronous internal HTTP calls from `api-http` to `ai-http` (quick reply ≤ 3s and Brain retrieval) bypass Temporal latency. |
+| **Deterministic publishing without LLM** | After human approval, publishing is deterministic and byte-for-byte via MCP tools in `workers-publish` with read-back verification. |
+| **Anti-Amnesia Knowledge Grounding** | All agent reasoning loops are strictly grounded via two-stage retrieval (Qdrant vector seed + PostgreSQL graph expansion) from the Business Brain. |
+| **Fast Human-in-the-Loop Governance** | Batch approval gates are asynchronous and optimized for rapid (<15 min) human review bound to immutable Post Versions. |
+| **Multi-tenant by default** | Every query, activity, vector search, Redis key, and storage object enforces `workspace_id`. |
 | **Observable agents** | Every agent step emits events for the canvas via Redis SSE. No black boxes. |
 | **Domain-neutral foundations** | Employee, Capability, Workflow, Integration, and Task Record are generic, enabling a future Employee without redesign. |
 
@@ -90,22 +100,25 @@
 
 ## 2. System Components
 
-| Component | Technology | Responsibility |
-|---|---|---|
-| **Frontend** | Next.js + React Flow | Chat UI, Canvas, Brain graph, Deliverables, Settings (RTL) |
-| **Platform Service** | NestJS (TypeScript) | Auth, Workspaces, REST API, SSE Gateway, OAuth callbacks |
-| **AI Service** | FastAPI (Python) | LangGraph, sub-agents, crawling, LiteLLM, knowledge extraction |
-| **Worker Service** | Python + Temporal SDK | Durable workflows, signal handling, scheduling, idempotent execution |
-| **Workflow Engine** | Temporal Cloud | Durable workflows, signals, timers, retries |
-| **Relational DB** | PostgreSQL | Users, Workspaces, Brain nodes/edges, Tasks, Deliverables, Audit |
-| **Vector DB** | Qdrant | Brain embeddings, semantic search |
-| **Event Bus** | Redis | Streams for the canvas, caching |
-| **Object Storage** | S3-compatible | Crawl snapshots, uploaded CSVs, generated images |
-| **Crawling Engine** | Scrapling | Website and platform data gathering |
-| **LLM Router** | LiteLLM | Multi-provider model routing and abstraction |
-| **Credential Vault** | Cloud KMS | Envelope encryption of OAuth tokens |
-| **MCP Server** | FastAPI (Python) | Social publishing tools (FB, IG, X) |
-| **Observability** | Langfuse | LLM tracing, cost, and latency |
+The system is deployed across **four deployables** executing **eight process roles**:
+
+| Deployable | Process Role | Technology | Responsibility |
+|---|---|---|---|
+| `busmora-web` | `web` | Next.js 14+ (RTL), React Flow, React Query | Client-rendered frontend: Chat UI, Canvas, Brain graph, Batch Review, Settings |
+| `busmora-api` | `api-http` | NestJS 10+, Passport, ioredis | REST API, auth (Argon2id + JWT + refresh rotation), KMS envelope encryption, SSE gateway from Redis Streams, Temporal client, internal HTTP client |
+| | `api-activities` | NestJS (Temporal TS SDK) | **Sole domain writer**: Temporal TypeScript activity worker persisting task progress, candidate items, post claims, audit, usage, and notifications |
+| `busmora-workers` | `workers-workflows` | Python 3.11+, Temporal Python SDK | Workflow definitions (`TaskExecutionWorkflow`, `OnboardingWorkflow`, `PostReleaseWorkflow`, `IndexingWorkflow`, `WorkspaceDeletionWorkflow`). Sequencing only; no DB access |
+| | `workers-publish` | Python, MCP SDK | Social publishing tools (FB, IG, X); KMS decryption in memory; deterministic dispatch; read-back verification; token refresh |
+| `busmora-ai` | `ai-http` | FastAPI, Uvicorn | Internal-only HTTP: Router classification and quick replies (≤ 3s); Brain retrieval |
+| | `ai-agent` | Python, LangGraph, LiteLLM, Qdrant | LangGraph orchestrator & sub-agents, LiteLLM routing, knowledge extraction, Brand Visual generation, CSV KPIs; emits Canvas signals |
+| | `ai-crawl` | Python, Scrapling | Scrapling crawlers with headless browser pool, rotating proxies, sanitization, intent qualification |
+| **Managed Data** | PostgreSQL 16+ | Drizzle ORM (API owned) | Single source of truth (RPO 0): users, workspaces, Brain concept graph, tasks, deliverables, posts, audit trail, usage |
+| | Qdrant | Vector DB | Derived vector embeddings of approved knowledge; filtered by `workspace_id` and `status` |
+| | Redis 7+ | In-memory store | Refresh token families, per-task Canvas streams, crawl cache (7-day TTL) |
+| | Object Storage | S3-compatible | HTML crawl snapshots, uploaded CSVs, generated Brand Visuals |
+| | Temporal Cloud | Orchestration Engine | Managed durable execution, timers, signals, and retries |
+| | Cloud KMS | Secrets Vault | Envelope encryption of platform OAuth credentials |
+| | Langfuse | Observability | LLM tracing, tokens, latency, and cost metering per workspace |
 
 ---
 
@@ -115,39 +128,40 @@
 
 ```
 Frontend (busmora-web):
-├── Next.js 14+ (App Router)
+├── Next.js 14+ (App Router, Client-Rendered)
 ├── TypeScript
 ├── React Flow (Canvas + Brain graph)
-├── Tailwind CSS / shadcn/ui
-├── SSE client (Last-Event-ID reconnects)
-└── React Query / SWR
+├── Tailwind CSS / shadcn/ui (Logical start/end classes for RTL)
+├── Native EventSource with stream cookies (Last-Event-ID reconnects)
+└── openapi-fetch + React Query
 
 Platform Service (busmora-api):
 ├── NestJS 10+ with TypeScript
-├── Passport.js + JWT Strategy
-├── Drizzle ORM (PostgreSQL)
-├── SSE Gateway (Redis Streams subscriber)
-├── Temporal TypeScript SDK (Workflow Client)
+├── Passport.js + JWT Strategy + Argon2id
+├── Drizzle ORM (Single migration toolchain for PostgreSQL 16+)
+├── SSE Gateway (Redis Streams subscriber + Canvas snapshot cache)
+├── Temporal TypeScript SDK (Client + Activities Worker)
 ├── ioredis
-└── Class-validator + Swagger
+├── Class-validator + @nestjs/swagger (Code-first OpenAPI)
+└── Ajv (Runtime validation of Temporal payloads)
 
 Worker + AI Service (busmora-workers / busmora-ai):
 ├── Python 3.11+
-├── FastAPI + Uvicorn
-├── LangGraph (agent orchestration)
-├── LiteLLM (multi-provider LLM router)
-├── Scrapling (web crawling)
-├── Temporal Python SDK (Activity Worker)
-├── Qdrant Client
-├── SQLAlchemy / asyncpg
-├── Pydantic v2 (structured outputs)
-└── MCP SDK (social publishing)
+├── FastAPI + Uvicorn (ai-http, internal only)
+├── LangGraph (agent orchestration & checkpointers)
+├── LiteLLM (multi-provider LLM router with Arabic bake-off)
+├── Scrapling (web crawling & browser pool)
+├── Temporal Python SDK (Workflow Worker & Publish Worker)
+├── Qdrant Client (vector search with tenant filtering)
+├── SQLAlchemy Core / asyncpg (Read-only views for approved knowledge)
+├── Pydantic v2 (Canonical schemas for contracts and structured output)
+└── MCP SDK (Social Publishing in workers-publish)
 
 Data & Infrastructure:
-├── PostgreSQL 16+
-├── Qdrant
-├── Redis 7+
-├── Temporal Cloud
+├── PostgreSQL 16+ (PITR, RPO=0)
+├── Qdrant (rebuildable)
+├── Redis 7+ (rebuildable)
+├── Temporal Cloud (+ Temporal UI)
 ├── Cloud KMS
 ├── S3-compatible object storage
 └── Docker Compose (local development)
@@ -168,39 +182,41 @@ Models are routed through **LiteLLM**, so the specific provider can be swapped w
 
 ### 4.1 Platform Service (busmora-api — NestJS)
 
-The core application API, business management layer, and real-time coordinator.
+The core application API, business management layer, and **sole domain writer** of all PostgreSQL state.
 
 **Functional domains:**
-- **Authentication & User Management:** Registration, login, secure sessions, workspace membership.
-- **Workspace Administration:** Multi-tenant workspaces, configuration, crawl triggering.
-- **Business Brain Management:** Viewing, editing, and manually curating concept nodes and relationships; candidate review; provenance and audit.
+- **Authentication & User Management:** Registration, login, secure in-memory JWT sessions, rotating Redis refresh tokens, workspace membership.
+- **Workspace Administration:** Multi-tenant workspaces, business time zone, configuration, crawl triggering.
+- **Business Brain Management:** Viewing, editing, manual curation, candidate review; provenance and audit. Manages `brain_read` views with RLS consumed by Python.
 - **Task & Deliverable Management:** Initiating tasks, dispatching durable workflows via Temporal, serving deliverables.
-- **Approval & Publishing Coordination:** Approval state machine records, scheduling signals, per-post status.
-- **OAuth Callbacks:** Provider consent handling and token storage (encrypted via KMS).
-- **Real-Time SSE Gateway:** Subscribing to Redis Streams and forwarding execution events to the client canvas, with `Last-Event-ID` replay.
+- **Approval & Publishing Coordination:** Approval state machine records, `PostVersion` snapshots, claim atomic locks, and Batch Review sessions.
+- **OAuth Callbacks:** Provider consent handling and token storage (encrypted via KMS envelope encryption).
+- **Real-Time SSE Gateway:** Subscribing to Redis Streams and forwarding execution events to the client canvas, with `Last-Event-ID` replay and Redis canvas state snapshotting for fast resets.
+- **Activity Worker (`api-activities`):** TypeScript Temporal worker hosting persistence activities for workflow progress, candidates, audit, usage metering, and notifications in single ACID transactions.
 
 ### 4.2 Worker Service (busmora-workers — Python + Temporal)
 
-Durable orchestration and external execution.
+Durable orchestration and external execution. Has **no direct database access**.
 
 **Functional domains:**
-- **Durable Workflows:** `TaskExecutionWorkflow`, `OnboardingWorkflow`.
-- **Signals:** approve, revise, cancel, oauth_connected.
-- **Timers:** deferred scheduling, approval expiration.
-- **Idempotency:** pre-dispatch execution locks.
-- **Social Publishing MCP Adapter:** dispatch and read-back verification.
+- **Durable Workflows (`workers-workflows`):** `TaskExecutionWorkflow`, `OnboardingWorkflow`, `PostReleaseWorkflow`, `IndexingWorkflow`, `WorkspaceDeletionWorkflow`. Sequencing only; all domain checks call `api-activities`.
+- **Signals:** clarification_answered, approve, revise, cancel.
+- **Timers:** deferred scheduling (up to 30 days), clarification expiry (7 days).
+- **Idempotency:** workflow IDs match resource IDs (`task-{id}`, `post-{id}`).
+- **Social Publishing Role (`workers-publish`):** MCP tools (`publish_facebook`, `publish_instagram`, `publish_x`); decrypts KMS tokens in memory only; byte-for-byte dispatch of approved `PostVersion`; read-back verification.
 
-### 4.3 AI Service (busmora-ai — FastAPI)
+### 4.3 AI Service (busmora-ai — FastAPI & LangGraph)
 
-Cognitive agent workloads, crawling, and LLM integration.
+Cognitive agent workloads, crawling, and LLM integration. Never writes domain tables.
 
 **Functional domains:**
-- **Agent Orchestration Engine:** LangGraph state machines for planning, clarification, research, and content generation.
-- **Specialized Marketing Sub-Agents:** Market Research, Competitor Analysis, Content Writer, Campaign Planner, Social Poster.
-- **Crawling & Scraping Tools:** Data collection from company sites and social platforms.
-- **Unified LLM Routing:** LiteLLM abstraction with provider fallback and cost tracking.
-- **Knowledge Extraction:** Post-task candidate generation.
-- **Real-Time Event Publishing:** Emitting granular agent state transitions and tool invocations to Redis Streams.
+- **Synchronous HTTP API (`ai-http`):** Internal-only FastAPI service (Amendment A1) handling Router classification, conversational quick replies (p95 ≤ 3s), and read-only Brain retrieval over Qdrant and `brain_read` PostgreSQL views.
+- **Agent Orchestration Engine (`ai-agent`):** LangGraph state machines for planning, clarification, research, and content generation. Checkpoints saved in technical `ai_runtime` schema.
+- **Specialized Marketing Sub-Agents:** Market Research, Competitor Analysis, Content Writer, Campaign Planner, Social Poster (formats posts before approval).
+- **Crawling & Scraping Tools (`ai-crawl`):** Data collection from company sites and social platforms using Scrapling, rotating proxies, and a bounded browser pool.
+- **Unified LLM Routing:** LiteLLM abstraction with provider fallback and cost tracking in Langfuse.
+- **Knowledge Extraction:** Post-task candidate generation proposed back to `api-activities`.
+- **Real-Time Event Publishing:** Emitting granular agent state transitions and tool invocations to Redis Streams and atomic Canvas state hash.
 
 ---
 
@@ -276,21 +292,24 @@ BusMora models marketing operations as an observable, multi-agent system built o
 - **Assembly & Synthesis:** combines outputs into a structured deliverable.
 - **Knowledge Extractor:** inspects completed tasks to propose new Brain candidates (updating both Semantic and Procedural memory).
 
-### 6.3 Graph Flow
+### 6.3 Graph Flow & Router Execution Paths
+
+The Router classifies incoming messages into three distinct execution paths:
+1. **Simple chat:** Answered directly via synchronous internal HTTP (`ai-http`) in ≤ 3 seconds, bypassing Temporal and graph assembly.
+2. **Ambiguous request:** Returns a clarifying question directly to the user before starting heavy workflows.
+3. **Complex task:** Enters the durable `TaskExecutionWorkflow`, which invokes the LangGraph state machine below.
 
 ```mermaid
 graph TD
-    START((Start)) --> Router
-    Router -->|"chat (simple)"| Assembly
-    Router -->|"complex task"| Orchestrator
+    START((Task Start)) --> Orchestrator
 
-    Orchestrator -->|"missing info"| Clarification
-    Clarification -->|"user responded"| Orchestrator
+    Orchestrator -->|"missing info"| Clarification["Clarification Loop (Form / Search Yourself)"]
+    Clarification -->|"user responded (Signal)"| Orchestrator
     Orchestrator -->|"research needed"| MarketResearch["Market Research Agent"]
     Orchestrator -->|"competitor needed"| CompetitorAnalysis["Competitor Analysis Agent"]
     Orchestrator -->|"content needed"| ContentWriter["Content Writer Agent"]
     Orchestrator -->|"campaign needed"| CampaignPlanner["Campaign Planner"]
-    Orchestrator -->|"posting needed"| SocialPoster["Social Poster"]
+    Orchestrator -->|"social draft needed"| SocialPoster["Social Poster (Pre-Approval Formatter)"]
 
     MarketResearch --> Orchestrator
     CompetitorAnalysis --> Orchestrator
@@ -298,9 +317,9 @@ graph TD
     CampaignPlanner --> Orchestrator
     SocialPoster --> Orchestrator
 
-    Orchestrator -->|"all steps done"| Assembly
-    Assembly --> KnowledgeExtractor["Knowledge Extractor"]
-    KnowledgeExtractor --> END((End))
+    Orchestrator -->|"all steps done"| Assembly["Assembly & Deliverable Synthesis"]
+    Assembly --> KnowledgeExtractor["Knowledge Extractor (Candidate Proposals)"]
+    KnowledgeExtractor --> END((End & Persist via TS Activity))
 ```
 
 ### 6.4 Inter-Agent Communication
@@ -434,8 +453,8 @@ All services run as independent containers orchestrated locally via Docker Compo
 
 ### 10.2 Hosting
 
-- **Model:** managed/hybrid — managed PostgreSQL, Qdrant, and Redis, Temporal Cloud, and one or two application hosts.
-- **Region:** matched to the pilot geography (MENA) to keep latency low and support data-residency expectations, with a fallback region for development.
+- **Model:** managed/hybrid — managed PostgreSQL, Qdrant, and Redis, Temporal Cloud, and application hosts.
+- **Region:** Single Frankfurt region (`eu-central-1` / `europe-west3`, provisional) adopted because managed dependencies (Temporal Cloud, Langfuse Cloud) do not offer MENA regions, and pilot customers do not require in-country hosting.
 - **Resource Sizing:** provisioned for in-memory vector operations and a bounded pool of concurrent headless browsers during crawling.
 
 ---
@@ -445,27 +464,31 @@ All services run as independent containers orchestrated locally via Docker Compo
 ### 11.1 Communication Map
 
 ```
-Frontend ←──HTTPS/SSE──→ busmora-api (Platform)
-                             │
-                       Temporal Client
-                             │
-                             ▼
-                      Temporal Cloud
-                             │
-                       Activity Call
-                             │
-                             ▼
-                  busmora-workers / busmora-ai
-                             │
-                       Redis Streams
-                             │
-                             ▼
-                      busmora-api (subscriber)
-                             │
-                       SSE push
-                             │
-                             ▼
-                      Frontend (Canvas)
+Frontend (Next.js) ←──HTTPS (REST) + SSE──→ busmora-api (api-http)
+                                                   │
+                                      ┌────────────┴────────────┐
+                         Internal HTTP│(A1)                     │Temporal Client
+                     (Quick replies / │                         ▼
+                      Brain retrieval)│                  Temporal Cloud
+                                      ▼                         │
+                               busmora-ai                       ├─────────────────┐
+                               (ai-http)                        │Activities       │Activities
+                                                                ▼                 ▼
+                                                   busmora-api       busmora-workers
+                                                   (api-activities   & busmora-ai
+                                                    Sole Writer)     (ai-agent, ai-crawl,
+                                                        │             workers-publish)
+                                                        ▼                 │
+                                                    PostgreSQL            │Canvas Signals
+                                                    (Source of Truth)     ▼
+                                                                     Redis Streams
+                                                                          │
+                                                                          ▼
+                                                                     busmora-api
+                                                                     (SSE Gateway)
+                                                                          │
+                                                                          ▼
+                                                                     Frontend Canvas
 ```
 
 ### 11.2 Durable Workflow Orchestration (Temporal)
@@ -510,15 +533,28 @@ The four-person team operates on **vertical slice ownership**: each member ships
 
 ### 12.3 Repository Structure
 
+The system is organized into **two standalone repositories** (ADR-002, R-5) communicating across published contracts:
+
 ```
-busmora/
-├── frontend/        # Next.js web application
-├── platform/        # NestJS platform API & SSE gateway
-├── workers/         # Temporal workflow workers
-├── ai-service/      # FastAPI agent engine & crawlers
-├── docs/            # Product & architectural documentation
-├── scripts/         # Local development scripts
-└── docker-compose.yml
+1. busmora-backend/               # Backend repository (Polyglot)
+├── apps/
+│   ├── api/                     # busmora-api (NestJS, sole domain writer: api-http, api-activities, cli)
+│   ├── workers/                 # busmora-workers (Python: workers-workflows, workers-publish with MCP)
+│   └── ai/                      # busmora-ai (Python: ai-http, ai-agent, ai-crawl)
+├── packages/
+│   └── contracts-py/            # Canonical Pydantic models for cross-language Temporal payloads & Canvas signals
+├── contracts/                   # Versioned schemas (OpenAPI, Temporal JSON Schema)
+├── deploy/compose/              # Docker Compose parity for all services
+└── scripts/                     # Contract generation, drift verification, and db seeding
+
+2. busmora-frontend/              # Frontend repository (TypeScript / Next.js)
+├── src/
+│   ├── app/                     # App Router: routes & layouts only (composition)
+│   ├── features/                # Bounded-context modules (auth, employee, canvas, brain, publishing, etc.)
+│   │   └── <feature>/           # index.ts (public interface), api/, model/, ui/
+│   └── shared/                  # Technical kernel: openapi-fetch client, session, streams, i18n, time, UI kit
+├── contracts/api/               # Pinned openapi.json from busmora-backend
+└── e2e/                         # End-to-end tests against Docker Compose backend
 ```
 
 ---

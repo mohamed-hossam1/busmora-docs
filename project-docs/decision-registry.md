@@ -54,9 +54,9 @@
 
 | # | Decision | Rationale |
 |---|---|---|
-| D-26 | **Four services**: `busmora-web` (Next.js), `busmora-api` (NestJS), `busmora-workers` (Temporal), `busmora-ai` (FastAPI) | Clean separation of user-facing API and AI workloads within a manageable count. |
+| D-26 | **Four deployables** (`busmora-web`, `busmora-api`, `busmora-workers`, `busmora-ai`) running 8 process roles across **two standalone repositories** (`busmora-backend`, `busmora-frontend`) | Clean separation of user-facing API, worker scheduling, and AI workloads with clear repository ownership. |
 | D-27 | **Temporal Cloud** for durable workflows | Managed reliability for long-running, human-in-the-loop tasks. |
-| D-28 | **Managed/hybrid hosting**, region matched to the pilot (MENA) | Balances operational load with latency and data-residency expectations. |
+| D-28 | **Single region, Frankfurt (provisional)** | Managed hosting (Temporal Cloud, Langfuse Cloud) lacks MENA regions; pilot customers do not require in-country residency (ADR-016). |
 | D-29 | **Custom Argon2id auth** with JWT access tokens and Redis refresh rotation | Full control over tenancy and session security. |
 | D-30 | **Cloud KMS envelope encryption** for OAuth credentials | Protects credentials at rest and in use. |
 | D-31 | **LiteLLM** gateway with an **Arabic bake-off** and cost ceilings | Provider flexibility with quality and cost control. |
@@ -68,7 +68,7 @@
 
 | # | Decision | Rationale |
 |---|---|---|
-| D-35 | **Stripe** tiered subscriptions per Workspace, plus a flat paid pilot | Predictable SMB pricing aligned to "fractional hire" framing. |
+| D-35 | **No in-product billing this release; per-workspace usage & cost metering from day one** | Paid pilot is charged externally; Stripe does not serve Egypt/KSA merchants directly; real usage data feeds post-pilot pricing tiers (ADR-017, SC-2). |
 | D-36 | Tiers **re-derived from real API and compute costs** | Prevents high-volume channels from running a tier underwater. |
 
 ## 7. Evaluation
@@ -86,6 +86,14 @@
 | D-44 | **Gen-3 Marketing Employee Paradigm (Diagnosis Over Agent Sprawl)** | Replaces chaotic 16-agent swarms with one unified employee that diagnoses business constraints before allocating execution. |
 | D-45 | **Intent Qualification Pipeline for Social Mining** | Filters noisy social scrapes into high-intent signals (competitor complaints, price questions) to feed genuine buyer vernacular into copy. |
 | D-46 | **Anti-Goodhart Governance via Batch Approval** | Prevents autonomous agents from optimizing for misleading proxy metrics (cheap clicks) by preserving human strategic oversight. |
+| D-47 | **Platform-Centred Backend (NestJS as Sole Writer)** | `busmora-api` owns all domain state and migrations; Python services are stateless compute behind Temporal (ADR-003). |
+| D-48 | **Internal HTTP for Quick Replies and Brain Retrieval (Amendment A1)** | Two synchronous internal endpoints (quick reply ≤ 3s and Brain search) bypass Temporal latency while keeping data ownership in api (ADR-004). |
+| D-49 | **Deterministic Publishing Without LLM After Approval** | Social Poster agent acts only before approval; publishing is byte-for-byte idempotent execution via MCP tools in `workers-publish` (ADR-005). |
+| D-50 | **Approval Lifecycle Bound to Post Versions** | Approval binds to an immutable `PostVersion`; adding `cancelled` and `expired` states; optimistic concurrency on versions (ADR-006). |
+| D-51 | **Two Standalone Repositories (`busmora-backend` & `busmora-frontend`)** | Clarifies ownership, separates frontend dependencies, enforces API contract boundaries via OpenAPI and `oasdiff` (ADR-002, R-5). |
+| D-52 | **Single Migration Toolchain (Drizzle ORM)** | `busmora-api` manages all PostgreSQL tables; Python reads approved knowledge via read-only views with RLS (ADR-008). |
+| D-53 | **Client-Rendered Application (FE-1) Prepared for Workspace Event Shell (FE-3)** | Next.js App Router for routing/layout only; data via React Query and modular features with public `index.ts` interfaces (ADR-009). |
+| D-54 | **Meta Tester Mode for Pilot** | With no legal entity yet, the pilot runs under Meta Tester Mode (≤ 50 testers) without requiring Advanced Access (ADR-018). |
 
 ## 9. Deferred Provider Selections
 

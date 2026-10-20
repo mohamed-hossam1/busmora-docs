@@ -58,7 +58,7 @@ Reviewers score each Arabic deliverable on a 1–5 scale across five dimensions:
 | Dimension | What reviewers assess |
 |---|---|
 | **Fluency** | Reads as natural, idiomatic Arabic — no translated feel. |
-| **Dialect fit** | Matches the requested register (Modern Standard / Egyptian / Gulf / Levantine). |
+| **Dialect fit** | Matches the requested register (Modern Standard / Egyptian / Gulf). |
 | **Brand fit** | Consistent with the approved brand voice and tone. |
 | **Cultural fit** | Appropriate idioms, references, and phrasing for the local audience. |
 | **Factual grounding** | Claims are consistent with the Business Brain and cited sources. |
