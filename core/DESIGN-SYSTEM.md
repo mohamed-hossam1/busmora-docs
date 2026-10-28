@@ -504,6 +504,7 @@ Every status has a **colour family + icon + translated label**. Names follow [do
 | approved | mint | `CircleCheck` | — |
 | rejected | danger | `CircleX` | — |
 | scheduled | sky | `CalendarClock` | — |
+| held | orange (amber warning) | `PauseCircle` | — |
 | publishing | sky | `Send` | **M2 ping** |
 | published | mint (solid: mint-700 fill, white text) | `BadgeCheck` | — |
 | failed | danger | `TriangleAlert` | — |
@@ -516,6 +517,7 @@ Every status has a **colour family + icon + translated label**. Names follow [do
 | requested | mist | `Hourglass` | — |
 | running | mint | `Loader` | M1-fast + **M3** label |
 | awaiting_clarification | orange | `MessageCircleQuestionMark` | — |
+| awaiting_budget_approval | orange | `Coins` | — |
 | completed | mint | `CircleCheck` | — |
 | partially_completed | orange | `CircleDashed` | — |
 | failed | danger | `TriangleAlert` | — |
@@ -524,7 +526,7 @@ Every status has a **colour family + icon + translated label**. Names follow [do
 ### 9.3 Knowledge Item, Connected Account, Crawl
 | Entity | Value → family / icon |
 |---|---|
-| Knowledge Item | candidate → orange / `Sparkles` · approved → mint / `CircleCheck` · rejected → danger / `CircleX` · retired → mist / `Archive` |
+| Knowledge Item | candidate → orange / `Sparkles` · approved → mint / `CircleCheck` · rejected → danger / `CircleX` · retired → mist / `Archive` · Epistemic states (FR-09): observation → `Eye` · claim → `UserCheck` · hypothesis → `Sparkles` · decision → `BadgeCheck` · imported_unverified → `Globe` (FR-10) |
 | Connected Account | connected → mint / `Link` · reconnect_needed → orange / `RefreshCw` (+ "Reconnect" action) · disconnected → mist / `Unlink` |
 | Crawl outcome | complete → mint · partial → orange · failed → danger · in progress → mint with **M2** + **M7** |
 
@@ -547,6 +549,30 @@ Families repeat, so the **icon and label are mandatory** on every node and chip.
 
 ### 9.5 Candidate Review sections (PRD FR-013)
 Company Info · Products & Services · Brand & Messaging · Audience & Market · Contact & Locations · Policies & FAQ · Other. Shown as a section list with counts (the mapping from categories to sections is OD-18).
+
+### 9.6 Roadmap task status & horizons
+| Horizon / Status | Family | Icon (lucide) | Meaning / Rule |
+|---|---|---|---|
+| **Now** | mint | `Flame` | Current operational focus; strictly bounded to 1–3 active tasks by owner capacity |
+| **Next** | sky | `ArrowRight` (mirrored in RTL) | Queued immediately after Now; dependencies staged |
+| **Later** | mist | `Clock` | Strategic backlog; deferred or exploratory items |
+| planned | sky | `Circle` | Task defined and scheduled on the board |
+| in_progress | mint | `Loader` (M1-fast) | Actively executing (native or owner handoff) |
+| completed | mint | `CircleCheck` | Completion condition verified |
+| blocked | danger | `AlertOctagon` | Blocked by missing input or prerequisite |
+| deferred | orange | `History` | Temporarily pushed back due to capacity constraints |
+| not_applicable | mist | `Archive` | Cancelled / superseded; never hard-deleted (audit-preserved) |
+
+### 9.7 5 STAR Diagnostic lenses
+The AI Marketing Director's diagnostic framework categorizes hypotheses into 5 lenses:
+
+| Lens | Arabic Label | Family / Colour | Icon | Focus Area |
+|---|---|---|---|---|
+| Situation / Offer | العرض والتموضع | mint-700 | `Target` | Core value proposition, pricing, and packaging |
+| Traffic / Acquisition | جذب العملاء | sky-700 | `Users` | Inbound reach, channels, and audience awareness |
+| Activation / Conversion | التفعيل والتحويل | orange-600 | `Zap` | Lead conversion, inquiry responses, and sales velocity |
+| Retention / Referral | المحافظة والتوصية | purple-600 | `HeartHandshake` | Repeat transactions, loyalty, and customer advocacy |
+| Operations / Fulfillment | العمليات والتنفيذ | graphite-400 | `Settings` | Marketing-to-operations handoff, capacity, and bottlenecks |
 
 ---
 
@@ -578,7 +604,38 @@ Breakpoint names follow §4.2. "Stage" means the dark graphite style.
 - On completion, a mint tint card with the candidate count and "Review candidates" (primary).
 - Mobile: single column, sticky bottom action bar.
 
-### 10.4 Marketing Employee (chat + Canvas)
+### 10.4 Today view (default returning view, FR-02)
+- **Purpose:** Daily executive command center greeting returning owners, aligning operational tasks with strategic diagnosis.
+- **Top banner:** Current primary constraint hypothesis diagnosed by the Director, tagged with its 5 STAR lens badge (§9.7) and deep-link to the Roadmap board.
+- **Layout (≥ lg):** 3-column responsive dashboard:
+  1. **Decisions & Attention Needed (inline-start):** pending Post approvals with Scheduled Time countdowns, pending Knowledge Candidates, and unanswered Clarifications.
+  2. **Active Focus / Now Horizon (center):** 1–3 active tasks currently in the "Now" column of the Roadmap with execution mode pills and progress indicators.
+  3. **Today's Publishing & Delivery (inline-end):** scheduled Facebook posts for today in the Business Time Zone with publishing status pings.
+- **Responsive (< lg):** Prioritized vertical stack: Decisions Needed → Active Now Tasks → Today's Schedule.
+
+### 10.5 Roadmap (Now/Next/Later adaptive board, FR-46)
+- **Header:**
+  - Board title and active roadmap version pill (e.g. `v1.2 Active`).
+  - **Capacity Gauge:** displays current active task load in Now vs owner capacity (e.g., `2 / 3 tasks active`). Shows orange warning indicator if at max capacity (3/3).
+  - Hypothesis summary card based on 5 STAR diagnostic lenses.
+  - "Propose Strategic Revision" button + "Revision Pending Approval" amber notification pill when an outcome-driven revision is waiting.
+- **Board structure (3 columns):**
+  - Logical RTL ordering: inline-start = **Now** (mint-700 header accent), center = **Next** (sky-700 header accent), inline-end = **Later** (mist-400 header accent).
+  - Column headers include task counts, horizon description, and Now includes capacity badge (`max 3`).
+- **Roadmap Task Card (`radius-card`, stroke card):**
+  - **Header:** STAR lens category chip (§9.7) + Execution mode pill (`Native AI` with mint dot vs `Owner Handoff` with user icon).
+  - **Body:** Title (14px bold, max 2 lines), Rationale/evidence summary (12px graphite-400), Deliverable type icon + input prerequisite icons.
+  - **Footer:** Effort estimate pill (`Low`, `Medium`, `High`), Review cadence badge (`Weekly`, `Bi-weekly`), Dependencies count.
+  - **Task actions:** "Launch native task" (primary small), "Update status" menu, "Shift horizon".
+  - **Capacity guard:** Attempting to drag or add a 4th task into Now opens a capacity dialog prompting the user to shift an existing Now task to Next or deferred.
+  - **Not Applicable tasks:** Muted 50% opacity styling with archive badge; filtered out by default with a "Show archived/superseded" toggle (never hard-deleted).
+- **Strategic Revision Diff Modal:**
+  - Triggered by outcome evaluation (CSV upload, manual outcome) when strategic reprioritization is proposed.
+  - Visual diff: Added tasks (mint tint card), Shifted tasks (sky tint card with horizon change indicator `Next → Now`), Dropped tasks (mist tint card marked `not_applicable`).
+  - Displays Marketing Director's rationale explaining the pivot based on performance data.
+  - Actions: "Approve Revision" (primary mint) -> atomic cutover to new version; "Reject Revision" (secondary) -> retains current roadmap.
+
+### 10.6 Marketing Employee (chat + Canvas)
 | Range | Layout (with the app sidebar from §10.1) |
 |---|---|
 | ≥ 2xl (1536) | Three columns: conversation list 280px (inline-start) · chat (flexible, ~570px+, max 760px reading width) · **Canvas 420px** (inline-end, stage style) |
@@ -615,7 +672,7 @@ Width check: the chat column never drops below **560px** when the Canvas is dock
 - **Layout:** Orchestrator at the top centre and sub-agents below. Below md, a vertical stack, with the graph fitted on resize.
 - **Accessibility:** the Canvas has `role="img"` with an `aria-label` summary, plus a visually hidden live list of agent states ("Market Research: working — Searching Reddit").
 
-### 10.5 Brain
+### 10.7 Brain
 - **Header:** title, the pending candidates badge, "Review candidates" (primary), "Add item" (secondary), a list/graph segmented control.
 - **Filters bar:** search input (semantic search), category multi-select chips (§9.4), relationship-type select, status select. Below md the filters collapse into a "Filters" sheet with an applied-count badge.
 - **Graph view** (light workspace, not stage):
@@ -635,8 +692,12 @@ Width check: the chat column never drops below **560px** when the Canvas is dock
   - the next candidate gets focus after an action
 - **Conflicts:** orange tint cards listing the conflicting items side by side (stacked < md) with a "Keep A / Keep B / Edit" decision.
 
-### 10.6 Deliverables
+### 10.8 Deliverables
 - **List:** type filter chips + date range; a card grid (§4.4) of stroke cards with the type icon tile, title (2 lines), type chip and relative date. "Load more" is cursor based.
+- **Performance Upload Modal (FR-38):**
+  - Drag-and-drop zone supporting both `.csv` and `.xlsx` (Excel) formats.
+  - **Schema Mapping Preview Card:** displays detected columns, date range, metric definitions (impressions, clicks, inquiries, bookings, spend), currency validation, and warning flags for overlapping dates or duplicate rows.
+  - Manual entry alternative CTA: "Enter aggregate outcomes manually" (FR-47).
 - **Viewer:**
   - reading width 800px; header with type chip, date and title
   - toolbar: Copy, Download `.md`, Print/PDF (stretch goal), Send to Batch Review
@@ -646,30 +707,31 @@ Width check: the chat column never drops below **560px** when the Canvas is dock
   - tables scroll horizontally inside their own container, never the page
   - sources/citations list at the end with external-link icons
 
-### 10.7 Batch Review
+### 10.9 Batch Review
 - **Header:** title, session hint, view toggle (grid/list), and the bulk bar "Approve all remaining (n)" (primary) / "Reject all remaining" (danger).
 - **The bulk bar is sticky:** at the top on desktop; on mobile it's a bottom action bar with safe-area padding.
 - **Post card** (stroke card):
-  - platform icon + name, Scheduled Time in the **Business Time Zone with the zone label**, status pill (§9.1)
-  - a **platform preview** that keeps the platform's own look (Facebook/Instagram/X), so it is *not* re-themed
-  - the Brand Visual image (Instagram 4:5, Facebook 1.91:1, X 16:9) with alt text
+  - platform icon + name, Scheduled Time in the **Business Time Zone with the zone label and delivery lateness allowance** (FR-34), status pill (§9.1)
+  - a **platform preview** that keeps the platform's own look (Facebook Page in Phase 2; Instagram/X ready for Phase 3), so it is *not* re-themed
+  - the Brand Visual image (Facebook 1.91:1; Phase 3: Instagram 4:5, X 16:9) with alt text
+  - **Context Staleness Hold banner:** When a post is `held` (FR-48), displays an amber warning bar "Offer/price changed since approval" with action "Resolve Hold & Re-approve".
   - actions: Approve (primary), Edit (secondary, opens the editor with a live preview), Reject (danger), and a ⋯ menu for Regenerate / Reschedule / Cancel / Retry, shown only when the status allows (§9.1)
 - **Failure reason:** danger tint row under the preview, with Retry.
-- **Lazy connect prompt:** orange tint card "Connect Instagram to publish" + Connect (primary).
+- **Lazy connect prompt:** orange tint card "Connect Facebook Page to publish" + Connect (primary).
 - **Grid:** 1 column < md, 2 columns md–xl, 3 columns ≥ xl. List view: dense rows (preview thumbnail 64px).
 
-### 10.8 Settings
+### 10.10 Settings
 - **Layout:** vertical tabs (Account · Connected Accounts · Business Time Zone · Language & accessibility) ≥ md; a select/accordion below md; content max 720px.
 - **Connected Accounts:** one card per platform with brand icon, account name, status (§9.3) and Connect / Reconnect / Disconnect (danger, with a confirmation dialog).
 - **Business Time Zone:** a searchable select of IANA zones showing the current local time preview, and a note that approved/scheduled Posts don't move.
 - **Language & accessibility:** a UI language segmented control (switches `lang`/`dir` without a reload) and the **"Reduce animations"** switch (§7.5).
 
-### 10.9 Notifications
+### 10.11 Notifications
 - A bell in the top bar with a count badge, opening a popover ≥ md or a full sheet < md.
 - Items: 56px rows, icon by kind, title, relative time, unread dot (mint-700) + bold title; "Mark all read".
 - Each links to its subject (the Brain review, a deliverable, Batch Review).
 
-### 10.10 Landing page (marketing)
+### 10.12 Landing page (marketing)
 | # | Section | Surface | Content and motion | Responsive |
 |---|---|---|---|---|
 | 1 | Top bar | stage | §8.5 marketing top bar | drawer < lg |
@@ -684,7 +746,7 @@ Width check: the chat column never drops below **560px** when the Canvas is dock
 
 **Hero performance:** the headline is plain text, which is the LCP element. The orbit is inline SVG/CSS (no image, no canvas), and the ring/glows are CSS gradients.
 
-### 10.11 System pages
+### 10.13 System pages
 - **404 / 500:** stage mini-hero with the hero ring, a short message, primary "Go to workspace" and secondary "Contact support".
 - **Offline / network error:** inline banner (orange tint) "You're offline — we'll retry automatically" (FTD §9.4).
 
@@ -703,6 +765,7 @@ Width check: the chat column never drops below **560px** when the Canvas is dock
    - Prices and units always come from the source text unchanged.
    - Times are always shown in the **Business Time Zone with the zone label** (FTD §9.6).
 7. **Text expansion:** English strings are often 20–30% longer than Arabic ones. Layouts never rely on fixed text widths; buttons grow and labels truncate with an ellipsis + tooltip only in dense lists.
+8. **Now/Next/Later Roadmap Columns:** Follow reading direction logic. In RTL (`dir="rtl"`), the **Now** column is positioned at the inline-start (right), **Next** is in the center, and **Later** is at the inline-end (left). In LTR (`dir="ltr"`), Now is at the left.
 
 ---
 

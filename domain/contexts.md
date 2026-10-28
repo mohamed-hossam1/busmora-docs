@@ -66,7 +66,7 @@ flowchart LR
 | Marketing Employee → Market Intelligence | Customer/Supplier | Research Crawl requests, bounded by time and budget | ≤ 5 min and ≤ the task cost ceiling; otherwise a Partial Result (01 SC-10) |
 | Marketing Employee → Deliverables | Published events | Finished Deliverables with Source Citations | Every research claim is cited (PRD FR-062) |
 | Deliverables → Governed Publishing | Customer/Supplier | Post drafts from Content Packages and Content Calendars | Any social-post content can enter Batch Review; nothing reaches a Platform any other way (01 PB-10) |
-| Governed Publishing → Channel Connections | Conformist | Use of a Connected Account for a Publish Attempt | Platform rules dictate (formats, limits, Instagram 50/24h). Lazy connection prompt (01 EP-4, PB-11) |
+| Governed Publishing → Channel Connections | Conformist | Use of a Connected Account for a Publish Attempt | Platform rules dictate (Facebook Pages in Phase 2; Instagram 50/24h and X in Phase 3). Lazy connection prompt (01 EP-4, PB-11) |
 | Governed Publishing ↔ Marketing Employee | Separated after Approval | Before Approval, the Social Posting Sub-agent prepares Post Versions. After Approval, no Employee involvement. | **No AI after Approval** (01 PB-1) |
 | Identity & Workspace → all | Shared Kernel | Workspace identity; Business Time Zone | Everything is workspace-attributable (01 DT-4, G2) |
 | All → Audit Trail / Usage Metering / Notifications | Published events | Domain events (see [events.md](./events.md)) | Audit Events are append-only and survive everything except workspace deletion (01 DT-1) |

@@ -281,16 +281,25 @@ stateDiagram-v2
   approved --> scheduled
   approved --> pending_approval: edit / regenerate
   scheduled --> pending_approval: edit / regenerate
+  scheduled --> held: material context change on pricing/offer (FR-48)
+  held --> pending_approval: owner resolves hold / re-approves details
   approved --> cancelled
   scheduled --> cancelled
+  scheduled --> expired: lateness allowance window passes without dispatch (FR-35)
   scheduled --> publishing: Scheduled Time reached / post now
   publishing --> published: success + read-back
+  publishing --> uncertain: timeout after dispatch (FR-36)
+  uncertain --> published: read-back reconciles external publication
+  uncertain --> failed: reconciliation confirms failure / manual recovery
   publishing --> failed: retries exhausted / reconnect needed
   failed --> publishing: manual retry (same version, no duplicate)
 ```
 
 Rules attached to the Post lifecycle:
-- There is no fixed approval timer. A Post expires only when its Scheduled Time passes while it is still pending.
+- Approval binds to exact Post Version, destination account, scheduled time/timezone, and maximum delivery-lateness allowance (FR-34).
+- Material context changes (pricing, offerings, service scope) place dependent scheduled posts into `held` state (FR-48) until owner resolution.
+- A Post expires if its Scheduled Time passes while still pending, or if the lateness allowance window passes without dispatch (FR-35).
+- Dispatches are verified via read-back; timeouts enter `uncertain` state until reconciled, avoiding blind duplicate posts (FR-36).
 - Automatic retries follow PRD §13.3: 2× on an API error; cooldown on a rate limit.
 - A broken credential triggers a silent refresh; if that fails, the Post goes to `failed` with "reconnect needed" and the User is notified.
 
@@ -302,6 +311,9 @@ stateDiagram-v2
   running --> awaiting_clarification
   awaiting_clarification --> running: answered
   awaiting_clarification --> cancelled: 7 days unanswered
+  running --> awaiting_budget_approval: research budget ceiling reached (FR-27)
+  awaiting_budget_approval --> running: owner approves extension
+  awaiting_budget_approval --> partially_completed: owner rejects extension (best-effort partial result)
   running --> completed
   running --> partially_completed: time or cost limit reached
   running --> failed: retries and alternatives exhausted
@@ -309,10 +321,36 @@ stateDiagram-v2
   running --> cancelled
 ```
 
+**Roadmap & Strategic Revisions**
+```mermaid
+stateDiagram-v2
+  [*] --> ActiveRoadmap: generated from 5 STAR diagnostic lenses
+  ActiveRoadmap --> ActiveRoadmap: task status change / horizon shift
+  ActiveRoadmap --> RevisionProposed: strategic trigger (CSV, manual outcome, staleness)
+  RevisionProposed --> RevisionApproved: owner approves revision diff
+  RevisionProposed --> RevisionRejected: owner rejects revision diff
+  RevisionApproved --> ActiveRoadmap: atomic cutover (new roadmap version, archive previous)
+  RevisionRejected --> ActiveRoadmap: preserve existing roadmap
+```
+
+**Roadmap Task**
+```mermaid
+stateDiagram-v2
+  [*] --> planned: created in Next / Later / Now
+  planned --> in_progress: launched by user or automated pipeline
+  in_progress --> completed: completion condition met
+  in_progress --> blocked: dependency or input missing
+  blocked --> in_progress: unblocked
+  planned --> deferred: moved back due to owner capacity
+  planned --> not_applicable: rejected/superseded (never hard deleted)
+  in_progress --> not_applicable: cancelled (preserved for history)
+```
+
 ### 3.5 Key domain events
 - **Identity:** `WorkspaceCreated`, `BusinessTimeZoneChanged`, `WorkspaceDeletionRequested`, `WorkspaceDeleted`.
 - **Market Intelligence:** `OnboardingCrawlStarted/Completed/Failed`, `BrandKitDetected`, `ResearchCrawlCompleted`, `SourceSkipped`.
 - **Brain:** `KnowledgeCandidateProposed`, `KnowledgeItemApproved`, `KnowledgeCandidateRejected`, `KnowledgeItemAddedManually`, `KnowledgeItemEdited`, `KnowledgeItemRetired`, `Relationship Added/Retired`, `KnowledgeConflictDetected`, `ProceduralRuleApproved`.
+- **Roadmap & Strategy:** `RoadmapGenerated`, `RoadmapTaskStatusChanged`, `RoadmapTaskReprioritized`, `StrategicRoadmapRevisionProposed`, `StrategicRoadmapRevisionApproved`, `StrategicRoadmapRevisionRejected`, `RoadmapTaskLaunched`, `ContextStalenessHoldApplied`.
 - **Employee:** `TaskRequested`, `TaskStarted`, `ConstraintDiagnosed`, `ClarificationRequested/Answered/Expired`, `TaskCompleted`, `TaskPartiallyCompleted`, `TaskFailed`, `TaskCancelled`, `ResourceConsumed`.
 - **Deliverables:** `DeliverableCreated`, `PerformanceReportRejected`.
 - **Publishing:** `PostDrafted`, `PostSubmittedForApproval`, `PostVersionCreated`, `PostApproved`, `PostRejected`, `PostScheduled`, `PostCancelled`, `PostExpired`, `PostPublished` (after read-back), `PostPublishFailed`.
@@ -321,6 +359,61 @@ stateDiagram-v2
 In this release these events are recorded by `busmora-api` as **rows written in the same transaction as the change**: audit, usage and notification records. There is no message bus.
 
 **Canvas progress signals are separate from domain events.** They are live-only and replayed only during a run plus a short grace window: `agent_started`, `agent_tool_used`, `agent_completed`, `agent_error`, `flow_connection` (PRD FR-045).
+
+### 3.6 Core interaction sequences
+
+#### Sequence 1: Marketing Director Diagnostic Cycle & Roadmap Generation
+```mermaid
+sequenceDiagram
+  autonumber
+  actor Owner as Business Owner
+  participant Web as busmora-web
+  participant API as busmora-api (tasks/roadmap)
+  participant Temporal as Temporal Cloud
+  participant Agent as busmora-ai (ai-agent)
+  participant Brain as Business Brain (PG + Qdrant)
+
+  Owner->>Web: Completes Onboarding / Initiates Diagnostic
+  Web->>API: POST /v1/tasks (type: DIAGNOSTIC_AND_ROADMAP)
+  API->>Temporal: Start TaskExecutionWorkflow
+  Temporal->>Agent: Execute Diagnostic with 5 STAR lenses
+  Agent->>Brain: Retrieve Approved Knowledge & Constraints
+  Brain-->>Agent: Approved Context
+  Agent->>Agent: Diagnose Primary Constraint & Synthesize Roadmap
+  Agent->>Temporal: Diagnostic Complete (Roadmap DTO with Now/Next/Later)
+  Temporal->>API: persistTaskResult & createRoadmap
+  API->>API: Enforce Capacity Constraint (1–3 active in Now)
+  API-->>Web: Emits Task Completed & Roadmap Generated
+  Web-->>Owner: Displays Today View + Now/Next/Later Board
+```
+
+#### Sequence 2: Outcome Ingestion & Strategic Roadmap Revision
+```mermaid
+sequenceDiagram
+  autonumber
+  actor Owner as Business Owner
+  participant Web as busmora-web
+  participant API as busmora-api
+  participant Temporal as Temporal Cloud
+  participant Agent as busmora-ai (ai-agent)
+  participant DB as PostgreSQL
+
+  Owner->>Web: Uploads Performance CSV / Enters Manual Outcome
+  Web->>API: POST /v1/outcomes/manual or POST /v1/performance-reports
+  API->>Temporal: Start OutcomeAnalysisWorkflow
+  Temporal->>Agent: Analyze Performance vs Roadmap Hypotheses
+  Agent->>Agent: Detect Metric Shifts / Identify Required Roadmap Pivot
+  Agent->>Temporal: Propose Strategic Revision DTO (diff: adds, shifts, drops)
+  Temporal->>API: proposeRoadmapRevision(revisionId, diff, rationale)
+  API->>DB: Store strategic_roadmap_revisions (status: pending)
+  API-->>Web: Notify Owner of Strategic Revision
+  Owner->>Web: Reviews Revision Diff Dialog
+  Owner->>Web: Clicks "Approve Revision"
+  Web->>API: POST /v1/roadmap/revisions/{id}/approve
+  API->>DB: Atomic cutover: archive v(N), activate v(N+1), apply task shifts
+  API-->>Web: 200 OK (New Roadmap Active)
+  Web-->>Owner: Updated Now/Next/Later Board & Today View
+```
 
 ---
 
@@ -384,7 +477,7 @@ flowchart LR
 | `busmora-api` (NestJS) | `api-http` | Public REST API; user auth (Argon2id, JWT, refresh rotation); rate limiting; OAuth consent callbacks + KMS encryption; uploads; SSE gateway reading Redis Streams; Temporal client (starts and signals workflows); internal HTTP client to `ai-http` |
 | | `api-activities` | Temporal **TypeScript activity worker** hosting the "platform" activities: persist task progress and results, open and cancel Clarifications, store Candidates, claim and record Post publishing, write audit, usage and notification rows |
 | `busmora-workers` (Python) | `workers-workflows` | Workflow definitions: `TaskExecutionWorkflow`, `OnboardingWorkflow`, `PostReleaseWorkflow` (one per Post), `IndexingWorkflow`, `WorkspaceDeletionWorkflow`. Sequencing only; no domain rules. |
-| | `workers-publish` | MCP publishing tools (`publish_facebook`, `publish_instagram`, `publish_x`); KMS decryption in memory; idempotent dispatch; read-back verification; token refresh. **No database access.** |
+| | `workers-publish` | MCP publishing tools (`publish_facebook` in Phase 2; `publish_instagram`, `publish_x` prepared for Phase 3); KMS decryption in memory; idempotent dispatch; read-back verification; token refresh. **No database access.** |
 | `busmora-ai` (Python) | `ai-http` | **Internal-only** FastAPI: Router and quick replies; Brain retrieval (seed + 1–2 hops). **Never writes domain data.** |
 | | `ai-agent` | Temporal activity worker: LangGraph (Router, Orchestrator, Sub-agents), LiteLLM, knowledge extraction, embedding and Qdrant indexing, Brand Visual generation, CSV KPI computation; emits Canvas signals |
 | | `ai-crawl` | Temporal activity worker: Scrapling crawlers with a bounded headless-browser pool, rotating proxies, sanitization, intent qualification |
@@ -525,8 +618,8 @@ flowchart LR
 app/
   (public)/login, register, verify, reset
   (app)/layout          ← client shell: navigation, language + direction, session
-  (app)/onboarding, employee/[conversationId], brain, deliverables, batch-review, settings
-features/<context>/      ← identity, onboarding, employee, brain, deliverables,
+  (app)/today, roadmap, onboarding, employee/[conversationId], brain, deliverables, batch-review, settings
+features/<context>/      ← identity, today, roadmap, onboarding, employee, brain, deliverables,
                            publishing, connections, settings, notifications
                            (queries, mutations, components; later: events/)
 shared/                  ← shadcn/ui components, generated API client, SSE client module,
@@ -538,6 +631,8 @@ shared/                  ← shadcn/ui components, generated API client, SSE cli
 | Area | What it provides |
 |---|---|
 | Auth | Register, email verification, login, logout, password reset |
+| Today | Default returning view (FR-02): pending approvals, scheduled posts for today, active Now roadmap tasks, active constraint diagnosis banner |
+| Roadmap | Adaptive Now/Next/Later board (FR-46): 1–3 active tasks in Now bounded by owner capacity; task cards with full attributes (rationale, owner vs native handoff, inputs, deliverable spec, dependencies, effort, completion condition, review cadence); Strategic Revision diff review and approval modal; non-applicable task display (never hard-deleted) |
 | Onboarding | Website URL; non-blocking crawl progress (pages crawled, estimated completion); Business Time Zone |
 | Marketing Employee | Conversation list and history. Split view: chat on one side, Canvas on the other (Canvas toggled on mobile). Chat message types: text, structured forms (text, radio, checkbox, dropdown, "Search yourself"), task status, Deliverable cards, knowledge notifications, errors. Replies arrive as whole messages (no token streaming). |
 | Canvas | React Flow: Orchestrator + 5 Sub-agents; idle, active, completed and error states; animated edges; abstracted tool labels |
@@ -596,7 +691,7 @@ flowchart LR
 | Server push | api → web | SSE: one stream per Task now, one workspace stream later |
 | Auth and session | web ↔ api | Auth endpoints + cookie and token rules, declared as OpenAPI security schemes |
 | Platform-connection redirects | browser ↔ api ↔ Meta / X | Start URL, api-handled callback, return route into the app |
-| Uploads | web → api | Performance CSV (multipart) |
+| Uploads | web → api | Performance CSV or Excel (.xlsx) via multipart with validation preview (FR-38) |
 
 ### 6.2 Pipeline (code-first)
 ```mermaid
@@ -613,10 +708,10 @@ flowchart LR
 
 ### 6.3 Conventions
 1. **Versioning:** a `/v1` prefix; only additive changes within a version; the frontend pins a contract version.
-2. **Resources by bounded context:** `/auth`, `/workspace`, `/onboarding`, `/conversations/{id}/messages`, `/tasks/{id}`, `/tasks/{id}/clarifications/{id}`, `/brain/items`, `/brain/relationships`, `/brain/candidates`, `/brain/conflicts`, `/brain/search`, `/deliverables`, `/posts`, `/posts/{id}/versions`, `/connections`, `/notifications`, `/performance-reports`.
+2. **Resources by bounded context:** `/auth`, `/workspace`, `/today`, `/onboarding`, `/conversations/{id}/messages`, `/tasks/{id}`, `/tasks/{id}/clarifications/{id}`, `/roadmap`, `/roadmap/tasks/{taskId}`, `/roadmap/revisions/{id}`, `/outcomes/manual`, `/brain/items`, `/brain/relationships`, `/brain/candidates`, `/brain/conflicts`, `/brain/search`, `/deliverables`, `/posts`, `/posts/{id}/versions`, `/connections`, `/notifications`, `/performance-reports`.
 3. **One error envelope:** stable code, i18n message key, details, correlation id. Domain codes cover stale Post Version, reconnect needed, capacity queued, and unrecognized CSV headers.
-4. **Optimistic concurrency:** commands on Posts and Knowledge Items carry the version they act on; a stale version returns a conflict. This is how "an Approval binds to one Post Version" is enforced at the boundary.
-5. **Idempotency keys** on non-idempotent commands: send message / start task, send to Batch Review, approve, retry publish, upload.
+4. **Optimistic concurrency:** commands on Posts, Knowledge Items, and Roadmaps carry the version they act on; a stale version returns a conflict. This is how "an Approval binds to one Post Version" and roadmap integrity are enforced at the boundary.
+5. **Idempotency keys** on non-idempotent commands: send message / start task, send to Batch Review, approve, retry publish, upload, propose/apply roadmap revision, record manual outcome.
 6. **Asynchronous work** returns "accepted" plus the resource id; progress arrives over SSE, and current state is available via GET.
 7. **Lists:** cursor pagination and filters (Deliverables by type and date; Brain by category, relationship type and text).
 8. **Time:** UTC instants plus IANA zone fields (Scheduled Time, Business Time Zone).
@@ -904,13 +999,12 @@ Format: the ADR format of the repository's `domain-modeling` skill (title, conte
   - full tiers, quotas and gating.
 - **Consequences:** prices are derived later from real usage data. All financial topics, including the payment provider, are deferred.
 
-### ADR-018 — One platform app per network, tester mode for the pilot
+### ADR-018 — One platform app, tester mode for dev with production release gate (AC-30)
 - **Decision:**
-  - One BusMora Meta app and one BusMora X developer app; BusMora pays X costs, metered per workspace.
-  - With no legal entity, the pilot runs in Meta tester mode.
-  - Instagram limit 50 posts per 24 h.
-- **Rejected:** customers bringing their own developer apps.
-- **Consequences:** a mandatory Sprint-1 check that tester-mode posts are publicly visible. Advanced Access is possible once an entity exists.
+  - One BusMora Meta app for Facebook Pages native publishing in Phase 2; Instagram Business and X are deferred to Phase 3 (K-08).
+  - Initial development runs in Meta tester mode. Release gate AC-30 requires verifying production configuration for ordinary owners without developer-role accounts before release.
+- **Rejected:** customers bringing their own developer apps; multi-platform publishing in Phase 2.
+- **Consequences:** a mandatory Sprint-1 check that tester-mode posts are publicly visible. Production app review and release verification gate (AC-30) must be cleared for release. Advanced Access is possible once an entity exists.
 
 ### ADR-019 — Crawl-only brand assets; no document ingestion
 - **Decision:**
@@ -938,8 +1032,8 @@ Format: the ADR format of the repository's `domain-modeling` skill (title, conte
 
 | # | Risk | Mitigation |
 |---|---|---|
-| R-01 | Pilot posts in Meta tester mode may be visible only to app-role users | Mandatory Sprint-1 check: publish from a tester's Page and Instagram account and verify public visibility |
-| R-02 | No legal entity, so no Meta Advanced Access | Tester mode for the pilot (≤ 50 testers is far above 1–3 pilots) |
+| R-01 | Pilot posts in Meta tester mode may be visible only to app-role users | Mandatory Sprint-1 check: publish from a tester's Page and verify public visibility; release gate AC-30 requires verifying production configuration for ordinary owners without developer-role accounts |
+| R-02 | No legal entity, so no Meta Advanced Access | Tester mode for initial development; production verification gate AC-30 ensures ordinary owners can connect and publish without developer roles |
 | R-03 | Customer data leaves MENA through Temporal Cloud and LLM providers | Region decision provisional; OD-1 (payload encryption) open |
 | R-04 | Python ↔ TypeScript activity contracts drift | Pydantic-canonical schemas, generated types, Ajv, CI drift and evolution checks (ADR-014) |
 | R-05 | Month-long workflows break on incompatible deploys | Workflow versioning discipline; additive payload evolution |

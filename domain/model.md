@@ -18,6 +18,10 @@ erDiagram
   WORKSPACE ||--o{ CONVERSATION : has
   CONVERSATION ||--o{ MESSAGE : contains
   CONVERSATION ||--o{ TASK : "starts"
+  WORKSPACE ||--o{ ROADMAP : "maintains"
+  ROADMAP ||--|{ ROADMAP_TASK : "contains"
+  ROADMAP_TASK |o--o| TASK : "launches"
+  ROADMAP_TASK ||--o{ DELIVERABLE : "references/produces"
   TASK ||--o{ CLARIFICATION : "pauses for"
   TASK ||--o{ SUBAGENT_WORK : delegates
   TASK ||--o{ DELIVERABLE : produces
@@ -27,6 +31,7 @@ erDiagram
   WORKSPACE ||--o{ ONBOARDING_CRAWL : runs
   DELIVERABLE ||--o{ SOURCE_CITATION : cites
   DELIVERABLE ||--o{ POST : "proposes (draft)"
+  DELIVERABLE ||--o{ AGGREGATE_OUTCOME : "records"
   POST ||--|{ POST_VERSION : "has versions"
   POST }o--|| CONNECTED_ACCOUNT : "targets"
   POST_VERSION ||--o{ PUBLISH_ATTEMPT : "published via"
@@ -61,6 +66,9 @@ erDiagram
 | Entity | Meaning | Key attributes | Invariants |
 |---|---|---|---|
 | **Conversation** (aggregate root) | The ongoing exchange between the User and the Employee | Messages (text, structured form, task status, Deliverable card, knowledge notification, error), language | Persisted in full (PRD FR-033) |
+| **Roadmap** (aggregate root) | The editable, versioned Now/Next/Later marketing roadmap produced and maintained by the Director (FR-16) | version, primary constraint hypothesis (one of 5 STAR lenses), rationale, status ∈ {active, proposed_revision, superseded}, created-at, updated-at | Exactly one active Roadmap per Workspace. Strategic revisions require explicit owner review before application (FR-16, FR-40). |
+| **Roadmap Task** | One executable marketing task positioned on the roadmap (FR-46) | title, rationale (evidence citation), responsible party ∈ {Director, Owner, Delegated}, execution mode ∈ {Native, Owner Handoff (FR-49)}, inputs, deliverable spec, dependencies, effort ∈ {low, medium, high}, horizon ∈ {Now, Next, Later}, status ∈ {active, blocked, deferred, not_applicable, completed}, completion condition, review cadence, linked Task id, created-at | Default 1–3 active tasks in "Now"; fewer if owner capacity requires (FR-16). Non-applicable work is marked, not deleted. Can be launched directly or in sequence. |
+| **Strategic Roadmap Revision** | A proposed update to the roadmap prompted by evidence or outcomes (FR-16, FR-40, FR-47) | proposed changes (diff), rationale, dependencies impact, capacity impact, status ∈ {pending_review, approved, rejected}, proposed-at, decided-at | Requires explicit owner review. Does not silently authorize external actions or spend (FR-37). |
 | **Task** (aggregate root) | One unit of requested marketing work | type, request, Constraint Diagnosis, plan, status, frozen configuration, start and end times, cost so far | Status ∈ {requested, running, awaiting clarification, completed, partially completed, failed, cancelled}. At most 2 running per Workspace (01 SC-9). Bounded by time and cost (SC-10). Survives restarts (DL-1). |
 | **Clarification** | A pause asking the User for missing information | form fields, per-field "Search Yourself", answers, asked-at, expires-at (asked-at + 7 days) | Answers resume the Task. Expiry cancels the Task with a Notification (01 DL-1). Answers about the Business also become Candidates (BG-2). |
 | **Sub-agent Work** | One delegation from the Orchestrator to a Sub-agent | Sub-agent, input summary, result summary, status, user-visible tool labels | Sub-agents never talk to each other directly (PRD §9.5) |
@@ -81,7 +89,8 @@ erDiagram
 |---|---|---|---|
 | **Deliverable** (aggregate root) | Finished work kept in the Workspace | type ∈ {Research Report, Competitor Analysis, Content Package, Content Calendar, Performance Diagnosis, General}, title, content, originating Task, created-at | Immutable once delivered; follow-up work produces a new Deliverable |
 | **Source Citation** (value) | Reference behind a claim | URL, platform, accessed-at | Required for every research claim (PRD FR-26). Raw content isn't kept with it. |
-| **Performance Report** | The uploaded results file or manual aggregate entry | file (CSV or Excel `.xlsx`) or manual entry, normalized columns, validation outcome | Rejected with clear error and template fallback if unrecognized (FR-38, FR-47). Deterministic KPIs are computed by backend code before AI interpretation. |
+| **Performance Report** | The uploaded results file | file (CSV or Excel `.xlsx`), normalized columns, validation outcome | Rejected with clear error and template fallback if unrecognized (FR-38). Deterministic KPIs are computed by backend code before AI interpretation. |
+| **Aggregate Outcome** | Owner-captured aggregate inquiries, bookings, spend, or qualitative observations (FR-47) | reporting period, inquiries count, qualified count, bookings count, spend, currency, qualitative notes, reporting owner | Unknown fields remain optional and never default to zero (FR-47). Prompts proposed review decisions and roadmap revisions without contact-level PII storage. |
 
 ### Governed Publishing
 
@@ -164,4 +173,32 @@ stateDiagram-v2
   running --> failed: all retries and alternatives exhausted
   requested --> cancelled
   running --> cancelled
+```
+
+### Roadmap & Strategic Revisions
+```mermaid
+stateDiagram-v2
+  [*] --> active: initial diagnosis complete (FR-16)
+  active --> proposed_revision: new evidence / outcome review (FR-47)
+  proposed_revision --> active: User approves revision
+  proposed_revision --> active: User rejects revision (planning decision preserved)
+  active --> superseded: new approved roadmap version applied
+```
+
+### Roadmap Task
+```mermaid
+stateDiagram-v2
+  [*] --> Now: prioritized as active work (1–3 max)
+  [*] --> Next: queued behind active dependencies
+  [*] --> Later: strategic backlog / exploratory
+  Now --> Next: reprioritized by User or capacity hold
+  Next --> Now: promoted when capacity frees
+  Next --> Later: deferred by User
+  Later --> Next: promoted as prerequisites complete
+  Now --> blocked: unmet dependency / external obstacle
+  blocked --> Now: dependency resolved
+  Now --> completed: completion condition verified (FR-46)
+  Now --> not_applicable: User marks as irrelevant
+  Next --> not_applicable: User marks as irrelevant
+  Later --> not_applicable: User marks as irrelevant
 ```

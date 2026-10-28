@@ -47,13 +47,20 @@
 
 | Event | When | Essential data | Consumers |
 |---|---|---|---|
+| **RoadmapGenerated** | Initial 5 STAR diagnosis completes and produces first versioned roadmap (FR-16, AC-04) | Roadmap, primary constraint hypothesis, tasks | Today view, Notifications; *A* |
+| **RoadmapTaskStatusChanged** | Roadmap task changes status (active, blocked, deferred, completed) from execution events | task id, old status, new status, completion condition | Today view, Roadmap UI; *A* |
+| **RoadmapTaskReprioritized** | Owner reorders tasks or shifts horizon (Now, Next, Later) within capacity bounds (FR-16) | task id, old horizon, new horizon, order | Roadmap UI; *A* |
+| **StrategicRoadmapRevisionProposed** | Performance learning, new evidence, or completed work prompts strategic plan changes (FR-16, FR-40, FR-47) | revision id, proposed task changes (diff), rationale, capacity impact | Review & Approvals, Today view; *N* |
+| **StrategicRoadmapRevisionApproved** | Owner reviews and accepts proposed roadmap revisions | revision id, new roadmap version | Roadmap (applies new version); *A* |
+| **StrategicRoadmapRevisionRejected** | Owner rejects proposed roadmap revisions | revision id, reason (planning override) | Roadmap (preserves planning decision, FR-16); *A* |
+| **RoadmapTaskLaunched** | Owner launches execution of an active roadmap task (native task or owner handoff, FR-46, FR-49) | roadmap task id, Task id, execution mode | Marketing Employee (starts Task or emits handoff guide) |
 | **TaskRequested** | User sends a message that needs work, or Router classifies it complex | Task, request, Conversation | Canvas (acknowledgement ≤ 2 s, 01 DL-3) |
 | **TaskStarted** | Capacity available (≤ 2 running per Workspace) | Task, frozen configuration | — |
-| **ConstraintDiagnosed** | Orchestrator settles the commercial bottleneck | discovery / positioning / conversion | Task record |
+| **ConstraintDiagnosed** | Orchestrator settles the commercial bottleneck | 5 STAR lens hypothesis (Situation, Traffic, Activation, Retention, Operations) | Task record, Roadmap |
 | **ClarificationRequested** | Missing information found (PRD §9.3) | form, expires-at (+7 days) | Conversation (form message) |
 | **ClarificationAnswered** | User submits the form (any field may be "Search Yourself") | answers | Task resumes; Business Brain (answers about the Business → Candidates, 01 BG-2) |
 | **ClarificationExpired** | 7 days unanswered | Task | Task cancelled; *N* |
-| **TaskCompleted** | All steps done | Task, Deliverables | Deliverables; Business Brain (Knowledge Extraction → Candidates); *N* (follow-up suggestions, PRD §8.2) |
+| **TaskCompleted** | All steps done | Task, Deliverables | Deliverables; Business Brain (Knowledge Extraction → Candidates); Roadmap (updates task completion, FR-46); *N* (follow-up suggestions, PRD §8.2) |
 | **TaskPartiallyCompleted** | Time or cost limit reached (01 SC-10) | what's missing | Deliverables (labelled partial); *N* |
 | **TaskFailed** | Retries and alternatives exhausted (PRD §13.2) | user-facing explanation | *N* (transparent error) |
 | **TaskCancelled** | User cancels or Clarification expires | reason | — |
@@ -78,6 +85,7 @@
 | **PostApproved** | User approves one or many ("approve all remaining") | Post, approved Post Version | *A* |
 | **PostRejected** | User rejects | Post | *A* |
 | **PostScheduled** | Approved Post has its release time | Scheduled Time (instant + zone) | — |
+| **ContextStalenessHoldApplied** | Material change to core facts (pricing, offers) places scheduled post on hold (FR-48) | Post id, conflicting fact id, hold reason | Governed Publishing (enters held state); *N*; *A* |
 | **PostCancelled** | User cancels before publishing (01 PB-6) | Post | *A* |
 | **PostExpired** | Pending when its Scheduled Time passed (01 PB-7) | Post | *N* |
 | **PostPublished** | Publish Attempt succeeded **and** Read-back Verification confirmed | platform post id, URL | *A*; *N* (per-post result); *U* (X post cost) |
