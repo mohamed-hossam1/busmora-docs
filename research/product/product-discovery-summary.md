@@ -61,7 +61,7 @@ The Marketing Employee is not a chat prompt box. It is an **orchestrating execut
 2. **Turns Decisions into Workflows** — converts a high-level decision (e.g., "launch campaign for product X in the Gulf") into an autonomous multi-step workflow without manual handoffs.
 3. **Escapes the Editing Trap** — produces culturally authentic, dialect-aware Arabic copy backed by grounded market research, avoiding robotic "AI slop."
 4. **Uses Real Market Data** — crawls live platforms (Reddit, YouTube, Facebook Ads Library, competitor sites) to extract authentic customer sentiment and competitor plays.
-5. **Executes with Frictionless Governance** — delivers ready-to-publish assets into a rapid Batch Approval UI (designed for fast confidence in seconds) and publishes directly with read-back verification across Facebook, Instagram, and X.
+5. **Executes with Frictionless Governance** — delivers ready-to-publish assets into a rapid Review & Approval UI (designed for fast confidence in seconds) and publishes directly with read-back verification on Facebook Pages (Phase 2), with Instagram and X planned for Phase 3.
 6. **Continuously Improves** — extracts reusable knowledge from finished tasks into the Business Brain.
 
 ### The Flywheel
@@ -135,7 +135,7 @@ BusMora competes as an **Autonomous Execution Layer delivering native Arabic mar
 | Target market | Arabic-first SMBs (5–50 employees), e-commerce and local services |
 | First Employee | Marketing Employee (only product in this release) |
 | Strategy | Vertical specialization; focused product with domain-neutral seams |
-| Platforms for posting | Facebook Pages + Instagram Business + X |
+| Platforms for posting | Facebook Pages in Phase 2 (Instagram Business and X in Phase 3) |
 | Language | Bilingual (Arabic + English), Arabic-first |
 | Workspace | Single user |
 | Campaign model | Content Calendar |
@@ -180,10 +180,10 @@ BusMora competes as an **Autonomous Execution Layer delivering native Arabic mar
 
 | Decision | Choice |
 |---|---|
-| Team | 4 students |
-| Timeline | 6 months (24 weeks), vertical end-to-end ownership |
-| Scope | Full product scope delivered in a single 6-month release |
-| Intent | Real product launch (graduation project context) with a paid pilot |
+| Team | 5 students |
+| Timeline | 24 weeks (~2,400 productive hours: 18 weeks feature dev + 6 weeks stabilization), vertical workstream ownership |
+| Scope | Phase 2 first production-ready release contract |
+| Intent | Real product launch (graduation project context) evaluated over 24-case benchmark suite and AC-01–30 |
 
 ---
 
@@ -196,7 +196,7 @@ BusMora competes as an **Autonomous Execution Layer delivering native Arabic mar
 | 3 | Website crawling produces strong enough knowledge candidates for a good first impression | Test against a set of real business websites |
 | 4 | The reviewed Business Brain reduces rework compared to plain document retrieval | Control-vs-treatment measurement across representative tasks |
 | 5 | Arabic-native generation is materially better than generic tools | Arabic quality rubric scored by reviewers |
-| 6 | 4 students deliver the full scope in 6 months | Vertical-slice milestones with weekly demos |
+| 6 | 5 students deliver the Phase 2 scope in 24 weeks (~2,400 hours) | Vertical-workstream milestones with weekly demos and 24-case evaluation suite |
 | 7 | Batch review is a good approval experience, not a burden | Sessions with pilot users during the pilot |
 
 ---

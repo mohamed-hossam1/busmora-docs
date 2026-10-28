@@ -24,6 +24,8 @@
 | **OnboardingCrawlFailed** | Site unreachable after retries | reason | *N* ("could not access your website") |
 | **BrandKitDetected** | Logo, colors or font found during the Onboarding Crawl | detected elements, not-detected elements | Business Brain (Brand Kit facts; "logo not detected" flag, 01 BA-3) |
 | **ResearchCrawlCompleted** | Gathering for a Task ends | sources used, sources skipped with reason, Research Signals, partial flag | Marketing Employee (continue Task); *U* |
+| **ResearchBudgetExtensionRequested** | Task reaches authorized computational/tool budget | task id, current usage, requested extension, reason | Owner Approval prompt (FR-27) |
+| **ResearchBudgetExtensionApproved** | Owner explicitly authorizes additional budget | task id, approved budget | Task resumes inside extended quota; *A*, *U* |
 | **SourceSkipped** | CAPTCHA, persistent rate limit or block on a source | source, reason | Marketing Employee (try alternatives); *N* (transparent notice, PRD §13.1) |
 
 ## 3. Business Brain
@@ -38,6 +40,7 @@
 | **KnowledgeItemRetired** | User "deletes" or supersedes an item (01 BG-3) | item, reason | Marketing Employee (stop using it); *A* |
 | **RelationshipAdded / RelationshipRetired** | User draws or removes a link, or an approved Candidate brings one | from, to, type | *A* |
 | **KnowledgeConflictDetected** | New knowledge contradicts approved knowledge | items involved | *N* ("which is correct?", PRD §13.4) |
+| **ContextStalenessDetected** | Material change to core facts (pricing, offers, claims) flags dependent work | modified item, affected Tasks and Posts | Governed Publishing (places affected posts on hold, FR-48); *N* |
 | **ProceduralRuleApproved** | Review approves a Procedural Rule | rule, scope | Marketing Employee (applies to future generation); *A* |
 
 ## 4. Marketing Employee
@@ -61,7 +64,9 @@
 | Event | When | Essential data | Consumers |
 |---|---|---|---|
 | **DeliverableCreated** | Task output is finalized | type, Task, Source Citations | Conversation (Deliverable card); Governed Publishing (offers its posts for Batch Review, as drafts); Business Brain (reusable facts → Candidates) |
-| **PerformanceReportRejected** | Uploaded file fails validation | reason (unrecognized columns) | Conversation (clear error, FR-095) |
+| **PerformanceReportIngested** | CSV or Excel (`.xlsx`) performance file passes validation | metric definitions, date range, normalized data | Deliverables, Business Brain; *A* |
+| **AggregateOutcomeRecorded** | Owner logs manual aggregate inquiries/bookings | period, metric values, notes | Performance Learning, Roadmap review (FR-47); *A* |
+| **PerformanceReportRejected** | Uploaded file fails validation | reason (unrecognized columns) | Conversation (clear error with template fallback, FR-38) |
 
 ## 6. Governed Publishing
 

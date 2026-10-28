@@ -1,6 +1,6 @@
 # BusMora — Project Documentation & Architecture
 
-> **BusMora** is an autonomous AI Marketing Employee platform designed for Arabic-first small and medium businesses (5–50 employees) in Egypt and the GCC. It combines a reviewed **Business Brain** (knowledge graph + style memory) with an **autonomous execution layer** that researches markets, writes culturally authentic Arabic content, plans campaigns, and safely publishes to social media under human batch approval.
+> **BusMora** is an autonomous **AI Marketing Director** platform designed for Arabic-first small and medium businesses (5–50 employees, service businesses and SMBs selling via inquiries/bookings) in Egypt and the GCC. It combines a reviewed **Business Brain** (relational concept graph + procedural rules) with an **autonomous execution layer** that diagnoses commercial constraints using the **5 STAR Lenses**, prioritizes an adaptive **Now/Next/Later Roadmap**, writes culturally authentic Arabic content across 4 registers, conducts dynamic research with per-task budgets, and safely publishes to social media under human approval.
 
 ---
 
@@ -8,8 +8,9 @@
 
 ```
 busmora-docs/
-├── core/                         # The 4 Canonical Specifications
-│   ├── prd.md                    # Product Requirements Document (PRD v2.0)
+├── core/                         # The 5 Canonical Specifications
+│   ├── prd.md                    # Product Requirements Document (PRD v1.1)
+│   ├── DESIGN-SYSTEM.md          # Design Tokens, Components & RTL Layouts
 │   ├── SYSTEM-ARCHITECTURE.md    # Canonical System Architecture v1.0
 │   ├── BACKEND-TECHNICAL-DESIGN.md# Backend Monolith & Worker Design
 │   ├── FRONTEND-TECHNICAL-DESIGN.md# Frontend CSR & Event Shell Design
@@ -21,10 +22,10 @@ busmora-docs/
 │   ├── events.md                 # Domain Events Catalog & Outbox Schemas
 │   └── README.md
 ├── strategy/                     # Product, Business & Governance Strategy
-│   ├── business-model-value-proposition.md # 4-Pillar Moat & Pricing Tiers
-│   ├── mvp-definition.md         # 24-Week MVP Scope & Sarah Persona Journeys
-│   ├── evaluation.md             # Arabic Evaluation Rubric & Brain Benchmark
-│   ├── decision-registry.md      # Authoritative Decision Registry (D-01 to D-54)
+│   ├── business-model-value-proposition.md # 4-Pillar Moat & Phased Commercialization
+│   ├── mvp-definition.md         # Phase 2 Release Contract (24 Weeks, 5 Students)
+│   ├── evaluation.md             # 24-Case Scenario Library & AC-01–30 Release Gates
+│   ├── decision-registry.md      # Authoritative Decision Registry (D-01 to D-60)
 │   └── README.md
 ├── research/                     # Discovery, Benchmarks & Deep Analysis
 │   ├── product/                  # Customer & Market Research
@@ -54,9 +55,10 @@ busmora-docs/
 
 ## 1. Core Specifications (`core/`)
 
-The 4 canonical documents defining the functional and architectural contract are in [**`core/`**](./core/README.md):
+The 5 canonical documents defining the functional and architectural contract are in [**`core/`**](./core/README.md):
 
-* [**Product Requirements Document (`prd.md`)**](./core/prd.md) — Core functional (FR) and non-functional (NFR) requirements, sub-agent capabilities, and acceptance criteria.
+* [**Product Requirements Document (`prd.md`)**](./core/prd.md) — PRD v1.1: Authoritative release contract covering FR-01–49, NFR-01–09, and AC-01–30 for the 24-week Phase 2 release.
+* [**Design System (`DESIGN-SYSTEM.md`)**](./core/DESIGN-SYSTEM.md) — Design tokens, component behaviors, typography scales, and strict RTL-first bidirectional layout rules.
 * [**System Architecture v1.0 (`SYSTEM-ARCHITECTURE.md`)**](./core/SYSTEM-ARCHITECTURE.md) — 4 deployables, 8 process roles, Platform-Centred backend style, Amendment A1 (internal HTTP for quick replies $\le 3\text{s}$ and Brain search), multi-tenant isolation, and KMS envelope encryption.
 * [**Backend Technical Design (`BACKEND-TECHNICAL-DESIGN.md`)**](./core/BACKEND-TECHNICAL-DESIGN.md) — NestJS modular monolith across 13 business modules, Drizzle ORM (sole writer), ambient Unit of Work, contract system, Temporal workflows, and read-only views with RLS for Python compute.
 * [**Frontend Technical Design (`FRONTEND-TECHNICAL-DESIGN.md`)**](./core/FRONTEND-TECHNICAL-DESIGN.md) — Next.js 14+ client-rendered application (CSR) prepared for Workspace Event Shell (FE-3), feature-by-context boundaries, React Query caching, central security gateways, and RTL-first styling.
@@ -67,9 +69,9 @@ The 4 canonical documents defining the functional and architectural contract are
 
 The domain taxonomy and aggregate models are in [**`domain/`**](./domain/README.md):
 
-* [**Ubiquitous Language & Glossary (`GLOSSARY.md`)**](./domain/GLOSSARY.md) — Canonical terminology, forbidden synonyms, and lifecycle statuses.
-* [**Bounded Contexts (`contexts.md`)**](./domain/contexts.md) — Clear boundaries and ownership across Core (Business Brain), Supporting, and Generic contexts.
-* [**Domain Model (`model.md`)**](./domain/model.md) — Aggregates, entity lifecycles, and domain invariants.
+* [**Ubiquitous Language & Glossary (`GLOSSARY.md`)**](./domain/GLOSSARY.md) — Canonical terminology, forbidden synonyms, and lifecycle statuses (AI Marketing Director, Now/Next/Later, STAR Lenses, Context Staleness Holds, Honest Handoffs).
+* [**Bounded Contexts (`contexts.md`)**](./domain/contexts.md) — Clear boundaries and ownership across Core (Business Brain, Marketing Employee, Governed Publishing), Supporting, and Generic contexts.
+* [**Domain Model (`model.md`)**](./domain/model.md) — Aggregates, entity lifecycles, and domain invariants including post `held` states and per-task research budgets.
 * [**Domain Events (`events.md`)**](./domain/events.md) — Immutable domain event catalog, payload schemas, and transactional outbox conventions.
 
 ---
@@ -78,10 +80,10 @@ The domain taxonomy and aggregate models are in [**`domain/`**](./domain/README.
 
 Business models, release boundaries, and decision records are in [**`strategy/`**](./strategy/README.md):
 
-* [**Business Model & Value Proposition**](./strategy/business-model-value-proposition.md) — 4-pillar defensibility moat, competitive positioning, and cost-derived Stripe tiers.
-* [**MVP Definition**](./strategy/mvp-definition.md) — 24-week full-scope release boundaries, Sarah persona, and 7 core user journeys.
-* [**Evaluation Plan**](./strategy/evaluation.md) — Rubrics for Arabic fluency, dialect fit (Egyptian, Gulf, MSA), blind Brain treatment-vs-control testing, and execution reliability.
-* [**Decision Registry**](./strategy/decision-registry.md) — Authoritative historical record of product and architecture decisions (D-01 to D-54).
+* [**Business Model & Value Proposition**](./strategy/business-model-value-proposition.md) — 4-pillar defensibility moat, competitive positioning, and phased commercialization.
+* [**MVP Definition**](./strategy/mvp-definition.md) — Phase 2 release contract (24 weeks by 5 students across 5 workstreams, ~2,400 hours), 5 STAR diagnostic lenses, and 7 core user journeys.
+* [**Evaluation Plan**](./strategy/evaluation.md) — 24-case scenario library with contrast pairs, 30 release acceptance gates (AC-01 through AC-30), Arabic quality rubrics across 4 registers, and blind Brain benchmark.
+* [**Decision Registry**](./strategy/decision-registry.md) — Authoritative historical record of product and architecture decisions (D-01 to D-60).
 
 ---
 

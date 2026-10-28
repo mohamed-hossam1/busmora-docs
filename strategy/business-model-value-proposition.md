@@ -1,19 +1,19 @@
 # Business Model & Value Proposition
 
-## BusMora: AI Marketing Employee Platform for Arabic-First SMBs
+## BusMora: AI Marketing Director Platform for Arabic-First SMBs
 
-> Document Version: 2.0 — October 2026
+> Document Version: 2.1 — October 2026 (PRD v1.1 Alignment)  
 > Deliverable of the Product Discovery Phase
 
 ---
 
 ## 1. Executive Summary
 
-**BusMora** is a specialized SaaS platform offering an autonomous, context-aware **AI Marketing Employee** to small and medium-sized businesses (5–50 employees), focused on the **Arabic-speaking market** where global marketing tools are weakest. 
+**BusMora** is a specialized SaaS platform offering an autonomous, context-aware **AI Marketing Director** to small and medium-sized businesses (5–50 employees), focused on the **Arabic-speaking market** where global marketing tools are weakest. 
 
-While first-generation AI tools act as **"Manual Work Multipliers"**—confining themselves to brainstorming/ideation while forcing founders into an exhausting cycle of prompt engineering, robotic copy editing, and tool-hopping—BusMora operates as an **Autonomous Execution Layer**. By uniting deep external market intelligence (crawling Reddit, YouTube, Facebook Ads Library, and the web) with an internal company knowledge engine (**Business Brain**), and by delivering **native, dialect-aware Arabic content**, BusMora turns strategic decisions into end-to-end completed marketing workflows.
+While first-generation AI tools act as **"Manual Work Multipliers"**—confining themselves to brainstorming/ideation while forcing founders into an exhausting cycle of prompt engineering, robotic copy editing, and tool-hopping—BusMora operates as an **Autonomous Execution Layer**. By uniting deep external market intelligence (crawling Reddit, YouTube, public websites) with an internal company knowledge engine (**Business Brain**), structured commercial diagnosis (**5 STAR Lenses** + **Now/Next/Later Roadmap**), and **native, dialect-aware Arabic content**, BusMora turns strategic decisions into end-to-end completed marketing workflows.
 
-Our differentiator is not generic "business context" (a commodity). It is **Arabic-native quality plus provenance-backed, approval-governed execution without the babysitting burden**—a combination that Western point tools and generic LLMs cannot match in this region.
+Our differentiator is not generic "business context" (a commodity). It is **Arabic-native quality, evidence-backed constraint diagnosis, and provenance-backed, approval-governed execution without the babysitting burden**—a combination that Western point tools and generic LLMs cannot match in this region.
 
 ---
 
@@ -27,7 +27,7 @@ Our differentiator is not generic "business context" (a commodity). It is **Arab
   * Conduct regular competitor intelligence and discover authentic market trends.
   * Plan monthly or weekly content calendars across multiple platforms.
   * Write engaging, culturally resonant copy natively in Arabic (Egyptian conversational, Gulf lifestyle, or Modern Standard) and English.
-  * Publish content consistently on Facebook, Instagram, and X with verifiable delivery.
+  * Publish content consistently on Facebook Pages (Phase 2), expanding to Instagram and X (Phase 3) with verifiable delivery.
   * Maintain brand identity and messaging coherence across all channels.
 * **Social Jobs:**
   * Project an image of an active, modern, and credible brand.
@@ -59,9 +59,9 @@ Our differentiator is not generic "business context" (a commodity). It is **Arab
 
 | Pain Relievers | Gain Creators | Product & Service Offerings |
 | :--- | :--- | :--- |
-| **Business Brain (Anti-Amnesia):** Ingests company profile, brand voice, and offerings once; permanently retains context and continuously improves from completed tasks. | **Autonomous Workflow Orchestration:** Turns high-level decisions into complete deliverables (research → copy → visual composite → schedule) with zero manual handoffs. | **AI Marketing Employee (BusMora):** Multi-agent orchestrator acting as a dedicated marketing department head. |
-| **Arabic-Native Dialect Engine (Anti-Slop):** Bilingual, dialect-aware generation (Egyptian conversational, Gulf lifestyle, MSA) with full RTL support, eliminating the "editing trap." | **Verified Multi-Platform Intelligence:** Active crawlers gathering authentic sentiment (Reddit, YouTube) and live competitor campaigns (Facebook Ads Library). | **Knowledge Lifecycle Engine:** Auto-extracts verified facts from websites, tasks, and conversations into an auditable relational graph. |
-| **Unified Execution Hub (Anti-Tool-Hopping):** All-in-one flow eliminating fragmented point tools; delivers ready-to-publish assets directly to an approval queue. | **15-Minute Operational Wins:** Rapid Batch Approval UI designed for fast confidence rather than tedious micromanagement. | **MCP Publishing Connectors:** Secure, idempotent posting pipelines with read-back verification across Facebook, Instagram, and X. |
+| **Business Brain (Anti-Amnesia):** Ingests company profile, brand voice, and offerings once; permanently retains context and continuously improves from completed tasks. | **Autonomous Workflow Orchestration:** Turns high-level decisions into complete deliverables (research → copy → visual briefs → schedule) with zero manual handoffs. | **AI Marketing Director (BusMora):** Multi-agent orchestrator diagnosing commercial constraints and guiding marketing execution. |
+| **Arabic-Native Dialect Engine (Anti-Slop):** Bilingual, dialect-aware generation (Egyptian conversational, Gulf lifestyle, MSA) with full RTL support, eliminating the "editing trap." | **Verified Multi-Platform Intelligence:** Active crawlers gathering authentic sentiment (Reddit, YouTube) and public market intelligence. | **Knowledge Lifecycle Engine:** Auto-extracts verified facts from websites, tasks, and conversations into an auditable relational graph. |
+| **Unified Execution Hub (Anti-Tool-Hopping):** All-in-one flow eliminating fragmented point tools; delivers ready-to-publish assets directly to an approval queue. | **15-Minute Operational Wins:** Rapid Batch Approval UI designed for fast confidence rather than tedious micromanagement. | **Governed Publishing Connectors:** Secure, idempotent posting pipelines with read-back verification on Facebook Pages (Phase 2), with Instagram and X designed for Phase 3. |
 | **Safe Governance Gates:** Strict Human-in-the-Loop review ensures zero unverified or accidental external publishing. | **Observable Agent Canvas:** Real-time visibility into agent reasoning, subtask routing, and data gathering, building user trust. | **Deliverables System:** Permanent central repository for research briefs, content calendars, and performance diagnoses. |
 
 ---

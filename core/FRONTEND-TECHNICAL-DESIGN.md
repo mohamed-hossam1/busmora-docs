@@ -52,7 +52,7 @@
 ## 2. Internal architecture pattern
 
 ### 2.1 Forces
-1. **Eight screen areas** map to the backend's bounded contexts. Four people build them in vertical slices alongside the backend modules.
+1. **Eight screen areas** map to the backend's bounded contexts. Five people build them in vertical workstreams alongside the backend modules (PRD §13.1).
 2. **Many live surfaces** (Canvas, crawl progress, Post statuses, badges) need one consistent approach, which must later switch from polling to a workspace event stream with minimal change.
 3. **Strict security rules** on tokens and streams must live in one place.
 4. **Arabic-first right-to-left UI** must be the default in every component, not a retrofit.

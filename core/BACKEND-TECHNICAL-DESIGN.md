@@ -58,7 +58,7 @@ These are fixed by [SYSTEM-ARCHITECTURE.md](./SYSTEM-ARCHITECTURE.md). This docu
 ### 2.1 Forces
 1. **Single writer** (S-1): one NestJS codebase holds every business rule for 13 business areas. Without strong internal boundaries it becomes one tangled service.
 2. **Cross-context transactions are required.** For example, completing a Task writes Deliverables, Candidates, usage, audit and notifications **in one transaction** (SYS §4.6).
-3. **Four students, vertical-slice ownership** (K-01). A feature must be findable in one place, and members must not tread on each other.
+3. **Five students, vertical-slice ownership** (K-01, PRD §13.1). A feature must be findable in one place, and members must not tread on each other across their designated workstreams.
 4. **Testability without the network.** LLMs, crawlers, Meta, X, KMS and Temporal must be replaceable in tests.
 5. **A future Employee** (AG-8) should be addable as new configuration, capabilities and graph nodes, not a rewrite.
 6. **Long-lived workflows** (up to a month) need contracts and schemas that only grow (S-10).
@@ -369,8 +369,8 @@ busmora-backend/
 │   │   │   ├── activity_refs/                # typed references to activities on other task queues (platform.*, ai.*, crawl.*)
 │   │   │   ├── publish/                      # role workers-publish (ports and adapters)
 │   │   │   │   ├── activities/               # publish_post_version, read_back, refresh_credential
-│   │   │   │   ├── mcp_server/               # MCP tools: publish_facebook, publish_instagram, publish_x (FR-102)
-│   │   │   │   ├── platforms/                # anti-corruption adapters for Meta Graph / Instagram and X API v2
+│   │   │   │   ├── mcp_server/               # MCP tools: publish_facebook (Phase 2); publish_instagram, publish_x (Phase 3)
+│   │   │   │   ├── platforms/                # anti-corruption adapters for Meta Graph (FB Pages in Phase 2; IG/X in Phase 3)
 │   │   │   │   └── secrets/                  # KMS decryption, in memory only
 │   │   │   ├── config/                       # settings validated with Pydantic models
 │   │   │   └── observability/                # logging setup, trace-id propagation

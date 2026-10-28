@@ -1,158 +1,116 @@
-# Evaluation Plan
+# Evaluation Plan & Acceptance Framework
 
-> How BusMora measures whether its core claims hold. Every claim is verified with evidence gathered from human reviewers and instrumented product data — not from assertions.
-
----
-
-## 1. Purpose
-
-BusMora makes three central product claims. This document defines how each is tested:
-
-1. **Arabic quality** — output reads as natively written, not translated.
-2. **Brain value** — grounding in the Business Brain produces better results than raw document retrieval.
-3. **Execution reliability** — approved content is published correctly and verifiably.
+> **Version:** 2.0 (PRD v1.1 Alignment) · **Date:** 28 October 2026  
+> **Status:** Canonical Quality & Verification Contract — Aligned with [PRD v1.1 (`core/prd.md`)](../core/prd.md) §9–§10.
 
 ---
 
-## 2. Methodology Overview
+## 1. Purpose & Guiding Principles
 
-Evaluation combines:
+This document defines how BusMora evaluates whether its core product and architecture claims hold. Every claim is verified with empirical evidence gathered from human reviewers, held-out business cases, and instrumented system data—not from assertions or unverified simulations.
 
-- **Human review sessions** — reviewers score outputs against published rubrics.
-- **Paired comparisons** — grounded Brain results are compared against a document-only baseline on the same tasks.
-- **Instrumented product data** — approval, edit, correction, and publishing records collected by the platform.
-- **LLM tracing** — per-task cost, latency, and model behavior captured in Langfuse.
-
-The evaluation is conducted by humans on a defined scenario set. It is designed to be repeatable: the same scenarios, rubrics, and scoring sheets are used for each round so results are comparable over time.
+### Core Principles
+1. **Continuous Evaluation:** Evaluation runs throughout the 24-week development lifecycle, combining functional, integration, security, and reliability checks with native human review.
+2. **Graduation & Release Prerequisite:** Acceptance is determined by passing all 30 release scenarios (AC-01 through AC-30) and meeting strict quality/safety gates. Paid pilots and a fixed number of external testers are commercial learning opportunities, **not graduation prerequisites**.
+3. **Truthfulness Over Optimism:** Mocked operations, simulated agent activity, and interface-only demonstrations cannot establish capability completion. Any observed critical violation blocks release until repaired.
 
 ---
 
-## 3. Scenario Set
+## 2. Methodology & Instrumentation
 
-A fixed library of realistic marketing scenarios drawn from the target segment (Arabic-first SMBs in e-commerce and local services). Each scenario specifies:
-
-- A seeded workspace with representative Business Brain content.
-- A user request and any clarification turns.
-- The expected deliverable type.
-- The rubric dimensions that apply.
-
-Scenario categories:
-
-| Category | Example |
-|---|---|
-| Brand voice definition | "Define our brand voice for a Gulf audience" |
-| Market research | "Research the skincare market in Egypt" |
-| Competitor analysis | "Analyze what competitor X is advertising" |
-| Content creation | "Write 5 Instagram posts for the new face serum" |
-| Campaign planning | "Build a content calendar for next month" |
-| Performance interpretation | "Here is our monthly CSV — what went wrong?" |
-| Onboarding crawl | "Extract our company knowledge from our website" |
-| Multilingual mixing | "Write this post in Arabic but keep product names in English" |
+Evaluation combines four rigorous methodologies:
+* **Human Reviewer Panel:** Native Arabic reviewers score outputs against published rubrics across all supported dialects.
+* **Paired Treatment-vs-Control Runs:** Grounded Business Brain runs are evaluated against a document-only baseline on identical tasks.
+* **24 Authored Business Cases:** A comprehensive test suite spanning sparse/conflicting data, direct requests, owner overrides, capacity limits, different conversion bottlenecks, and all 4 content registers.
+* **Platform Instrumentation & Tracing:** Langfuse captures per-task token usage, model latency, and prompt versions; product databases record approval transitions, staleness holds, and publish attempts.
 
 ---
 
-## 4. Arabic Quality Rubric
+## 3. The 24-Case Scenario Library
 
-Reviewers score each Arabic deliverable on a 1–5 scale across five dimensions:
+The evaluation suite includes approximately **24 authored business cases** drawn from Arabic-first SMBs and owner-operated services selling via consultations, bookings, or inquiries in Egypt and the GCC.
 
-| Dimension | What reviewers assess |
-|---|---|
-| **Fluency** | Reads as natural, idiomatic Arabic — no translated feel. |
-| **Dialect fit** | Matches the requested register (Modern Standard / Egyptian / Gulf). |
-| **Brand fit** | Consistent with the approved brand voice and tone. |
-| **Cultural fit** | Appropriate idioms, references, and phrasing for the local audience. |
-| **Factual grounding** | Claims are consistent with the Business Brain and cited sources. |
+### Key Dimensions Covered
+* **Contrast Pairs:** Scenarios designed in pairs where a single material variable changes (e.g. unknown vs measured baseline; zero customers vs repeat customer bottleneck; high inquiry volume vs poor qualification).
+* **Fulfillment & Capacity Constraints:** Tests where owner capacity is strictly bounded (e.g. 2 owner hours/week, no ad budget), verifying that the Director prioritizes feasible actions rather than generic volume.
+* **Dialect & Register Variations:** Distinct cases covering Egyptian Conversational, Gulf-oriented (Saudi/UAE lifestyle), Modern Standard Arabic (MSA), and English.
+* **Uncertainty & Source Gaps:** Scenarios with incomplete websites, unverified claims, or conflicting public sources, testing honest partial results and refusal to hallucinate facts.
+* **Held-Out Test Set:** A dedicated partition of cases remains strictly unused during prompt tuning to prevent overfitting.
 
-A deliverable is considered **acceptable** when every dimension scores ≥ 4 and no dimension scores below 3.
-
-### Reviewer panel
-
-- **Two independent human reviewers** score every deliverable in an evaluation round.
-- **Agreement:** when reviewers differ by more than one point on any dimension, a **third reviewer breaks the tie**.
-- Reviewers are Arabic-native speakers; at least one reviewer per round works in the target domain.
-
----
-
-## 5. Brain Value Measurement
-
-To test whether the Business Brain adds value, the same task is run in two configurations:
-
-| Configuration | Retrieval |
-|---|---|
-| **Treatment** | Business Brain graph retrieval (vector seed + 1–2 hop relational expansion). |
-| **Control** | Document-only retrieval — raw source chunks without graph extraction. |
-
-Both configurations use the same model, prompts, and scenario. Reviewers see outputs without knowing which configuration produced them (blind scoring).
-
-Measures captured per configuration:
-
-- **Clarification turns** — how many information gaps the agent had to ask about.
-- **Factual corrections** — how often the user had to correct a factual claim.
-- **Brand corrections** — how often the user had to correct tone or voice.
-- **Reviewer quality score** — the Arabic rubric average.
-- **Acceptance** — whether output was usable without major edits.
-
-**Hypothesis:** the grounded configuration produces **≥ 50% fewer clarification turns and factual/brand corrections** than the document-only control on comparable tasks while matching or exceeding reviewer quality scores.
-
----
-
-## 6. Execution Reliability & Babysitting Burden
-
-Publishing correctness and user friction are measured from platform records:
-
-- **Publish success rate** — approved posts that publish without error (target ≥ 95%).
-- **Read-back verification** — posts confirmed to exist on the platform after dispatch.
-- **Idempotency** — no duplicate posts across retries or reconnects.
-- **Zero-Editing Acceptance** — percentage of content deliverables approved with zero or minor edits (target ≥ 75%), validating that users escape the "Editing Trap."
-- **Batch Review Efficiency** — total human time spent reviewing a full weekly campaign batch in the Batch Review UI (target ≤ 15 minutes), proving the absence of a "babysitting burden."
-
----
-
-## 7. Onboarding & Knowledge Quality
-
-- **Crawl approval rate** — share of extracted candidates approved rather than rejected (target ≥ 80%).
-- **Catalog coverage** — whether reviewers judge the candidate set as complete for the company.
-- **Provenance correctness** — whether each approved item points to a valid source.
-
----
-
-## 8. Instrumentation
-
-| Signal | Source |
-|---|---|
-| Token usage, latency, model and prompt version | Langfuse traces |
-| Per-task cost | LiteLLM cost tracking + Langfuse |
-| Clarification and correction events | Product database (conversation + task records) |
-| Approval, edit, and publish records | Approval actions + execution attempts |
-| Review time per batch | Batch review session timestamps |
-| Reviewer scores | Evaluation scoring sheets |
-
----
-
-## 9. Reporting
-
-Each evaluation round produces:
-
-- **Period and scenario set** covered.
-- **Per-dimension scores** with disagreement and tie-break notes.
-- **Treatment vs. control comparison** for Brain value.
-- **Execution reliability & review efficiency figures.**
-- **Notable failures** with reproduction details.
-- **Actions** owned by a named team member.
-
-Reports are retained so that results across rounds can be compared.
-
----
-
-## 10. Success Criteria Summary
-
-| Claim | Measure | Target |
+### Scenario Categories
+| Category | Core Challenge Tested | Example |
 |---|---|---|
-| Arabic quality | Rubric dimensions | All ≥ 4, none < 3 |
-| Brain value | Clarification turns + corrections vs. control | ≥ 50% reduction |
-| Brain value | Reviewer quality vs. control | Match or exceed |
-| Zero-Editing Trap | Acceptance without major rewrites | ≥ 75% |
-| Review Efficiency | Weekly batch approval session time | ≤ 15 min |
-| Execution reliability | Publish success + read-back | ≥ 95% |
-| Corpus independence | No duplicate posts | 100% |
-| Onboarding quality | Candidate approval rate | ≥ 80% |
+| **Intake & First Direction** | Unverified site crawl; unknown audience/baseline | "Extract company knowledge from URL and recommend initial focus" |
+| **Constraint Diagnosis** | 5 STAR lenses; identifying non-acquisition bottlenecks | "Lots of inquiries on WhatsApp, but almost zero conversions" |
+| **Multi-Source Research** | Grounded retrieval, citations, per-task budget enforcer | "Analyze competitor pricing and customer complaints on Reddit/Web" |
+| **Brand Voice & Copywriting** | Culturally authentic text in 4 registers | "Write 3 Facebook posts targeting Egyptian clinic patients" |
+| **Capacity-Bounded Planning** | Now/Next/Later roadmap fitting 2 hours/week | "Build next week's plan with zero ad spend and limited time" |
+| **Facebook Publishing** | Exact-version approval, timezone scheduling, read-back | "Approve and schedule post for tomorrow 10:00 AM Cairo time" |
+| **Performance Learning** | CSV and Excel (`.xlsx`) validation, deterministic KPIs | "Upload monthly lead sheet and diagnose CAC/conversion drop" |
+| **Context Staleness** | Core offer change triggers post hold | "Change service price from \$50 to \$70; verify scheduled posts hold" |
+| **Unsupported External Handoff** | Offline / live-site work with honest checklists | "Draft WhatsApp response scripts and landing page copy briefs" |
+
+---
+
+## 4. Arabic Quality & Dialect Rubric
+
+Reviewers score each deliverable on a **1–5 scale** across five dimensions:
+
+| Dimension | What Reviewers Assess | Acceptance Standard |
+|---|---|---|
+| **Fluency** | Reads as natural, idiomatic Arabic with no translated feel | ≥ 4, none < 3 |
+| **Dialect Fit** | Accurately matches requested register (Egyptian, Gulf, MSA, English) | ≥ 4, none < 3 |
+| **Brand Fit** | Consistently reflects approved brand voice, tone, and positioning | ≥ 4, none < 3 |
+| **Cultural Fit** | Appropriately uses regional idioms, references, and phrasing | ≥ 4, none < 3 |
+| **Factual Grounding** | Claims match Business Brain facts and authentic cited sources | 100% verifiable |
+
+### Reviewer Panel Rules
+* **Two independent native Arabic reviewers** score every deliverable in an evaluation round.
+* If reviewers differ by > 1 point on any dimension, a **third reviewer breaks the tie**.
+* Gulf-oriented content must be evaluated by reviewers familiar with GCC vernacular; Egyptian or MSA success cannot be extrapolated to Gulf quality.
+
+---
+
+## 5. Brain Value Measurement (Treatment vs. Control)
+
+To measure the empirical contribution of the Business Brain, tasks are executed in two blind configurations:
+
+| Configuration | Retrieval & Context Mechanism |
+|---|---|
+| **Treatment (Brain)** | Relational concept graph retrieval (vector seed + 1–2 hop expansion) + procedural rules. |
+| **Control (Document-Only)** | Raw source document chunk retrieval without relational graph extraction or rules. |
+
+### Evaluation Metrics
+* **Clarification Turns:** Number of informational gaps the system asks the owner to fill.
+* **Factual Corrections:** Number of factual inaccuracies the owner must correct.
+* **Brand Corrections:** Frequency of tone, voice, or dialect corrections required.
+* **Core Hypothesis:** The grounded Business Brain configuration produces **≥ 50% fewer clarification turns and factual/brand corrections** than the document-only control.
+
+---
+
+## 6. Binding Phase 2 Release Gates (AC-01 through AC-30)
+
+Release acceptance requires passing the complete suite of **30 Acceptance Criteria (AC-01 to AC-30)** under declared release load:
+
+| Area | Release Gate / Acceptance Scenario | Observable Pass Condition |
+|---|---|---|
+| **Onboarding & First Value** | **AC-01, AC-02, AC-21** | Website URL crawl seeds immediately usable imported context; guided setup handles unknown fields; messaging route supported without forcing a site. |
+| **First Value Usability** | **PRD §10 Target** | Median active owner interaction time from signup to first usable artifact is **≤ 10 minutes** for supported cases. |
+| **Brain Governance** | **AC-03, AC-15, AC-23** | Graph exploration, epistemic separation (imported vs confirmed vs hypothesis), deletion/export, and context staleness holds on material changes. |
+| **Diagnosis & Roadmap** | **AC-04, AC-18, AC-19, AC-20** | STAR lenses diagnose primary constraint; Now/Next/Later roadmap reflects real capacity; alternatives explained; direct requests scoped (AC-05). |
+| **Dynamic Orchestration** | **AC-06, AC-07, AC-17** | Fast Router avoids fabricated agent work; Dynamic Orchestrator adapts plans; authentic Canvas displays recorded events; durable task recovery. |
+| **Multi-Source Research** | **AC-08, AC-09, AC-27** | Genuine retrieval across distinct public sources; citations verified; per-task budget strictly enforced; extensions require explicit approval. |
+| **Campaigns & Dialects** | **AC-10, AC-11, AC-22** | Text-first assets and visual briefs across 4 registers; full Arabic RTL / English LTR responsive UI with independent language settings. |
+| **Facebook Publishing** | **AC-12, AC-13, AC-28, AC-30** | Individual and batch approvals bind to exact versions; scheduled dispatch with lateness allowance; idempotent execution; read-back verification; AC-30 ordinary-owner production configuration verified. |
+| **Performance Learning** | **AC-14, AC-25, AC-26** | CSV and Excel (`.xlsx`) validation previews; deterministic calculations; aggregate manual outcome capture; recurring review with honest inconclusive states. |
+| **Truthfulness & Boundaries** | **AC-16, AC-24, AC-27** | Zero critical violations: no hallucinated evidence, no fake progress, no unauthorized actions; Social Profile Import visibly disabled as Coming Soon. |
+
+---
+
+## 7. Product Measures & Commercial Learning
+
+The usage and learning funnel is tracked systematically across cycles:
+$$\text{Setup} \longrightarrow \text{First Direction} \longrightarrow \text{Accepted Task} \longrightarrow \text{Accepted Artifact} \longrightarrow \text{Recorded Outcome} \longrightarrow \text{Completed Review}$$
+
+* **Completed Review Cycle:** An accepted task, recorded completion/attestation, aggregate observations (or explicit no-data state), and an owner-reviewed next decision.
+* **Commercial Hypotheses:** Track whether owners return for subsequent cycles, self-reported time saved (target 5–10 hours/week), and willingness to pay. These observations inform post-graduation commercialization but do not alter the technical release contract.

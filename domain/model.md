@@ -49,7 +49,7 @@ erDiagram
 
 | Entity | Meaning | Key attributes | Invariants |
 |---|---|---|---|
-| **Knowledge Item** (aggregate root) | One fact about the Business | Knowledge Category (one of 9), title, summary, structured properties, kind (e.g. tone within Brand Rule, pain point within Audience), status, Provenance, freshness, version history | Status ∈ {Candidate, Approved, Rejected, Retired}. Manual entries start Approved; all others start as Candidates (01 BG-1/BG-2). Only Approved items are used by the Employee. No hard delete (BG-3). |
+| **Knowledge Item** (aggregate root) | One fact about the Business | Knowledge Category (one of 9), title, summary, structured properties, kind (e.g. tone within Brand Rule, pain point within Audience), status, Epistemic Status (Observation, Claim, Hypothesis, Decision), Provenance, freshness, version history | Status ∈ {Imported, Candidate, Approved, Rejected, Retired}. Initial website imports enter active as **Imported/unverified**; manual entries start Approved; AI-proposed facts enter as Candidates (Pending Brain Update). Only active/approved items participate in retrieval. No hard delete (BG-3). |
 | **Relationship** | Typed, directed link between two Knowledge Items | type ∈ {targets, competes with, has tone, solves pain point, related to}, weight, status | Both ends belong to the same Workspace. Follows the lifecycle of what it connects (PRD FR-020). |
 | **Procedural Rule** (aggregate root) | A reviewed instruction on *how* to work for this Business | rule text, scope (e.g. a Dialect, a Platform), origin (edit diff, feedback, post-task review), status | Starts as a Candidate and must be approved before it influences generation (01 BG-5) |
 | **Provenance** (value) | Where an item came from | source type ∈ {Onboarding Crawl, Task, Conversation, manual}, Snapshot or Task reference, captured-at | Every Knowledge Item has one. A referenced Snapshot is kept while the item exists (01 DT-2). |
@@ -79,24 +79,24 @@ erDiagram
 
 | Entity | Meaning | Key attributes | Invariants |
 |---|---|---|---|
-| **Deliverable** (aggregate root) | Finished work kept in the Workspace | type ∈ {Research Report, Competitor Analysis, Content Package, Content Calendar, Performance Diagnosis, General}, title, content, originating Task, created-at | Immutable once delivered; follow-up work produces a new Deliverable (*inferred*: the docs have no "edit Deliverable" requirement) |
-| **Source Citation** (value) | Reference behind a claim | URL, platform, accessed-at | Required for every research claim (PRD FR-062). Raw content isn't kept with it (01 DT-3). |
-| **Performance Report** | The uploaded results file | file, normalized columns, validation outcome | Rejected with a clear error if unrecognized (FR-095). Deterministic KPIs are computed before any AI interpretation. |
+| **Deliverable** (aggregate root) | Finished work kept in the Workspace | type ∈ {Research Report, Competitor Analysis, Content Package, Content Calendar, Performance Diagnosis, General}, title, content, originating Task, created-at | Immutable once delivered; follow-up work produces a new Deliverable |
+| **Source Citation** (value) | Reference behind a claim | URL, platform, accessed-at | Required for every research claim (PRD FR-26). Raw content isn't kept with it. |
+| **Performance Report** | The uploaded results file or manual aggregate entry | file (CSV or Excel `.xlsx`) or manual entry, normalized columns, validation outcome | Rejected with clear error and template fallback if unrecognized (FR-38, FR-47). Deterministic KPIs are computed by backend code before AI interpretation. |
 
 ### Governed Publishing
 
 | Entity | Meaning | Key attributes | Invariants |
 |---|---|---|---|
-| **Post** (aggregate root) | One piece of social content for one Connected Account | target Connected Account, Scheduled Time (absolute instant + planning time zone) or "now", status, current Post Version, originating Deliverable | Status ∈ {draft, pending approval, approved, rejected, scheduled, publishing, published, failed, cancelled, expired} (01 PB-3). Editing or regenerating an approved or scheduled Post returns it to pending approval (PB-4/PB-5). Cancel is allowed only before publishing (PB-6). |
-| **Post Version** | An unchangeable state of the Post's content | text, hashtags, Brand Visual, platform formatting, created-by (Employee or User edit), created-at | Approval is bound to exactly one Post Version. What is published is that version, byte-for-byte (01 PB-1, G1). |
-| **Approval** (value on Post) | The User's consent to publish one Post Version | Post Version, approved-at | Required before any Publish Attempt. Lost when a new version is created. |
-| **Publish Attempt** | One try at going live | idempotency key, started-at, outcome (published / failed + platform reason), platform post id and URL, read-back result | At most one successful attempt per Post, ever (01 G1). Automatic retries per PRD §13.3, then manual retry (PB-8). |
+| **Post** (aggregate root) | One piece of social content for one Connected Account | target Connected Account, Scheduled Time (absolute instant + planning time zone) or "now", status, current Post Version, lateness allowance, originating Deliverable | Status ∈ {draft, pending approval, approved, rejected, scheduled, publishing, published, failed, cancelled, expired, held} (01 PB-3, FR-48). Editing or context staleness returns it to pending approval or held. Cancel is allowed only before dispatch. |
+| **Post Version** | An unchangeable state of the Post's content | text, hashtags, visual brief / owner media, platform formatting, created-by (Director or User edit), created-at | Approval is bound to exactly one Post Version, scheduled time/timezone, and lateness allowance. Published byte-for-byte (FR-34, 01 PB-1). |
+| **Approval** (value on Post) | The User's consent to publish one Post Version | Post Version, scheduled time, timezone, lateness allowance, approved-at | Required before any Publish Attempt. Invalidated when content, destination, or execution parameters change. |
+| **Publish Attempt** | One try at going live | idempotency key, started-at, outcome (published / failed / uncertain + platform reason), platform post id and URL, read-back result | At most one successful attempt per Post, ever. Reconciles timeouts before retrying; no duplicate sends (FR-36). |
 
 ### Channel Connections
 
 | Entity | Meaning | Key attributes | Invariants |
 |---|---|---|---|
-| **Connected Account** (aggregate root) | The Business's account on a Platform, authorized for BusMora | Platform ∈ {Facebook Pages, Instagram Business, X}, platform account id, status (connected / reconnect needed / disconnected), authorization (protected secret), connected-at | Connected only when posting is requested (01 PB-11). Authorization is never readable in plain form outside a publish (TA §9.3). Pilot Meta accounts belong to app testers (EP-3). |
+| **Connected Account** (aggregate root) | The Business's account on a Platform, authorized for BusMora | Platform ∈ {Facebook Pages (Phase 2), Instagram Business (Phase 3), X (Phase 3)}, platform account id, status (connected / reconnect needed / disconnected), authorization (protected secret), connected-at | Connected only when posting is requested. Authorization is never readable in plain form outside a publish. Phase 2 verifies ordinary owner production access (AC-30). |
 
 ### Usage, Audit & Notifications
 
@@ -131,19 +131,21 @@ stateDiagram-v2
 ### Post
 ```mermaid
 stateDiagram-v2
-  [*] --> draft: Employee proposes (in a Deliverable)
-  draft --> pending_approval: User sends to Batch Review
+  [*] --> draft: Director proposes (in a Deliverable)
+  draft --> pending_approval: User sends to Review & Approvals
   pending_approval --> pending_approval: edit / regenerate (new Post Version)
-  pending_approval --> approved: Approval
+  pending_approval --> approved: Approval (exact version & time)
   pending_approval --> rejected: User rejects
-  pending_approval --> expired: Scheduled Time passes
+  pending_approval --> expired: Scheduled Time + allowance passes
   expired --> pending_approval: User reschedules
   approved --> scheduled: release time set
   approved --> pending_approval: edit / regenerate
   scheduled --> pending_approval: edit / regenerate
   approved --> cancelled: User cancels
   scheduled --> cancelled: User cancels
-  scheduled --> publishing: Scheduled Time reached (or post now)
+  scheduled --> held: Context Staleness detected (FR-48)
+  held --> pending_approval: User resolves staleness / updates
+  scheduled --> publishing: Scheduled Time reached
   publishing --> published: attempt succeeds + read-back verified
   publishing --> failed: retries exhausted / reconnect needed
   failed --> publishing: User retries (same Post Version, no duplicate)

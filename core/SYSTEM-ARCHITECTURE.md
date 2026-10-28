@@ -23,55 +23,57 @@
 ## 1. Overview & goals
 
 ### 1.1 What BusMora is
-BusMora is a multi-tenant SaaS that gives an **Arabic-first small or medium business** (5–50 employees, e-commerce and local services, Egypt and the GCC) one **AI Marketing Employee**. In one chat-centred product, the Employee:
+BusMora is a multi-tenant SaaS that gives an **Arabic-first small or medium business** (5–50 employees, service businesses selling via inquiries/bookings and local commercial businesses, Egypt and the GCC) one **AI Marketing Director**. In one chat-centred and roadmap-driven product, the Director:
 
-- **Learns the business.** A bounded crawl of the business's website seeds a **Business Brain**: a reviewed knowledge graph of facts plus learned style rules. The user approves every proposed fact individually.
-- **Researches the market.** It crawls Reddit, YouTube, the Facebook Ads Library, competitor sites and the open web, and keeps only high-intent signals.
-- **Produces marketing work.** Research reports, competitor analyses, dialect-aware Arabic and English content with on-brand images, content calendars, and diagnoses of uploaded performance CSVs.
-- **Publishes only with approval.** Posts go to Facebook Pages, Instagram Business and X only after the user approves them in a **Batch Review**. Publishing is deterministic and idempotent, and each post is verified by reading it back from the platform.
-- **Shows its work.** A live **Canvas** shows which specialist Sub-agents are working and what they are doing.
-- **Gets smarter.** Reusable facts and style corrections flow back into the Brain as candidates for review.
+- **Learns the business.** A bounded crawl of the business's website or guided manual setup seeds a **Business Brain**: an interactive knowledge graph of facts, relationships, and procedural rules. Website import items enter immediately as active, source-labelled imported context without demanding blocking field-by-field approval. Social Profile Import is visibly disabled as **Coming Soon** (Phase 3).
+- **Diagnoses commercial constraints.** Using the **5 STAR diagnostic lenses** (Situation/Offer, Traffic/Acquisition, Activation/Conversion, Retention/Referral, Operations/Fulfillment), the Director identifies the primary constraint hypothesis and maintains an editable, capacity-aware **Now/Next/Later roadmap**.
+- **Researches the market.** It dynamically searches and retrieves public web material, reviews, and community sentiment within an authorized per-task budget (FR-27). Extensions require explicit owner approval.
+- **Produces marketing work.** Text-first assets across 4 authentic registers (Egyptian conversational, Gulf-oriented, MSA, English), visual briefs, owner-supplied media attachments, and diagnoses of uploaded performance files (CSV and Excel `.xlsx`) or manual aggregate outcomes.
+- **Publishes only with approval.** In Phase 2, posts publish to **Facebook Pages** (text/link and single owner-supplied image with caption) only after the owner approves them with exact version binding, scheduled time/timezone, and delivery lateness allowance. Publishing is deterministic and idempotent, verified by reading it back from the platform. Instagram Business and X remain Phase 3 expansion integrations.
+- **Shows its work.** A live, authentic **Agent Canvas** shows recorded execution events, active specialists, tools, handoffs, and failure recovery.
+- **Governs context & staleness.** Material changes to offers or pricing version the context, flag dependent work, and hold conflicting scheduled posts (**Context Staleness Hold**, FR-48). Unsupported external actions receive clear instructions and checklists (**Honest Handoff Contract**, FR-49).
 
-The first release is built by **4 students in 24 weeks** as a graduation project that launches for real, with a **paid pilot of 1–3 businesses**.
+The first release is **Phase 2 (First Production-Ready Release)**, built by **5 students in 24 weeks (~2,400 productive hours: 1,800 h feature development + 600 h stabilization)** as a graduation project evaluated continuously over a 24-case benchmark suite and AC-01–30 release gates.
 
 ### 1.2 Users and actors
 
 | Actor | Role |
 |---|---|
-| **User** | The one person who operates a workspace (founder or marketing coordinator). One user per workspace this release. |
-| **Marketing Employee** | The AI worker: a Router, an Orchestrator and five Sub-agents (Market Research, Competitor Analysis, Content Writer, Campaign Planner, Social Poster) |
-| **BusMora operators** (internal) | Pilot onboarding, workspace deletion requests, evaluation rounds, observability |
-| **Evaluation reviewers** (internal) | Arabic-native humans who score outputs; two per deliverable, a third breaks ties |
-| **External platforms** | Meta (Facebook Pages, Instagram Business), X, crawled public sources, LLM providers |
+| **Owner / User** | The one person who operates a workspace (founder or marketing coordinator). One owner per workspace this release. |
+| **Marketing Director** | The AI worker: a Fast Router, a Dynamic Orchestrator, and specialist capabilities (Research, Marketing Analysis, Campaign Planning/Copy, Facebook Publishing, Performance Learning) |
+| **BusMora operators** (internal) | Production deployment, workspace deletion requests, evaluation rounds, observability |
+| **Evaluation reviewers** (internal) | Arabic-native humans who score outputs against published rubrics across 4 registers; two per deliverable, a third breaks ties |
+| **External platforms** | Facebook Pages (Meta Graph API in Phase 2; Instagram Business and X in Phase 3), crawled public sources, LLM gateway |
 
 ### 1.3 Core journeys
-1. **Onboarding:** sign up → enter website URL → background crawl (≤ 10 pages, ≤ 5 min) → review candidate facts one by one → Brain populated.
-2. **Conversation:** the Employee greets the user, flags missing Brain information, and asks through structured forms with a per-field "Search yourself" option.
-3. **Research / competitor analysis:** request → live Canvas → cited report saved as a Deliverable → reusable facts become Brain candidates.
-4. **Content:** posts in the Brand Voice and dialect, each with a Brand Visual (generated imagery plus the brand's logo, colors and typography).
-5. **Campaign → approval → publish:** content calendar → Batch Review → connect a platform account if needed → scheduled, idempotent publishing → read-back verification → per-post result.
-6. **Performance:** upload a CSV → deterministic KPIs → diagnosis with three prioritized adjustments.
+1. **Onboarding & First Value (≤ 10 min):** sign up → enter website URL (or guided setup) → background crawl seeds immediately active imported context → Marketing Director consultation → short Direction Card with primary constraint hypothesis and one recommended next action.
+2. **Direct Chat & Adaptive Roadmap:** explore editable Now/Next/Later roadmap; launch roadmap tasks or direct chat requests without mandatory sequence; tasks enforce capacity and dependency bounds.
+3. **Dynamic Research:** request → live Canvas → multi-source retrieval within authorized per-task budget → cited report saved as Deliverable → budget extensions require explicit owner consent.
+4. **Culturally Authentic Content:** dialect-aware copy in Egyptian, Gulf, MSA, or English, with visual briefs and owner-supplied image attachment.
+5. **Campaign → Review & Approval → Publish:** content calendar / post list → exact version binding with scheduled time/timezone and lateness allowance → Facebook Page publishing worker → idempotent dispatch → read-back verification → per-post result.
+6. **Performance Learning:** upload CSV or Excel (`.xlsx`) performance file or enter aggregate manual outcomes → validation preview → deterministic calculation → goal-based diagnosis and recurring review.
+7. **Context Staleness Hold & Honest Handoff:** core fact changes place conflicting scheduled posts on hold (FR-48); unsupported external channels receive ready-to-use artifacts and checklists (FR-49).
 
 ### 1.4 Architecture goals
 
 | # | Goal | Why |
 |---|---|---|
-| AG-1 | **No external write without approval.** The approved content is published byte-for-byte, exactly once. | The product's governance promise (PRD §11, D-16, D-46) |
-| AG-2 | **Durable long-running work.** Tasks, clarification waits (up to 7 days) and scheduled posts (up to a month) survive restarts and closed browsers. | PRD §13.4, TA §11.2 |
+| AG-1 | **No external write without approval.** The approved content is published byte-for-byte, exactly once, bound to its specific version and execution parameters. | The product's governance promise (PRD §7, FR-34–36, D-16, D-50) |
+| AG-2 | **Durable long-running work.** Tasks, clarification waits (up to 7 days) and scheduled posts (up to a month) survive restarts and closed browsers. | PRD NFR-005, FR-23, TA §11.2 |
 | AG-3 | **Grounding in a reviewed Brain**, measurable against a document-only control route | D-20–D-25, EVAL §5 |
-| AG-4 | **Real-time transparency** through the Canvas | D-17, D-34 |
-| AG-5 | **Tenant isolation in every store** | PRD NFR-003, AC-13 |
-| AG-6 | **Arabic-first**: right-to-left UI and native dialect generation | D-06, D-07 |
-| AG-7 | **Deliverable by 4 students in 24 weeks**, with vertical-slice ownership | D-05, TA §12.1 |
-| AG-8 | **Domain-neutral seams** so a future Employee can be added without redesign | D-02, D-03, MVP §9 |
+| AG-4 | **Real-time transparency** through the authentic Canvas rendering recorded execution events | D-17, D-34, FR-22 |
+| AG-5 | **Tenant isolation in every store** | PRD NFR-003, AC-17 |
+| AG-6 | **Arabic-first**: right-to-left UI and native dialect generation across 4 registers | D-06, D-07, FR-43–44 |
+| AG-7 | **Deliverable by 5 students in 24 weeks (~2,400 hours)**, with vertical workstream ownership | D-05, PRD §13.1 |
+| AG-8 | **Domain-neutral seams** so future channels, tools, and employees can be added without redesign | D-02, D-03, MVP §9 |
 
 ### 1.5 In and out of scope for this release
-- **In:** everything listed in §1.1, as one full-scope release (D-04).
-- **Out (later or never):**
-  - Other Employees; LinkedIn and TikTok publishing; paid-ad management; analytics-platform APIs.
-  - Multi-user workspaces; document or PDF upload; automatic conflict resolution; a native mobile app.
-  - In-product billing, tiers and quotas; the anonymous "Instant Brain Audit" lead magnet; daily competitor monitoring.
-  - Offline mode and white-labeling are not planned.
+- **In (Phase 2 Release Contract, 24 weeks):** everything listed in §1.1, as the committed production-ready release (PRD §3).
+- **Phase 3 (Post-MVP Product Expansion):** Social Profile URL onboarding (P3-01); Instagram Business and X publishing connectors (P3-02); connected platform analytics APIs (P3-03).
+- **Phase 4+ (Creation & Commercial Expansion):** Native AI image generation (P4-01); in-product subscriptions, Stripe checkout, and billing administration (P4-02).
+- **Out of Scope (Explicit Non-Goals):**
+  - Multi-user workspaces; live website/CMS builder; paid ad campaign management/spending; direct messaging (WhatsApp/DM) bots.
+  - Automatic background market scrapers; numeric business health scores; enterprise organizations.
 
 ---
 
@@ -81,16 +83,16 @@ The first release is built by **4 students in 24 weeks** as a graduation project
 
 | # | Constraint | Source |
 |---|---|---|
-| K-01 | 4 students, 24 weeks, one full-scope release, vertical-slice ownership | D-04, D-05; TA §12.1 |
+| K-01 | **5 students, 24 weeks (~2,400 productive hours)**, Phase 2 binding release contract, vertical workstream ownership (18 weeks development + 6 weeks stabilization) | D-04, D-05; PRD §13.1 |
 | K-02 | **Four deployables:** `busmora-web`, `busmora-api`, `busmora-workers`, `busmora-ai`. Each may run several **process roles** (same code, different entrypoint); a role is not a new service. | D-26 |
 | K-03 | **Two standalone repositories:** `busmora-backend` (api, workers, ai) and `busmora-frontend` (web) | 01 R-5 |
-| K-04 | `project-docs/` is the source of truth; the earlier pitch deck's design (Neo4j, admin builder, LinkedIn) is superseded. Where the docs conflict: decision registry > PRD > technical architecture > other docs. | 01 R-1, R-2 |
+| K-04 | `core/prd.md` (v1.1) is the binding release contract. Where docs conflict: decision registry > PRD v1.1 > technical designs > other docs. | PRD §1.2, 01 R-1 |
 | K-05 | **The stack is fixed** (§2.4). Missing tools are filled only by explicit decision. | 01; 04 §9 |
-| K-06 | Single Marketing Employee; no admin or marketplace machinery | D-01, D-03 |
-| K-07 | No in-product billing this release; **usage and cost metering per workspace from day one** | 01 SC-2, SC-3 |
-| K-08 | Publishing: one BusMora Meta app and one BusMora X app. There is **no legal entity yet**, so the pilot runs in Meta's tester mode (pilot users added as app testers). Instagram limit is **50 posts per 24 h**. | 01 EP-1–EP-4 |
-| K-09 | Brand assets come only from the website crawl (no uploads); no document or PDF ingestion | 01 BA-1–BA-5 |
-| K-10 | Dialects: Egyptian, Gulf, Modern Standard Arabic | 01 SC-5 |
+| K-06 | Single Marketing Director; no admin or marketplace machinery | D-01, D-03 |
+| K-07 | No in-product billing this release; **usage and cost metering per workspace from day one** (Phase 4+ billing) | 01 SC-2, SC-3, P4-02 |
+| K-08 | Publishing in Phase 2: **Facebook Pages only** (Meta Graph API). Supported formats: text/link and single owner-supplied image with caption. Initial development runs under Meta tester mode; release gate AC-30 requires verifying production configuration for ordinary owners without developer-role accounts. Instagram Business and X are Phase 3. | PRD §3.2, FR-33, AC-30; 01 EP-1–EP-4 |
+| K-09 | Brand assets extracted from website crawl or guided intake; text-first assets and owner-supplied media in Phase 2; native AI image generation in Phase 4+ | PRD FR-30, FR-31, P4-01 |
+| K-10 | Dialects: Egyptian Conversational, Gulf-oriented, Modern Standard Arabic, plus English | PRD FR-32, FR-44; 01 SC-5 |
 | K-11 | Region: a single region in Frankfurt (**provisional**, not yet a gate). Cloud provider deferred. | 01 HR-1, HR-2 |
 
 ### 2.2 Quality attributes and targets
@@ -491,8 +493,8 @@ flowchart LR
 
 | Integration | Where | Notes |
 |---|---|---|
-| **Meta Graph API** (Facebook Pages) and **Instagram Content Publishing** | OAuth in `api-http`; publishing in `workers-publish` via MCP | One BusMora Meta app. **Tester mode** for the pilot (no legal entity yet, so no Business Verification or Advanced Access). Instagram limit 50 posts/24 h; images must be public JPEG URLs. |
-| **X API v2** | Same split | One BusMora developer app (OAuth 2.0 PKCE). Pay-per-use ($0.015 per post, $0.20 with a URL), paid by BusMora and metered per workspace. Limit 100 posts / 15 min per user. |
+| **Meta Graph API** (Facebook Pages) | OAuth in `api-http`; publishing in `workers-publish` via MCP | One BusMora Meta app. **Tester mode** for initial dev; release gate AC-30 requires verified production configuration for ordinary owners. Text/link and single owner-supplied image with caption. (Instagram Content Publishing is Phase 3). |
+| **X API v2** (Phase 3) | Same split | Phase 3 integration (P3-02). One BusMora developer app (OAuth 2.0 PKCE). Limit 100 posts / 15 min per user. |
 | **Reddit, YouTube, Facebook Ads Library, competitor sites, open web** | `ai-crawl` | Custom Scrapling crawling only (no search API); rotating proxies; bounded browser pool; 7-day cache |
 | **LLM providers** (via LiteLLM) | `ai-agent`, `ai-http` | "Light" models (routing, extraction) and "heavy" models (planning, writing); provider chosen by an Arabic-quality bake-off, with a fallback |
 | **Embedding model / image model** | `ai-agent` | Chosen in the Sprint 1 bake-off |
@@ -708,15 +710,12 @@ See §4.7. Untrusted crawled text and publishing credentials **never share a pro
 
 | Phase | What changes | Seam that makes it possible |
 |---|---|---|
-| **This release (MVP, 24 weeks)** | Everything in §1–§6; paid pilot with 1–3 businesses in Meta tester mode | — |
-| **After a legal entity exists** | Meta Business Verification and Advanced Access; any business can connect without being a tester | One BusMora Meta app already in place; nothing structural |
-| **Frontend: Workspace Event Shell** | One workspace-wide SSE stream carries Canvas signals **and** UI events (badges, Post statuses, crawl progress, Deliverables); polling removed | The single writer (`busmora-api`) emits UI events where it already writes audit and notification rows; the envelope (§6.4) and the SSE client module (§5.8) are already in place |
-| **Billing and tiers** | Payments, plan tiers, quotas, feature gating; daily competitor monitoring as a scheduled workflow | Usage Records already exist per workspace and Task; quotas become admission checks in `platform.start_task`; scheduled work fits the existing workflow tier. The payment provider is still open: Stripe does not serve Egypt- or Saudi-based merchants. |
+| **Phase 2 Release Contract (24 weeks)** | Everything in §1–§6 committed to production readiness; Facebook Page publishing; CSV/.xlsx and manual performance learning; 24-case evaluation suite | — |
+| **Phase 3 (Product Expansion)** | Social Profile URL onboarding (P3-01); Instagram Business and X publishing connectors (P3-02); connected platform analytics (P3-03) | Platform enum, MCP tool interface in `workers-publish`, and lazy OAuth flows already architected in domain neutrality |
+| **Phase 4+ (Creation & Commercial Expansion)** | Native AI image generation (P4-01); in-product billing, plan quotas, Stripe/payment provider integration (P4-02) | Usage Records already exist per workspace and Task; quotas become admission checks in `platform.start_task` |
+| **Frontend: Workspace Event Shell (FE-3)** | One workspace-wide SSE stream carries Canvas signals **and** UI events (badges, Post statuses, crawl progress, Deliverables); polling removed | The single writer (`busmora-api`) emits UI events where it already writes audit and notification rows; the envelope (§6.4) and the SSE client module (§5.8) are already in place |
 | **Second Employee** (e.g. Sales) | New Sub-agents, Capabilities and screens | Domain-neutral Employee configuration, frozen per run; the approval and execution semantics and the Brain are reusable; new feature folders in the frontend |
-| **More platforms** (LinkedIn, TikTok) | New MCP tools and Connected Account types | MCP tool interface in `workers-publish`; Platform as a value in the Post model |
-| **Document upload, multi-user workspaces, automatic conflict resolution** | New ingestion pipeline; membership and roles; governance automation | Brain Provenance already supports multiple sources; the workspace is already the tenant unit |
-| **Region / residency** | Possible move to a MENA region and Temporal payload encryption | Decided by the region study (G4) and open decision OD-1 |
-| **Scale beyond the pilot** | Horizontal scaling of the stateless roles | Validated by the 100-workspace load test |
+| **Scale beyond the initial release** | Horizontal scaling of the stateless roles | Validated by the 100-workspace load test |
 
 ---
 
