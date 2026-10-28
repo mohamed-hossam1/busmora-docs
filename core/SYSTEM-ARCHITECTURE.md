@@ -1,9 +1,10 @@
 # BusMora — System Architecture
 
-> **Version:** 1.0 · **Status:** Accepted · **Date:** 2026-10-18
-> **Built from:** [PRD (prd.md)](./prd.md), [strategy/](../strategy/) (canonical product & business strategy), [research/technical/](../research/technical/) (00 through 04 benchmark records), and [domain/](../domain/).
-> **Scope:** the complete architecture of the first release (the 24-week Marketing Employee release), plus its planned growth path. This document is self-contained; the source files hold the detailed evidence behind it.
-> **Rule kept:** no technology appears here that is not already in those documents.
+> **Version:** 1.1 · **Status:** Aligned design; open decisions in §9 · **Date:** 2026-10-28
+> **Built from:** [PRD (prd.md)](./prd.md), [strategy/](../strategy/) (supporting strategy, subject to the PRD), [research/technical/](../research/technical/) (00 through 04 benchmark records), and [domain/](../domain/).
+> **Scope:** the complete architecture of the first release (the planned 24-week Phase 2 Marketing Director release), plus its planned growth path. This document is self-contained; the source files hold the detailed evidence behind it.
+> **Authority:** PRD v1.1 (28 October 2026) governs product scope and release gates. Existing engineering choices are retained where compatible; older-source conflicts are recorded in §9.5. Design coverage is not implementation or release evidence.
+> **Source aliases:** SYS means this document; BACKEND/BTD and FTD mean the linked technical designs. D/DR = [decision registry](../strategy/decision-registry.md); 01 = [constraints](../research/technical/01-constraints.md); 04 = [architecture decision](../research/technical/04-decision.md); EVAL = [evaluation](../strategy/evaluation.md); BM = [business model](../strategy/business-model-value-proposition.md); MVP = [release scope](../strategy/mvp-definition.md). Historical TA references have been replaced with current design sections.
 
 ---
 
@@ -17,23 +18,24 @@
 7. [Cross-cutting concerns and growth path](#7-cross-cutting-concerns-and-growth-path)
 8. [Architecture decision records](#8-architecture-decision-records)
 9. [Risks, gaps and open questions](#9-risks-gaps-and-open-questions)
+10. [PRD alignment matrix](#appendix-a--prd-v11-alignment-matrix)
 
 ---
 
 ## 1. Overview & goals
 
 ### 1.1 What BusMora is
-BusMora is a multi-tenant SaaS that gives an **Arabic-first small or medium business** (5–50 employees, service businesses selling via inquiries/bookings and local commercial businesses, Egypt and the GCC) one **AI Marketing Director**. In one chat-centred and roadmap-driven product, the Director:
+BusMora is a multi-tenant SaaS providing an **AI Marketing Director** for **Arabic-first, owner-operated service businesses selling through inquiries, consultations, or bookings**. Reachable Egyptian owners form the initial evaluation cohort; GCC country cohorts require separate owner access and suitable regional review. Neither employee count nor e-commerce is a mandatory initial ICP. Experienced owners/marketers are secondary users; other models receive bounded analysis and drafts, not equal workflow-depth promises (PRD §§2–3). In one chat-centred and roadmap-driven product, the Director:
 
 - **Learns the business.** A bounded crawl of the business's website or guided manual setup seeds a **Business Brain**: an interactive knowledge graph of facts, relationships, and procedural rules. Website import items enter immediately as active, source-labelled imported context without demanding blocking field-by-field approval. Social Profile Import is visibly disabled as **Coming Soon** (Phase 3).
-- **Diagnoses commercial constraints.** Using the **5 STAR diagnostic lenses** (Situation/Offer, Traffic/Acquisition, Activation/Conversion, Retention/Referral, Operations/Fulfillment), the Director identifies the primary constraint hypothesis and maintains an editable, capacity-aware **Now/Next/Later roadmap**.
+- **Diagnoses commercial constraints.** Using the **five diagnostic lenses** (offer/audience, destination, conversion, acquisition, existing-customer opportunities), with capacity/fulfillment as constraints, the Director identifies the primary constraint hypothesis and maintains an editable, capacity-aware **Now/Next/Later roadmap**.
 - **Researches the market.** It dynamically searches and retrieves public web material, reviews, and community sentiment within an authorized per-task budget (FR-27). Extensions require explicit owner approval.
 - **Produces marketing work.** Text-first assets across 4 authentic registers (Egyptian conversational, Gulf-oriented, MSA, English), visual briefs, owner-supplied media attachments, and diagnoses of uploaded performance files (CSV and Excel `.xlsx`) or manual aggregate outcomes.
-- **Publishes only with approval.** In Phase 2, posts publish to **Facebook Pages** (text/link and single owner-supplied image with caption) only after the owner approves them with exact version binding, scheduled time/timezone, and delivery lateness allowance. Publishing is deterministic and idempotent, verified by reading it back from the platform. Instagram Business and X remain Phase 3 expansion integrations.
+- **Publishes only with approval.** In Phase 2, posts publish to **Facebook Pages** (text/link and single owner-supplied image with caption) only after the owner approves them with exact version binding, scheduled time/timezone, and delivery lateness allowance. Publishing uses deterministic dispatch controls, safe retries and platform evidence; unresolved outcomes remain uncertain and held for review. Instagram Business and X remain Phase 3 expansion integrations.
 - **Shows its work.** A live, authentic **Agent Canvas** shows recorded execution events, active specialists, tools, handoffs, and failure recovery.
 - **Governs context & staleness.** Material changes to offers or pricing version the context, flag dependent work, and hold conflicting scheduled posts (**Context Staleness Hold**, FR-48). Unsupported external actions receive clear instructions and checklists (**Honest Handoff Contract**, FR-49).
 
-The first release is **Phase 2 (First Production-Ready Release)**, built by **5 students in 24 weeks (~2,400 productive hours: 1,800 h feature development + 600 h stabilization)** as a graduation project evaluated continuously over a 24-case benchmark suite and AC-01–30 release gates.
+The first release is **Phase 2 (First Production-Ready Release)**, planned for **5 students over 24 weeks (~2,400 productive hours at 20 hours/person/week: 1,800 h including tests + 600 h stabilization)**. These are capacity assumptions to re-estimate, not a delivery guarantee. Continuous evaluation starts with approximately 24 authored cases and all AC-01–30 release gates; paid pilots and a fixed tester count are not prerequisites.
 
 ### 1.2 Users and actors
 
@@ -46,7 +48,7 @@ The first release is **Phase 2 (First Production-Ready Release)**, built by **5 
 | **External platforms** | Facebook Pages (Meta Graph API in Phase 2; Instagram Business and X in Phase 3), crawled public sources, LLM gateway |
 
 ### 1.3 Core journeys
-1. **Onboarding & First Value (≤ 10 min):** sign up → enter website URL (or guided setup) → background crawl seeds immediately active imported context → Marketing Director consultation → short Direction Card with primary constraint hypothesis and one recommended next action.
+1. **Onboarding & First Value:** sign up → website import or guided setup → usable context → choice of Explore Your Business Brain or Meet Your Marketing Director → short direction card and owner-selected next action → usable initial artifact. Ten minutes of active owner interaction is a measured usability target, with background latency reported separately.
 2. **Direct Chat & Adaptive Roadmap:** explore editable Now/Next/Later roadmap; launch roadmap tasks or direct chat requests without mandatory sequence; tasks enforce capacity and dependency bounds.
 3. **Dynamic Research:** request → live Canvas → multi-source retrieval within authorized per-task budget → cited report saved as Deliverable → budget extensions require explicit owner consent.
 4. **Culturally Authentic Content:** dialect-aware copy in Egyptian, Gulf, MSA, or English, with visual briefs and owner-supplied image attachment.
@@ -58,19 +60,19 @@ The first release is **Phase 2 (First Production-Ready Release)**, built by **5 
 
 | # | Goal | Why |
 |---|---|---|
-| AG-1 | **No external write without approval.** The approved content is published byte-for-byte, exactly once, bound to its specific version and execution parameters. | The product's governance promise (PRD §7, FR-34–36, D-16, D-50) |
-| AG-2 | **Durable long-running work.** Tasks, clarification waits (up to 7 days) and scheduled posts (up to a month) survive restarts and closed browsers. | PRD NFR-005, FR-23, TA §11.2 |
-| AG-3 | **Grounding in a reviewed Brain**, measurable against a document-only control route | D-20–D-25, EVAL §5 |
+| AG-1 | **No external write without approval.** Dispatch uses the exact approved version and execution parameters; retries reconcile provider evidence and hold uncertain results rather than risk a duplicate. Platform processing is outside our control. | The product's governance promise (PRD §7, FR-34–36, D-16, D-50) |
+| AG-2 | **Durable long-running work.** Tasks, clarification waits (up to 7 days) and scheduled posts (up to a month) survive restarts and closed browsers. | PRD NFR-05, FR-23, §4.6 |
+| AG-3 | **Grounding in eligible context with provenance and trust labels**, measurable against a document-only control route | D-20–D-25, EVAL §5 |
 | AG-4 | **Real-time transparency** through the authentic Canvas rendering recorded execution events | D-17, D-34, FR-22 |
-| AG-5 | **Tenant isolation in every store** | PRD NFR-003, AC-17 |
+| AG-5 | **Tenant isolation in every store** | PRD NFR-03, AC-17 |
 | AG-6 | **Arabic-first**: right-to-left UI and native dialect generation across 4 registers | D-06, D-07, FR-43–44 |
-| AG-7 | **Deliverable by 5 students in 24 weeks (~2,400 hours)**, with vertical workstream ownership | D-05, PRD §13.1 |
+| AG-7 | **Planned for 5 students over 24 weeks (~2,400 assumed hours)**, with vertical workstream ownership | D-05, PRD §13.1 |
 | AG-8 | **Domain-neutral seams** so future channels, tools, and employees can be added without redesign | D-02, D-03, MVP §9 |
 
 ### 1.5 In and out of scope for this release
 - **In (Phase 2 Release Contract, 24 weeks):** everything listed in §1.1, as the committed production-ready release (PRD §3).
 - **Phase 3 (Post-MVP Product Expansion):** Social Profile URL onboarding (P3-01); Instagram Business and X publishing connectors (P3-02); connected platform analytics APIs (P3-03).
-- **Phase 4+ (Creation & Commercial Expansion):** Native AI image generation (P4-01); in-product subscriptions, Stripe checkout, and billing administration (P4-02).
+- **Phase 4+ (Creation & Commercial Expansion):** Native AI image generation (P4-01); subscriptions and billing administration (payment provider unselected) (P4-02).
 - **Out of Scope (Explicit Non-Goals):**
   - Multi-user workspaces; live website/CMS builder; paid ad campaign management/spending; direct messaging (WhatsApp/DM) bots.
   - Automatic background market scrapers; numeric business health scores; enterprise organizations.
@@ -86,7 +88,7 @@ The first release is **Phase 2 (First Production-Ready Release)**, built by **5 
 | K-01 | **5 students, 24 weeks (~2,400 productive hours)**, Phase 2 binding release contract, vertical workstream ownership (18 weeks development + 6 weeks stabilization) | D-04, D-05; PRD §13.1 |
 | K-02 | **Four deployables:** `busmora-web`, `busmora-api`, `busmora-workers`, `busmora-ai`. Each may run several **process roles** (same code, different entrypoint); a role is not a new service. | D-26 |
 | K-03 | **Two standalone repositories:** `busmora-backend` (api, workers, ai) and `busmora-frontend` (web) | 01 R-5 |
-| K-04 | `core/prd.md` (v1.1) is the binding release contract. Where docs conflict: decision registry > PRD v1.1 > technical designs > other docs. | PRD §1.2, 01 R-1 |
+| K-04 | `core/prd.md` (v1.1) is the binding release contract. PRD v1.1 takes precedence over the decision registry, technical designs and older supporting documents; conflicts are recorded in §9.5. | PRD §1.2, 01 R-1 |
 | K-05 | **The stack is fixed** (§2.4). Missing tools are filled only by explicit decision. | 01; 04 §9 |
 | K-06 | Single Marketing Director; no admin or marketplace machinery | D-01, D-03 |
 | K-07 | No in-product billing this release; **usage and cost metering per workspace from day one** (Phase 4+ billing) | 01 SC-2, SC-3, P4-02 |
@@ -97,26 +99,27 @@ The first release is **Phase 2 (First Production-Ready Release)**, built by **5 
 
 ### 2.2 Quality attributes and targets
 
-| Attribute | Target | Source |
+PRD §10.2 supplies binding release gates. Earlier numerical infrastructure targets remain **provisional engineering hypotheses**, not PRD requirements or achieved measurements. Freeze task-specific limits, declared release load, rubrics and severity definitions by week 2 using early slices; changes need documented rationale and cannot lower gates to hide a failure.
+
+| Attribute | Contract / target | Source |
 |---|---|---|
-| **Latency (p95, hard)** | Quick chat reply ≤ 3 s. Complex-task acknowledgement (task record + first Canvas event) ≤ 2 s. Canvas update ≤ 500 ms after the backend event. Content ≤ 30 s per piece. Research ≤ 5 min. Website crawl ≤ 5 min. | PRD NFR-001; 01 DL-3 |
-| **Availability** | ≥ 99% monthly uptime, excluding planned maintenance | NFR-002 |
-| **Durability** | **RPO = 0** for everything committed to PostgreSQL and object storage, with point-in-time restore. Qdrant and Redis are derived and must be rebuildable. **RTO ≤ 1 h.** | NFR-002; 01 DL-4–DL-7 |
-| **Reliability** | Task completion ≥ 85%; publish success with read-back ≥ 95%; **0 duplicate posts** | NFR-002; EVAL §10 |
-| **Scale** | Capacity sized for the pilot (≤ 3 workspaces). ≥ 100 concurrent workspaces proven by a load test with stubbed LLM and crawler calls. Per workspace: ≤ 2 running tasks and 1 crawl at a time. | NFR-004; 01 SC-7–SC-9 |
-| **Security** | Tenant isolation in every store; OAuth tokens encrypted with KMS envelope encryption and decrypted only in memory; defenses against prompt injection and SSRF; rate limits on public endpoints | NFR-003; TA §9 |
-| **Privacy and lifecycle** | No sensitive personal or financial data stored in the Brain. Full per-workspace deletion run by operators. Unreferenced raw crawl data deleted after 7 days. | PRD §10.3; 01 DT-1–DT-4 |
-| **i18n** | Arabic right-to-left and English left-to-right UI; native generation in both; dates per locale; scheduling in the workspace's business time zone | NFR-006; 01 PB-12 |
-| **Observability** | Every agent action, tool call and error logged; LLM traces, tokens and cost per workspace in Langfuse; Temporal UI for workflows | NFR-005; D-33 |
-| **Quality** | Arabic rubric: all dimensions ≥ 4, none < 3. ≥ 75% of content accepted with zero or minor edits. Brain grounding gives ≥ 50% fewer clarifications and corrections than the control route. | EVAL §10; 01 DD-2 |
-| **Cost guardrails** (financials otherwise deferred) | ≤ $0.40 per task and ≤ $0.05 per search; recursion caps | BM §4.3; TA §13 #9 |
+| Latency/resources | Provisional p95: quick reply ≤3 s, task acknowledgement ≤2 s, Canvas event delivery ≤500 ms, content ≤30 s/piece, research and crawl ≤5 min. Validate task-specific timeout, cost and concurrency ceilings at declared load; disclose allowances and obtain approval for extensions. | NFR-06; PRD §10.2 |
+| Availability/recovery | Earlier 99% uptime, RPO 0 for committed primary data, and RTO ≤1 h are engineering objectives requiring provider/topology evidence. Test backup/restore and rollback; do not promise zero loss without evidence. Derived indexes are rebuildable subject to deletion controls. | NFR-05, NFR-09; OD-21 |
+| Publishing | All retry/concurrency/cancellation/revocation/version/context/late/uncertain scenarios pass with real platform and ordinary-owner evidence. No exactly-once external guarantee. | FR-33–36; AC-12–13, AC-23, AC-28, AC-30 |
+| Scale | Provisional ≤2 concurrent compute tasks and 1 crawl per workspace. The historical 100-workspace stubbed load experiment tests local capacity only; actual release load and real-provider evidence remain required. No fixed pilot count. | NFR-05–06; PRD §10.2 |
+| Security | Tenant isolation, KMS credentials, URL/redirect validation, prompt-injection boundaries, safe spreadsheet parsing/export and rate limits; zero critical truthfulness/control violations in the release suite. | NFR-03–04; AC-17, AC-27 |
+| Privacy/lifecycle | Owner export, correction, deletion and disconnection; legitimate prices, business budgets and aggregate outcomes are allowed. Reject credentials and unnecessary personal/financial records. Define active cleanup, backup expiry, audit minimum and restore suppression. | FR-13, FR-42; NFR-09 |
+| Localization | Complete Arabic/English mobile and keyboard journeys; separate UI, conversation and campaign language; all four content registers reviewed appropriately. | FR-32, FR-43–44; NFR-07 |
+| Observability | Redacted action/tool/error records and usage, including failed/retried/child work; no secrets or private reasoning. | NFR-08 |
+| Quality | ≥80% held-out cases pass the frozen human rubric without major correction overall **and within each register**; all audited consequential claims supported or explicitly owner claims/hypotheses. All AC-01–30 pass; no unresolved critical/high recovery/security defects. | PRD §10.2 |
+| Cost | Historical $0.40/task and $0.05/search are provisional sizing inputs only. Admission uses owner-authorized task allowances, concurrent reservations and explicit extension approval; internal usage approval is not customer charging. | FR-27; NFR-06 |
 
 ### 2.3 Evaluation framework used to choose the architecture
 - **Hard gates:**
   - **G1** no unapproved or duplicate publish.
   - **G2** tenant isolation in every store.
-  - **G3** no loss in PostgreSQL or object storage, with derived stores rebuildable.
-  - **G5** consistent with the decision registry and settled constraints.
+  - **G3** durable primary data and tested recovery, with derived stores rebuildable; the earlier zero-loss objective requires evidence (§2.2).
+  - **G5** consistent with PRD v1.1; retain compatible registry decisions and flag conflicts.
   - The region gate (G4) is withheld until the region study is done.
 - **Weighted criteria (sum 100):**
 
@@ -136,7 +139,7 @@ The first release is **Phase 2 (First Production-Ready Release)**, built by **5 
 
 ### 2.4 Technology stack
 
-**Fixed by the product docs:**
+**Retained engineering selections (the PRD leaves technology selection to supporting designs):**
 
 | Layer | Technologies |
 |---|---|
@@ -155,7 +158,7 @@ The first release is **Phase 2 (First Production-Ready Release)**, built by **5 
 | oasdiff | Breaking-change check on the published API contract |
 | Browser built-ins (native `EventSource`, `BroadcastChannel`, Web Locks) | SSE client; coordinating token refresh across tabs |
 
-**Deferred provider choices:** LLM providers (decided by an Arabic-quality bake-off), embedding model, image model, object-storage vendor, rotating-proxy vendor, cloud provider (D-39–D-42; 01 HR-2).
+**Deferred provider choices:** LLM providers (decided by an Arabic-quality bake-off), embedding model, object-storage vendor, rotating-proxy vendor, cloud provider (D-39–D-42; 01 HR-2). The native image model and composition stack remain Phase 4+ decisions.
 
 ---
 
@@ -168,18 +171,18 @@ The first release is **Phase 2 (First Production-Ready Release)**, built by **5 
 | **Business** | The real company BusMora works for | "Customer" (ambiguous) |
 | **Workspace** | The Business's isolated space in BusMora | Account, tenant |
 | **User** | The single person operating a Workspace | Owner, marketing person |
-| **Business Brain** | The Workspace's reviewed, permanent memory of the Business | Knowledge base |
-| **Knowledge Item** | One fact about the Business, in one of nine **Knowledge Categories**: Company Profile, Offering, Audience, Brand Rule, Positioning, Strategic Goal, Channel, Competitor, Company Fact | Node, entity |
+| **Business Brain** | The Workspace's versioned business context with provenance, epistemic state and owner data controls | Knowledge base |
+| **Knowledge Item** | One business observation, claim, hypothesis or decision, in one of nine **Knowledge Categories**: Company Profile, Offering, Audience, Brand Rule, Positioning, Strategic Goal, Channel, Competitor, Company Fact | Node, entity |
 | **Relationship** | A typed, directed link between Knowledge Items: targets, competes with, has tone, solves pain point, related to | Edge |
 | **Procedural Rule** | A reviewed instruction on *how* to work for this Business (style, dialect), learned from edits and feedback | — |
 | **Candidate** | A proposed Knowledge Item or Procedural Rule not yet reviewed | — |
 | **Review** | The User's individual approve, edit-and-approve or reject decision on one Candidate | Approval |
-| **Retirement** | Withdrawing an approved Knowledge Item while keeping its history; what "delete" means | Deletion |
+| **Retirement** | Withdrawing current information for legitimate historical versioning; distinct from owner-requested deletion | Deletion |
 | **Brand Voice / Dialect / Brand Kit** | How the Business sounds; its Arabic register; the logo, colors and fonts detected from its website | — |
-| **Marketing Employee / Orchestrator / Sub-agent** | The AI worker; its planning core; its five specialists | Agent, bot |
+| **Marketing Director / Orchestrator / Sub-agent** | Product persona; planning runtime; dynamically selected specialists. `employee` remains an internal configuration/module name. | Fixed agent-count product promise |
 | **Conversation / Quick Reply / Task** | The chat; an immediate answer that starts no work; one unit of requested marketing work | Job, workflow |
-| **Constraint Diagnosis** | The Orchestrator's judgement of the bottleneck: discovery, positioning or conversion | — |
-| **Clarification / Search Yourself** | A pause in a Task asking for missing info through a form; the option to let the Employee research a field | — |
+| **Constraint Diagnosis** | An evidence-linked primary constraint hypothesis across the five diagnostic lenses, including alternatives and uncertainty | — |
+| **Clarification / Research this** | A pause in a Task asking for missing info through a form; the option to let the Employee research a field | — |
 | **Canvas** | The live view of a running Task | Decision canvas |
 | **Onboarding Crawl / Research Crawl / Snapshot** | The first website read; material gathered for a Task; a preserved crawled page | — |
 | **Research Signal / Buyer Vernacular** | Crawled material showing buyer intent; buyers' own words | — |
@@ -188,21 +191,21 @@ The first release is **Phase 2 (First Production-Ready Release)**, built by **5 
 | **Approval** | Consent to publish one specific Post Version as-is | Review |
 | **Batch Review** | Where the User approves, edits, regenerates, rejects or cancels many Posts | — |
 | **Publish Attempt / Read-back Verification** | One try to go live; confirming afterwards that the post exists on the platform | — |
-| **Platform / Connected Account** | Facebook Pages, Instagram Business or X; the Business's authorized account on one of them | Channel (a Brain category) |
-| **Usage Record / Audit Event / Notification** | Metered resource use; an unalterable record of a governed action; an in-app message | — |
+| **Platform / Connected Account** | Facebook Pages in Phase 2; Instagram Business/X in Phase 3; a workspace-authorized destination | Channel (a Brain category) |
+| **Usage Record / Audit Event / Notification** | Metered resource use; an append-only governed-action record subject to minimal retention and deletion policy; an in-app message | — |
 
 ### 3.2 Bounded contexts
 
 | Context | Type | Owns |
 |---|---|---|
 | **Business Brain** | **Core** | Knowledge Items, Relationships, Procedural Rules, Candidates and Review, Retirement, Conflicts, Provenance, Brand Kit facts |
-| **Marketing Employee** | **Core** | Conversations, Quick Replies, Tasks, Constraint Diagnosis, Clarifications, Sub-agent work, the Canvas feed, content and Brand Visual generation |
+| **Marketing Employee** | **Core** | Conversations, Quick Replies, Tasks, Constraint Diagnosis, Clarifications, Sub-agent work, the Canvas feed, text, visual briefs, outcomes, reviews and owner handoffs |
 | **Governed Publishing** | **Core** | Posts, Post Versions, Batch Review, Approvals, Scheduled Times, Publish Attempts, read-back |
 | **Market Intelligence** | Supporting | Onboarding and Research Crawls, Snapshots, Research Signals, the 7-day crawl cache |
 | **Deliverables** | Supporting | Deliverables and Source Citations, Performance Reports |
 | **Channel Connections** | Supporting | Connected Accounts, authorization state, Reconnect Needed |
 | **Evaluation** (internal) | Supporting | Scenarios, Evaluation Rounds, Reviewer scores, Treatment and Control runs |
-| **Identity & Workspace** | Generic | Users, Workspaces, Business Time Zone, workspace deletion |
+| **Identity & Workspace** | Generic | Users, Workspaces, locale/time settings and owner deletion requests |
 | **Usage Metering** | Generic | Usage Records |
 | **Audit Trail** | Generic | Audit Events |
 | **Notifications** | Generic | In-app Notifications |
@@ -226,9 +229,9 @@ flowchart LR
     AT[Audit Trail]
     NT[Notifications]
   end
-  ME -- "reads approved knowledge" --> BB
+  ME -- "reads eligible labelled context" --> BB
   ME -- "proposes Candidates" --> BB
-  MI -- "crawl → Candidates, Brand Kit" --> BB
+  MI -- "initial import → active unverified context" --> BB
   ME -- "requests Research Crawls" --> MI
   ME -- "creates" --> DV
   DV -- "content → draft Posts" --> GP
@@ -244,29 +247,37 @@ flowchart LR
 - **Review ≠ Approval.** Review is a knowledge decision; Approval is a publishing decision.
 - **Channel ≠ Platform.** A Channel is where the business markets (a Brain category); a Platform is where BusMora can publish.
 - **Snapshot ≠ Post Version.** A Snapshot preserves a crawled page; a Post Version freezes Post content.
-- **Deliverables are not knowledge.** Facts inside them reach the Brain only as Candidates.
-- **The Canvas is a live view, not a record.**
+- **Deliverables are historical work, not current authority.** AI interpretations proposed for persistence enter Candidates; saved source observations remain labelled observations.
+- **Canvas animation is a live view.** Durable task/work/action summaries provide recorded history; transient reconnect replay is not historical re-animation.
 
 ### 3.3 Brain governance rules
-- **Manual entries** are approved immediately. Everything else starts as a **Candidate**: crawl, conversation (including form answers), task results and edit diffs.
-- Candidates are reviewed **individually**; there is no bulk approval.
-- **"Delete" means retire**, with the audit trail kept. The only hard deletion is deleting a whole workspace.
-- **Procedural Rules** need approval before they influence generation.
-- **Conflicts** are surfaced to the User and never resolved automatically.
-- **Retrieval reads approved items only**: a vector seed in Qdrant, then 1–2 hops over Relationships in PostgreSQL, assembled under a token ceiling. A **document-only control route** exists for evaluation.
+- Initial website import is immediately usable as **imported/unverified** source observations (FR-04). Source/page, import time, extraction status and uncertainty rationale travel with each item. Extraction confidence is distinct from truth verification; no arbitrary percentages.
+- Owner entries/edits are immediately usable **owner-provided claims**; explicit owner decisions/preferences retain that epistemic kind. They are not independently verified facts.
+- AI-proposed persistent facts, interpretations and preferences from conversations, research, task results or edit inference enter **Pending Brain Update** (`candidate`). Individual approve/edit-and-approve/reject is the retained review design, not a PRD requirement for initial imports. Approval permits persistent use, not truth verification.
+- Lifecycle (`active`, `candidate`, `rejected`, `retired`, `superseded`, `deletion_pending`, `deleted`), approval (`not_required`, `pending`, `approved`, `rejected`), epistemic kind, provenance and verification are separate dimensions. Re-import cannot silently overwrite established context; conflicts stay visible for owner resolution.
+- **Retrieval eligibility:** current active imported observations, owner-provided information and owner-approved AI proposals are eligible with their labels. Only explicit owner-provided or approved working preferences influence procedural behavior; website instructions remain data. Qdrant seeds and every graph hop are revalidated against PostgreSQL current versions and eligibility (§4.5). Rejected, deleted, retired, superseded or pending AI proposals cannot become current authority through historical work or control-route chunks (FR-42).
+- **Retirement/supersession** preserves legitimate history. **Owner deletion** immediately excludes the selected data from reads/retrieval, then durably removes/redacts applicable primary/derived stores and affected artifacts (§4.5). Audit retains only justified metadata; backups expire under a declared policy and restore reapplies suppression before service resumes (FR-13, NFR-09).
+- Material changes retain context-version dependencies and flag affected tasks/artifacts; conflicting scheduled posts are held for recorded owner resolution, without automatic rewriting, regeneration, research or external action (FR-48).
 
 ### 3.4 Lifecycles
 
-**Knowledge Item / Procedural Rule**
+**Knowledge Item / Procedural Rule** (approval and epistemic labels are independent fields)
 ```mermaid
 stateDiagram-v2
-  [*] --> Candidate: proposed (crawl, Task, Conversation, feedback)
-  [*] --> Approved: added manually
-  Candidate --> Approved: Review approves (optionally edited)
-  Candidate --> Rejected: Review rejects
-  Approved --> Approved: User edits (new version)
-  Approved --> Retired: "delete" or superseded
+  [*] --> active: initial import or owner input, labelled provenance
+  [*] --> candidate: AI persistent proposal
+  candidate --> active: owner approves or edits and approves
+  candidate --> rejected: owner rejects
+  active --> superseded: material edit creates a new active version
+  active --> retired: historical retirement
+  active --> deletion_pending: owner deletion
+  candidate --> deletion_pending: owner deletion
+  rejected --> deletion_pending: owner deletion
+  retired --> deletion_pending: owner deletion
+  superseded --> deletion_pending: owner deletion
+  deletion_pending --> deleted: applicable cleanup complete
 ```
+Eligibility is revoked at `deletion_pending`, not delayed until cleanup. Historical versions and dependent indexes cannot reintroduce excluded content.
 
 **Post** (the approval lifecycle)
 ```mermaid
@@ -276,32 +287,41 @@ stateDiagram-v2
   pending_approval --> pending_approval: edit / regenerate (new Post Version)
   pending_approval --> approved: Approval of one Post Version
   pending_approval --> rejected
+  pending_approval --> cancelled: owner cancels before dispatch
   pending_approval --> expired: Scheduled Time passes
   expired --> pending_approval: rescheduled
   approved --> scheduled
   approved --> pending_approval: edit / regenerate
   scheduled --> pending_approval: edit / regenerate
   scheduled --> held: material context change on pricing/offer (FR-48)
-  held --> pending_approval: owner resolves hold / re-approves details
+  held --> scheduled: owner resolves context hold, details unchanged, window valid
+  held --> pending_approval: undispatched or reconciled, new details or schedule
+  held --> cancelled: cancellation confirmed before dispatch
+  approved --> held: material context or authorization change
   approved --> cancelled
   scheduled --> cancelled
-  scheduled --> expired: lateness allowance window passes without dispatch (FR-35)
+  scheduled --> held: delivery window expires or authorization revoked
   scheduled --> publishing: Scheduled Time reached / post now
-  publishing --> published: success + read-back
+  publishing --> cancelled: cancellation wins before dispatch
+  publishing --> submitted: provider acknowledges submission
+  submitted --> published: adequate platform confirmation
+  submitted --> uncertain: verification unavailable
+  submitted --> failed: provider confirms rejection
   publishing --> uncertain: timeout after dispatch (FR-36)
   uncertain --> published: read-back reconciles external publication
-  uncertain --> failed: reconciliation confirms failure / manual recovery
+  uncertain --> failed: reconciliation confirms no publication
+  uncertain --> held: outcome unresolved, manual review required
   publishing --> failed: retries exhausted / reconnect needed
-  failed --> publishing: manual retry (same version, no duplicate)
+  failed --> publishing: safe retry after preflight within approved window
 ```
 
 Rules attached to the Post lifecycle:
 - Approval binds to exact Post Version, destination account, scheduled time/timezone, and maximum delivery-lateness allowance (FR-34).
 - Material context changes (pricing, offerings, service scope) place dependent scheduled posts into `held` state (FR-48) until owner resolution.
-- A Post expires if its Scheduled Time passes while still pending, or if the lateness allowance window passes without dispatch (FR-35).
+- Unapproved pending posts may expire at the scheduled time. Approved posts past their delivery window are held for a new time and approval (FR-35).
 - Dispatches are verified via read-back; timeouts enter `uncertain` state until reconciled, avoiding blind duplicate posts (FR-36).
-- Automatic retries follow PRD §13.3: 2× on an API error; cooldown on a rate limit.
-- A broken credential triggers a silent refresh; if that fails, the Post goes to `failed` with "reconnect needed" and the User is notified.
+- A provisional maximum of two retries/cooldown applies only to retry-safe failures after reconciliation and fresh preflight, within the approved delivery window; it is an engineering choice, not a PRD retry count. Uncertain acceptance forbids blind retry.
+- Refresh is allowed only under a still-connected authorization. Revocation/disconnection blocks future sends; reconnect never silently sends overdue work. Cancellation before dispatch is enforced; after platform acceptance show actual outcome and any owner removal step.
 
 **Task**
 ```mermaid
@@ -319,13 +339,15 @@ stateDiagram-v2
   running --> failed: retries and alternatives exhausted
   requested --> cancelled
   running --> cancelled
+  awaiting_clarification --> cancelled: owner stops
+  awaiting_budget_approval --> cancelled: owner stops
 ```
 
 **Roadmap & Strategic Revisions**
 ```mermaid
 stateDiagram-v2
-  [*] --> ActiveRoadmap: generated from 5 STAR diagnostic lenses
-  ActiveRoadmap --> ActiveRoadmap: task status change / horizon shift
+  [*] --> RevisionProposed: initial plan from diagnostic lenses
+  ActiveRoadmap --> ActiveRoadmap: recorded task status change / owner horizon shift
   ActiveRoadmap --> RevisionProposed: strategic trigger (CSV, manual outcome, staleness)
   RevisionProposed --> RevisionApproved: owner approves revision diff
   RevisionProposed --> RevisionRejected: owner rejects revision diff
@@ -337,28 +359,32 @@ stateDiagram-v2
 ```mermaid
 stateDiagram-v2
   [*] --> planned: created in Next / Later / Now
-  planned --> in_progress: launched by user or automated pipeline
+  planned --> in_progress: launched within owner task authorization
   in_progress --> completed: completion condition met
   in_progress --> blocked: dependency or input missing
   blocked --> in_progress: unblocked
   planned --> deferred: moved back due to owner capacity
-  planned --> not_applicable: rejected/superseded (never hard deleted)
-  in_progress --> not_applicable: cancelled (preserved for history)
+  planned --> not_applicable: owner determines not applicable
+  planned --> rejected: owner rejects priority
+  planned --> cancelled: owner cancels
+  in_progress --> cancelled: stop further work
+  deferred --> planned: owner revisits
+  rejected --> planned: owner revisits
 ```
 
 ### 3.5 Key domain events
 - **Identity:** `WorkspaceCreated`, `BusinessTimeZoneChanged`, `WorkspaceDeletionRequested`, `WorkspaceDeleted`.
 - **Market Intelligence:** `OnboardingCrawlStarted/Completed/Failed`, `BrandKitDetected`, `ResearchCrawlCompleted`, `SourceSkipped`.
-- **Brain:** `KnowledgeCandidateProposed`, `KnowledgeItemApproved`, `KnowledgeCandidateRejected`, `KnowledgeItemAddedManually`, `KnowledgeItemEdited`, `KnowledgeItemRetired`, `Relationship Added/Retired`, `KnowledgeConflictDetected`, `ProceduralRuleApproved`.
+- **Brain:** `KnowledgeCandidateProposed`, `KnowledgeItemApproved`, `KnowledgeCandidateRejected`, `KnowledgeItemAddedManually`, `KnowledgeItemEdited`, `KnowledgeImported`, `KnowledgeOwnerProvided`, `KnowledgeItemRetired`, `KnowledgeDeletionRequested/Completed`, `ContextVersionChanged`, `RelationshipAdded/Retired/Deleted`, `KnowledgeConflictDetected`, `ProceduralRuleApproved`.
 - **Roadmap & Strategy:** `RoadmapGenerated`, `RoadmapTaskStatusChanged`, `RoadmapTaskReprioritized`, `StrategicRoadmapRevisionProposed`, `StrategicRoadmapRevisionApproved`, `StrategicRoadmapRevisionRejected`, `RoadmapTaskLaunched`, `ContextStalenessHoldApplied`.
 - **Employee:** `TaskRequested`, `TaskStarted`, `ConstraintDiagnosed`, `ClarificationRequested/Answered/Expired`, `TaskCompleted`, `TaskPartiallyCompleted`, `TaskFailed`, `TaskCancelled`, `ResourceConsumed`.
-- **Deliverables:** `DeliverableCreated`, `PerformanceReportRejected`.
-- **Publishing:** `PostDrafted`, `PostSubmittedForApproval`, `PostVersionCreated`, `PostApproved`, `PostRejected`, `PostScheduled`, `PostCancelled`, `PostExpired`, `PostPublished` (after read-back), `PostPublishFailed`.
+- **Deliverables:** `DeliverableCreated/Deleted`, `PerformanceReportRejected`, `AggregateOutcomeRecorded`, `OwnerImplementationAttested`, `ReviewDue`, `ReviewDecisionRecorded`.
+- **Publishing:** `PostDrafted`, `PostSubmittedForApproval`, `PostVersionCreated`, `PostApproved`, `PostRejected`, `PostScheduled`, `PostCancelled`, `PostExpired`, `PostPublished` (after read-back), `PostPublishFailed`, `PostSubmitted`, `PostOutcomeUncertain`, `PostHeld`, `PostHoldResolved`.
 - **Connections:** `AccountConnected`, `AccountReconnectNeeded`, `AccountDisconnected`.
 
 In this release these events are recorded by `busmora-api` as **rows written in the same transaction as the change**: audit, usage and notification records. There is no message bus.
 
-**Canvas progress signals are separate from domain events.** They are live-only and replayed only during a run plus a short grace window: `agent_started`, `agent_tool_used`, `agent_completed`, `agent_error`, `flow_connection` (PRD FR-045).
+**Canvas progress signals are separate from domain events.** Agent signals come from ai; platform activities also emit safe `execution_event` records after committed workflow/service transitions, without I/O in workflow code. They are live-only and replayed only during a run plus a short grace window: `agent_started`, `agent_tool_used`, `agent_completed`, `agent_error`, `flow_connection`, plus additive `execution_event` for recorded workflow/tool/service activity, retries and input/hold points (FR-22–23; names are engineering contracts). Durable safe summaries remain queryable after live-buffer expiry.
 
 ### 3.6 Core interaction sequences
 
@@ -376,15 +402,15 @@ sequenceDiagram
   Owner->>Web: Completes Onboarding / Initiates Diagnostic
   Web->>API: POST /v1/tasks (type: DIAGNOSTIC_AND_ROADMAP)
   API->>Temporal: Start TaskExecutionWorkflow
-  Temporal->>Agent: Execute Diagnostic with 5 STAR lenses
-  Agent->>Brain: Retrieve Approved Knowledge & Constraints
-  Brain-->>Agent: Approved Context
+  Temporal->>Agent: Execute scoped diagnostic with five lenses
+  Agent->>Brain: Retrieve eligible labelled context and constraints
+  Brain-->>Agent: Context with provenance and uncertainty
   Agent->>Agent: Diagnose Primary Constraint & Synthesize Roadmap
   Agent->>Temporal: Diagnostic Complete (Roadmap DTO with Now/Next/Later)
-  Temporal->>API: persistTaskResult & createRoadmap
-  API->>API: Enforce Capacity Constraint (1–3 active in Now)
-  API-->>Web: Emits Task Completed & Roadmap Generated
-  Web-->>Owner: Displays Today View + Now/Next/Later Board
+  Temporal->>API: persistTaskResult & proposeRoadmap
+  API->>API: Check capacity and dependencies (default 1–3 or fewer)
+  API-->>Web: Return direction, proposed roadmap and next task
+  Web-->>Owner: Owner reviews plan and selects task for first artifact
 ```
 
 #### Sequence 2: Outcome Ingestion & Strategic Roadmap Revision
@@ -398,11 +424,12 @@ sequenceDiagram
   participant Agent as busmora-ai (ai-agent)
   participant DB as PostgreSQL
 
-  Owner->>Web: Uploads Performance CSV / Enters Manual Outcome
+  Owner->>Web: Uploads CSV or XLSX / Enters Manual Outcome
   Web->>API: POST /v1/outcomes/manual or POST /v1/performance-reports
-  API->>Temporal: Start OutcomeAnalysisWorkflow
-  Temporal->>Agent: Analyze Performance vs Roadmap Hypotheses
-  Agent->>Agent: Detect Metric Shifts / Identify Required Roadmap Pivot
+  API->>API: Validate mapping, source, period, definitions and duplicates
+  API->>Temporal: Start TaskExecutionWorkflow with outcome-review type
+  Temporal->>Agent: Compute supported metrics deterministically, then interpret vs goal
+  Agent->>Agent: Separate observations, limitations and proposed decision (may be inconclusive)
   Agent->>Temporal: Propose Strategic Revision DTO (diff: adds, shifts, drops)
   Temporal->>API: proposeRoadmapRevision(revisionId, diff, rationale)
   API->>DB: Store strategic_roadmap_revisions (status: pending)
@@ -412,8 +439,24 @@ sequenceDiagram
   Web->>API: POST /v1/roadmap/revisions/{id}/approve
   API->>DB: Atomic cutover: archive v(N), activate v(N+1), apply task shifts
   API-->>Web: 200 OK (New Roadmap Active)
-  Web-->>Owner: Updated Now/Next/Later Board & Today View
+  Web-->>Owner: Updated roadmap, separate Brain proposal remains pending
 ```
+
+---
+
+### 3.7 Shared owner-cycle contracts (FR-08, FR-14–18, FR-38–49)
+
+The existing `tasks` module owns goal/capacity, versioned roadmaps, task dependencies, attestations, observations/reviews and budget reservations. `brain` owns provenance-backed context; `deliverables` owns artifact revisions, file/media ingestion and exports; `publishing` owns exact approval, dispatch and platform outcomes. These remain one modular application with a single PostgreSQL domain writer, not independent sources of truth.
+
+- A selected primary goal/review horizon, actual conversion path and capacity (time, skills/assets, budget, fulfillment) constrain work. Metric definitions carry source/period/unit; baseline and target separately retain observed/owner-reported/estimated/unknown/not-applicable states. A target is not a forecast. Business budget, computational allowance and authority to spend are independent.
+- Diagnose offer/audience, destination, conversion, acquisition and existing-customer opportunities. Retain primary hypothesis, observations/source dates, alternatives/disconfirming evidence, missing evidence and why-now/why-defer rationale. Apply authorization/capability/dependency/capacity constraints before priority; favor useful feedback for feasible effort. No multiplicative score, universal sequence or automatic preference for Facebook because it is integrated. The five lenses derive from the Playbook’s course interpretation (PRD §1.2), not validated instruments.
+- Task records retain responsibility, execution mode, input/dependency refs, deliverable/effort/completion/review contract, resource allowance and separate task, artifact, roadmap, Brain and external approvals. The approximately 10–12 recipes in PRD §5.13 are reusable configurations, selected only when relevant. Direct one-item work bypasses a full diagnostic interview.
+- Work status, external action status and learning status are independent. A saved draft is not owner implementation; owner attestation is not independent verification; platform-confirmed publishing is not business impact. Owner handoffs include artifact, instructions, checklist and observation plan, never replace mandatory Facebook/graph/Canvas/research capability.
+- CSV and supported .xlsx mapping/validation and manual aggregate outcomes feed deterministic calculations, then interpretation against the goal/baseline/period. Unknown is not zero; reject incompatible definitions/currency/overlaps and invalid denominators. Experiments retain hypothesis, observation window, comparison basis if any, outcome, guardrail and decision rule; no implied causal attribution/forecast.
+- Today surfaces reviews due on the business sales cycle. A review presents observations, limitations, interpretation and proposed continue/change/stop/gather-evidence/scale decision, including inconclusive/no-data outcomes. Owner review decisions, roadmap revisions and persistent Brain proposals remain separate; scale never authorizes spend.
+- Context-version dependencies link claims/proof, goals/metrics and tasks/artifacts. Same-transaction impact events flag only affected work and hold conflicting scheduled posts. Owner resolution is recorded; changed approved details require fresh approval. Data deletion removes or redacts affected historical evidence under §4.5.
+
+The detailed records, public contracts and HTTP shapes are in [BACKEND §6.4.1](./BACKEND-TECHNICAL-DESIGN.md#641-goal-task-outcome-and-review-contracts) and [§8.1.5](./BACKEND-TECHNICAL-DESIGN.md#815-required-owner-workflow-apis). These interfaces are documentation commitments, not implemented APIs.
 
 ---
 
@@ -434,12 +477,12 @@ flowchart LR
     APIA["api-activities<br/>Temporal TS worker<br/>persist · transitions · audit · usage · notifications"]
   end
   subgraph WK["busmora-workers · Python"]
-    WF["workflows<br/>Task · Onboarding · PostRelease · Indexing · Deletion"]
+    WF["workflows<br/>Task · Onboarding · PostRelease · Indexing · Export · Deletion"]
     PUB["publish<br/>MCP tools · KMS decrypt · read-back"]
   end
   subgraph AI["busmora-ai · Python"]
     AIH["ai-http (FastAPI, internal only)<br/>quick reply · Brain retrieval"]
-    AG["ai-agent<br/>LangGraph · LiteLLM · extraction · Brand Visuals · CSV KPIs"]
+    AG["ai-agent<br/>LangGraph · LiteLLM · extraction · text/briefs · deterministic metrics"]
     CR["ai-crawl<br/>Scrapling · browser pool · proxies"]
   end
   T[("Temporal Cloud")]
@@ -457,7 +500,7 @@ flowchart LR
   APIH -->|"read/write"| PG
   APIA -->|"sole domain writer"| PG
   AIH -->|"read-only views + RLS"| PG
-  AG -->|"read-only views + runtime schema"| PG
+  AG -->|"read-only views + private runtime checkpoints"| PG
   AIH -->|"search"| Q
   AG -->|"index · search"| Q
   AG -->|"Canvas signals"| R
@@ -466,7 +509,7 @@ flowchart LR
   APIH --> S3
   AG --> S3
   CR --> S3
-  PUB -->|"MCP → platform APIs"| EXT["Meta · X"]
+  PUB -->|"MCP → platform APIs"| EXT["Facebook Pages (Phase 2)"]
 ```
 
 ### 4.3 Components (process roles)
@@ -475,20 +518,20 @@ flowchart LR
 |---|---|---|
 | `busmora-web` | `web` | Serves the frontend (§5) |
 | `busmora-api` (NestJS) | `api-http` | Public REST API; user auth (Argon2id, JWT, refresh rotation); rate limiting; OAuth consent callbacks + KMS encryption; uploads; SSE gateway reading Redis Streams; Temporal client (starts and signals workflows); internal HTTP client to `ai-http` |
-| | `api-activities` | Temporal **TypeScript activity worker** hosting the "platform" activities: persist task progress and results, open and cancel Clarifications, store Candidates, claim and record Post publishing, write audit, usage and notification rows |
-| `busmora-workers` (Python) | `workers-workflows` | Workflow definitions: `TaskExecutionWorkflow`, `OnboardingWorkflow`, `PostReleaseWorkflow` (one per Post), `IndexingWorkflow`, `WorkspaceDeletionWorkflow`. Sequencing only; no domain rules. |
+| | `api-activities` | Temporal **TypeScript activity worker** hosting the "platform" activities: persist task progress and results, open and cancel Clarifications, store imported/owner context and AI proposals, claim and record Post publishing, write audit, usage and notification rows |
+| `busmora-workers` (Python) | `workers-workflows` | Workflow definitions: `TaskExecutionWorkflow`, `OnboardingWorkflow`, `PostReleaseWorkflow` (one active release per Post; ID includes schedule revision), `IndexingWorkflow`, `DataDeletionWorkflow`, `DataExportWorkflow`, `WorkspaceDeletionWorkflow`. Sequencing only; no domain rules. |
 | | `workers-publish` | MCP publishing tools (`publish_facebook` in Phase 2; `publish_instagram`, `publish_x` prepared for Phase 3); KMS decryption in memory; idempotent dispatch; read-back verification; token refresh. **No database access.** |
 | `busmora-ai` (Python) | `ai-http` | **Internal-only** FastAPI: Router and quick replies; Brain retrieval (seed + 1–2 hops). **Never writes domain data.** |
-| | `ai-agent` | Temporal activity worker: LangGraph (Router, Orchestrator, Sub-agents), LiteLLM, knowledge extraction, embedding and Qdrant indexing, Brand Visual generation, CSV KPI computation; emits Canvas signals |
+| | `ai-agent` | Temporal activity worker: LangGraph (Router, Orchestrator, Sub-agents), LiteLLM, knowledge extraction, embedding and Qdrant indexing, text/visual briefs, deterministic CSV/.xlsx/manual KPI computation; emits Canvas signals |
 | | `ai-crawl` | Temporal activity worker: Scrapling crawlers with a bounded headless-browser pool, rotating proxies, sanitization, intent qualification |
 
 ### 4.4 Bounded contexts → components
 
 | Context | Rules and state (owner) | Durable process | Compute |
 |---|---|---|---|
-| Business Brain | api `brain` module | `IndexingWorkflow` re-embeds after approve, edit or retire | ai: extraction, embeddings, retrieval (`ai-http` for synchronous search) |
+| Business Brain | api `brain` module | `IndexingWorkflow` reconciles import, owner input, approval, edits and eligibility changes; deletion purges derived data | ai: extraction, embeddings, retrieval (`ai-http` for synchronous search) |
 | Marketing Employee | api `conversation` and `tasks` modules | `TaskExecutionWorkflow` | ai: Router (`ai-http`), Orchestrator, Sub-agents (`ai-agent`) |
-| Governed Publishing | api `publishing` module (state machine) | `PostReleaseWorkflow` per Post | `workers-publish` |
+| Governed Publishing | api `publishing` module (state machine) | `PostReleaseWorkflow` per Post/schedule revision | `workers-publish` |
 | Market Intelligence | api `crawls` module (records, Snapshot metadata) | `OnboardingWorkflow`; crawl steps inside Tasks | `ai-crawl` |
 | Deliverables | api `deliverables` module | — | ai produces content |
 | Channel Connections | api `connections` module | Refresh inside the publish path | `workers-publish` |
@@ -502,23 +545,21 @@ flowchart LR
 
 | Store | Holds | Who writes | Notes |
 |---|---|---|---|
-| **PostgreSQL 16+** (source of truth) | All domain state, one schema per context: identity, brain (`brain_nodes`, `brain_edges`, `brain_procedural_rules`), conversation, tasks, deliverables, publishing (posts, post versions, publish attempts), connections (KMS-encrypted credential envelopes), crawl metadata, audit (append-only), usage, notifications, evaluation | **`busmora-api` only.** Drizzle is the single migration toolchain. | RPO 0 + point-in-time restore |
-| PostgreSQL runtime schema | LangGraph checkpoints | `ai-agent` | Technical state, not domain state |
-| PostgreSQL retrieval views | Approved Knowledge Items, Relationships, Procedural Rules, Snapshot metadata | read by `ai-agent` and `ai-http` through **read-only roles**, with **row-level security** on the workspace | Python never writes domain tables |
-| **Qdrant** (derived) | Embeddings of approved items; control-route chunks. Each point carries `workspace_id` and `status`. | `ai-agent` | Rebuilt from PostgreSQL + object storage by `IndexingWorkflow` |
+| **PostgreSQL 16+** (source of truth) | All domain state, one schema per context: identity, brain (`brain_nodes`, `brain_edges`, `brain_procedural_rules`), conversation, tasks, deliverables, publishing (posts, post versions, publish attempts), connections (KMS-encrypted credential envelopes), crawl metadata, audit (append-only), usage, notifications, evaluation | **`busmora-api` only.** Drizzle is the single migration toolchain. | Recovery objectives + point-in-time restore, to be verified (§2.2) |
+| PostgreSQL runtime schema | LangGraph checkpoints | `ai-agent` | Not authoritative domain state; may contain private context copies subject to deletion and resume revalidation |
+| PostgreSQL retrieval views | `brain_read` for eligible current context/relationships/adopted rules; module-owned `conversation_read`, `tasks_read`, `deliverables_read` for eligible labelled historical work, sources and dependencies | read by `ai-agent` and `ai-http` through **read-only roles**, with **row-level security** on the workspace | Python never writes domain tables |
+| **Qdrant** (derived) | Embeddings of eligible context and eligible historical/control chunks. Payload: workspace, item/version, lifecycle, approval, epistemic kind, provenance, retrieval eligibility and deletion generation; always revalidate against PostgreSQL. | `ai-agent` | Rebuilt from PostgreSQL + object storage by `IndexingWorkflow` |
 | **Redis 7+** (derived) | Refresh-token families (with rotation state); per-Task Canvas streams (replay buffer); crawl-cache keys (7-day TTL) | api, ai | Loss affects only sessions, live replay and the cache |
-| **Object storage** (S3-compatible) | Crawl Snapshots (HTML), uploaded CSVs, Brand Visuals (served to Meta and X through signed public URLs) | ai (Snapshots, images), api (uploads). Metadata rows are written only by api. | Keys: `{workspace_id}/{source_type}/{timestamp}_{filename}` |
+| **Object storage** (S3-compatible) | Crawl Snapshots, CSV/.xlsx performance uploads, owner-supplied publishing media and export packages (short-lived signed media URLs for Facebook) | ai (Snapshots), api (uploads/exports). Metadata rows are written only by api. | Keys: `{workspace_id}/{source_type}/{timestamp}_{filename}` |
 | **Temporal Cloud** | In-flight workflow state and references | workflows | Large content travels by reference, never inline |
 
-**Retention and deletion:**
-- Snapshots are kept while any item or Deliverable references them, including retired items.
-- Unreferenced raw research data is deleted after **7 days**.
-- **Workspace deletion** is operator-run and removes everything:
-  - PostgreSQL, **including that workspace's audit log**;
-  - Qdrant, object storage, Redis and LLM traces;
-  - its credentials become unrecoverable.
-  - Only a minimal deletion record remains.
-- Every row and object is attributable to a workspace.
+**Retention and deletion (FR-13, FR-41–42, NFR-09):**
+- Owner-facing item, relationship and historical-deliverable deletion is distinct from retirement. Commit a deletion request and retrieval deny marker atomically; freeze conflicting publication and exclude affected content from queries immediately. A durable `DataDeletionWorkflow` performs module-owned cleanup and reports requested/processing/completed/retry_needed states. Whole-workspace deletion uses the same policy at workspace scope.
+- Remove/redact source payloads, versions, edges, Qdrant points (including control chunks), caches, conversations/derived summaries, checkpoints, media, export packages, traces and affected artifacts where applicable. Where lawful minimal history remains, retain metadata only; an artifact whose support was deleted must lose that evidentiary basis and cannot leak the source through a summary/citation. Deletion wins over reference retention and late indexing/jobs.
+- Non-deleted Snapshots may be retained while legitimately referenced, including historical versions; unreferenced raw research data has a provisional seven-day retention. Provider retention, active cleanup deadlines, backup expiry and minimal audit fields/durations must be finalized before release (OD-21). Do not copy deleted content into audit records or deletion markers.
+- Backups cannot be promised instantly erased. Keep a protected suppression ledger of deletion/disconnection identifiers and generations beyond applicable backup lifetime. Restore into isolation, reapply suppressions, invalidate credentials/jobs, reconcile possible external sends and rebuild only eligible indexes before reopening access. Test this procedure; unknown outcomes remain held.
+- Disconnect removes usable credentials and blocks future sends without implicitly deleting an already published platform post. Existing signed media URLs and provider-held copies have explicit expiry/retention limits; explain any owner action required. No automatic repost/removal is implied.
+- Export packages cover selected Brain/history data and applicable original media using text/Markdown/CSV, with source/version/status metadata, tenant checks, formula-safe CSV and expiring download access. Deletion also invalidates outstanding export access. Every record/object/job is attributable to a workspace.
 
 ### 4.6 Communication
 
@@ -528,8 +569,8 @@ flowchart LR
 | Quick reply | `api-http` → **`ai-http`** (Router + reply) → api stores the reply | No (re-send on failure) |
 | Complex request | `ai-http` returns the classification → **api** writes the Task, starts `TaskExecutionWorkflow`, acknowledges | Yes |
 | Ambiguous request | `ai-http` returns a clarifying question; api stores it | No |
-| Brain search outside the agent graph | `api-http` → **`ai-http`** retrieval (approved, workspace-scoped) | Read-only |
-| Agent work, crawling, extraction, indexing, images, KPIs | Temporal activities | Yes |
+| Brain search outside the agent graph | `api-http` → **`ai-http`** retrieval (eligible, labelled, workspace-scoped) | Read-only |
+| Agent work, crawling, extraction, indexing, text/briefs, KPIs | Temporal activities | Yes |
 | Persisting any result | Temporal activity on `api-activities` | Yes |
 | Live progress | `ai-agent` / `ai-crawl` → Redis Streams (keyed by Task) → `api-http` SSE → browser | Live only |
 
@@ -547,11 +588,11 @@ flowchart LR
    - Sending a Post to Batch Review starts `PostReleaseWorkflow` with a timer to its Scheduled Time.
    - Approve, edit, regenerate (AI before approval only), reject, cancel and reschedule are api writes.
    - At the Scheduled Time, `platform.claim_post` **atomically** checks the Post:
-     - still approved and on the same Post Version → it moves to `publishing` and returns the version reference plus the credential envelope;
-     - still pending → it moves to `expired`;
+     - exact version/media/destination/time/zone/allowance approved, current connection authorized, no cancellation/context hold, within delivery window → atomically record attempt and move to `publishing`; recheck authority at dispatch;
+     - still pending → it expires when its scheduled time passes; overdue approved work → `held`;
      - anything else → the workflow ends.
-   - `workers.publish` decrypts in memory, calls the MCP tool with **idempotency key = Post Version id**, and reads the post back. `platform.record_publish_result` stores the outcome.
-5. **Onboarding.** `OnboardingWorkflow`: crawl (≤ 10 pages / 5 min, robots.txt respected) → extract → `platform.store_candidates` (including Brand Kit facts) → notification.
+   - `workers.publish` decrypts in memory, calls the MCP tool with **idempotency key = Post Version id**, and reconciles available platform evidence. `platform.record_publish_result` stores submitted/confirmed/failed/uncertain outcomes; unresolved acceptance is held, not retried. A local key is not proof of external idempotency.
+5. **Onboarding.** Website path: `OnboardingWorkflow` → bounded crawl (provisional ≤10 relevant pages / 5 min, robots.txt respected) → extract → `platform.store_imported_context` (source-labelled, immediately usable brand/business observations) → post-import choice. Exclude login/signup and low-value pages by default; show source gaps/partial failure and offer guided setup promptly. Guided path: `POST /v1/onboarding/guided` stores owner-provided name/offer, market/stage, goal, conversion route, languages and rough capacity; unknown audience/baseline/economics are valid. Neither path requires full-field review or a full audit. Extracted text alone does not verify site speed, visual/mobile quality or form operation (FR-03–07).
 6. **Platform connection (lazy).** When the User sends Posts to Batch Review without a Connected Account, api returns a connect prompt. The OAuth consent goes through api, which encrypts the tokens with KMS (keyed with the workspace, integration and credential version).
 
 **Guardrails on internal HTTP (A1):**
@@ -573,13 +614,13 @@ flowchart LR
 | **Same-site deployment** | `app.<domain>` (web) and `api.<domain>` (api) under one registrable domain |
 | **Request forgery** | The refresh endpoint checks the `Origin` header **and** requires a custom header |
 | **Multi-tab** | One tab refreshes and shares the result (`BroadcastChannel` / Web Locks); the server accepts the just-rotated token for **10 s**. On page reload the app refreshes silently. |
-| **SSE auth** | A short-lived `HttpOnly; Secure; SameSite=Strict` **stream cookie** with `Path=/v1/streams`, issued together with each access token. The browser's native `EventSource` sends it, including on reconnects with `Last-Event-ID`. Open streams stay alive when the cookie expires mid-stream. A reconnect with an expired cookie gets 401 → the client refreshes → the stream reopens. |
+| **SSE auth** | A short-lived `HttpOnly; Secure; SameSite=Strict` **stream cookie** with `Path=/v1/streams`, issued together with each access token. The browser's native `EventSource` sends it, including on reconnects with `Last-Event-ID`. Open streams survive cookie expiry, but logout/session revocation, workspace deletion or access revocation closes them and invalidates replay access. A reconnect with an expired cookie gets 401 → the client refreshes → the stream reopens. |
 | **Internal HTTP (api → ai)** | Private network plus a **60-second internal service JWT** signed with a dedicated **asymmetric key pair**. Claims: `aud=busmora-ai`, `workspace_id`, `user_id`, `trace_id`. `ai-http` holds only the public key and takes the workspace only from the verified claim. Its database role is read-only, with row-level security on the workspace. |
 | **Temporal Cloud** | **One API key per process role**, loaded from a secrets store; mTLS as a fallback |
-| **Tenant isolation** | Workspace in the JWT → every query; in every workflow input; in every Qdrant filter, object key and Redis key; Langfuse tags. Database roles: api read-write; ai read-only views + runtime schema; workers none. |
+| **Tenant isolation** | Workspace in the JWT → every query; in every workflow input; in every Qdrant filter, object key and Redis key; Langfuse tags. Database roles: api read-write; ai read-only views + private runtime checkpoints; workers none. |
 | **OAuth credentials** | KMS envelope encryption in api; **decrypted only in `workers-publish`**, in memory, never logged. Plaintext never exists in `busmora-ai`, where untrusted crawled text is processed. |
 | **Prompt injection** | Crawled content is sanitized (HTML, scripts and styles stripped), quarantined inside explicit data boundaries, and treated as data by system instructions. Each Sub-agent gets only its own tools; publishing tools live in a different process. |
-| **SSRF** | Crawl targets are validated against private IP ranges |
+| **SSRF** | Validate allowed URL schemes, DNS results and every redirect against private/reserved addresses; sources cannot request internal fetches or private-data searches |
 | **Rate limiting** | Public endpoints limited in `api-http`; domain-level cooldown in crawlers |
 
 ### 4.8 External integrations
@@ -587,10 +628,10 @@ flowchart LR
 | Integration | Where | Notes |
 |---|---|---|
 | **Meta Graph API** (Facebook Pages) | OAuth in `api-http`; publishing in `workers-publish` via MCP | One BusMora Meta app. **Tester mode** for initial dev; release gate AC-30 requires verified production configuration for ordinary owners. Text/link and single owner-supplied image with caption. (Instagram Content Publishing is Phase 3). |
-| **X API v2** (Phase 3) | Same split | Phase 3 integration (P3-02). One BusMora developer app (OAuth 2.0 PKCE). Limit 100 posts / 15 min per user. |
-| **Reddit, YouTube, Facebook Ads Library, competitor sites, open web** | `ai-crawl` | Custom Scrapling crawling only (no search API); rotating proxies; bounded browser pool; 7-day cache |
+| **X API** (Phase 3) | Same split | Deferred integration; verify then-current access, formats, quotas and authorization before activation. |
+| **Reddit, YouTube, Facebook Ads Library, competitor sites, open web** | `ai-crawl` | Existing Scrapling retrieval adapter retained; public search/discovery provider strategy remains an early evidence-backed decision (OD-22). Use permitted accessible sources, source gaps and alternatives, not promised comprehensive/private access. Cache retains freshness labels. |
 | **LLM providers** (via LiteLLM) | `ai-agent`, `ai-http` | "Light" models (routing, extraction) and "heavy" models (planning, writing); provider chosen by an Arabic-quality bake-off, with a fallback |
-| **Embedding model / image model** | `ai-agent` | Chosen in the Sprint 1 bake-off |
+| **Embedding model** | `ai-agent` | Early quality/cost bake-off; image models deferred to Phase 4+ |
 | **Cloud KMS** | api (encrypt), `workers-publish` (decrypt) | Envelope encryption |
 | **Object storage** | api, ai | S3-compatible; vendor chosen in Sprint 1 |
 | **Temporal Cloud** | all Python roles, `api-http`, `api-activities` | Managed durable execution |
@@ -604,7 +645,7 @@ flowchart LR
 - **Scaling:** `api-http`, `ai-http` and `ai-agent` scale horizontally. `ai-crawl` is capped by its browser pool. One workflow worker and one publish worker suffice for the pilot.
 - **Region:** a single region in Frankfurt (provisional; the cloud provider is deferred).
 - **Local development:** Docker Compose runs the same roles. The frontend repository consumes the backend through its published contract (§6).
-- **Workflow versioning:** workflows live up to a month, so changes to running workflow code must stay compatible with in-flight runs (TA §13 #10).
+- **Workflow versioning:** workflows live up to a month, so changes to running workflow code must stay compatible with in-flight runs (§7.7).
 
 ---
 
@@ -618,7 +659,7 @@ flowchart LR
 app/
   (public)/login, register, verify, reset
   (app)/layout          ← client shell: navigation, language + direction, session
-  (app)/today, roadmap, onboarding, employee/[conversationId], brain, deliverables, batch-review, settings
+  (app)/today, roadmap, onboarding, employee/[conversationId], brain, deliverables, outcomes, reviews/[id], batch-review, settings
 features/<context>/      ← identity, today, roadmap, onboarding, employee, brain, deliverables,
                            publishing, connections, settings, notifications
                            (queries, mutations, components; later: events/)
@@ -631,15 +672,15 @@ shared/                  ← shadcn/ui components, generated API client, SSE cli
 | Area | What it provides |
 |---|---|
 | Auth | Register, email verification, login, logout, password reset |
-| Today | Default returning view (FR-02): pending approvals, scheduled posts for today, active Now roadmap tasks, active constraint diagnosis banner |
-| Roadmap | Adaptive Now/Next/Later board (FR-46): 1–3 active tasks in Now bounded by owner capacity; task cards with full attributes (rationale, owner vs native handoff, inputs, deliverable spec, dependencies, effort, completion condition, review cadence); Strategic Revision diff review and approval modal; non-applicable task display (never hard-deleted) |
-| Onboarding | Website URL; non-blocking crawl progress (pages crawled, estimated completion); Business Time Zone |
-| Marketing Employee | Conversation list and history. Split view: chat on one side, Canvas on the other (Canvas toggled on mobile). Chat message types: text, structured forms (text, radio, checkbox, dropdown, "Search yourself"), task status, Deliverable cards, knowledge notifications, errors. Replies arrive as whole messages (no token streaming). |
-| Canvas | React Flow: Orchestrator + 5 Sub-agents; idle, active, completed and error states; animated edges; abstracted tool labels |
-| Brain | React Flow graph of approved and Candidate items; side panel (view, edit, retire); manual items and Relationships; filters and search (semantic search via the api → `ai-http` retrieval path); Provenance and Snapshot view; individual Candidate Review in 7 sections with a badge; Conflicts; Brand Kit facts |
-| Deliverables | List; filter by type and date; full view (Markdown or structured) |
-| Batch Review | Grid or list showing Platform, time in the Business Time Zone, Brand Visual preview and status. Per Post: approve, reject, edit, regenerate, cancel, reschedule, retry. "Approve/reject all remaining". Failure reasons. Lazy connect prompt. Session timing captured for evaluation. |
-| Settings | Account; Connected Accounts (status, connect, disconnect, reconnect needed); Business Time Zone; UI language |
+| Today | Default returning view (FR-02): pending approvals, scheduled posts for today, active Now roadmap tasks, current goal, blockers and review due; diagnosis and next action |
+| Roadmap | Adaptive Now/Next/Later board (FR-46): default 1–3 active tasks in Now, fewer/none as owner capacity requires; task cards with full attributes (rationale, owner vs native handoff, inputs, deliverable spec, dependencies, effort, completion condition, review cadence); Strategic Revision diff review and approval modal; separate blocked/deferred/not-applicable/rejected states, subject to owner data controls |
+| Onboarding | Website or guided setup, disabled Coming Soon social import, truthful progress, optional Brain review or direct Director access, first artifact and explicit country/currency/IANA zone |
+| Marketing Employee | Conversation list and history. Split view: chat on one side, Canvas on the other (Canvas toggled on mobile). Eight chat message kinds: owner text, Director text response, structured form (optional scoped Research this), task status, Deliverable card, knowledge notification, budget extension request and error. Replies arrive as whole messages (no token streaming). |
+| Canvas | React Flow nodes from actual agents, tools and workflow records, with planned/running/input/held/failure states and accessible event list; no fixed roster or invented progress |
+| Brain | React Flow graph and accessible list of imported, owner-provided, approved and pending items; side panel (inspect, edit, export, delete, and separate retire); manual items and Relationships; filters and search (semantic search via the api → `ai-http` retrieval path); Provenance and Snapshot view; individual Candidate Review in 7 sections with a badge; Conflicts; Brand Kit facts |
+| Deliverables | List; type/date filters; versioned editor/viewer; reuse/export/delete; CSV/.xlsx mapping and manual outcomes; recurring reviews with independent Brain/roadmap decisions |
+| Batch Review | Grid or list showing Platform, time in the Business Time Zone, text/link or single owner-image preview and status. Per Post: approve, reject, edit, regenerate, cancel, reschedule, retry. "Approve/reject all remaining". Submitted/uncertain/held results and safe recovery; cancellation limits; list/week calendar. Lazy Facebook connect prompt. Session timing captured for evaluation. |
+| Settings | Account; Connected Accounts (status, connect, disconnect, reconnect needed); Business Time Zone, country/currency; independent UI/conversation/content languages; data controls |
 
 ### 5.4 Data flow
 ```mermaid
@@ -690,8 +731,8 @@ flowchart LR
 | Commands and queries | web → api | REST/JSON, described by OpenAPI |
 | Server push | api → web | SSE: one stream per Task now, one workspace stream later |
 | Auth and session | web ↔ api | Auth endpoints + cookie and token rules, declared as OpenAPI security schemes |
-| Platform-connection redirects | browser ↔ api ↔ Meta / X | Start URL, api-handled callback, return route into the app |
-| Uploads | web → api | Performance CSV or Excel (.xlsx) via multipart with validation preview (FR-38) |
+| Platform-connection redirects | browser ↔ api ↔ Facebook (Phase 3 adapters deferred) | Start URL, api-handled callback, return route into the app |
+| Uploads | web → api | Performance CSV or supported .xlsx with mapping preview; single owner-supplied image via media validation (FR-31, FR-38) |
 
 ### 6.2 Pipeline (code-first)
 ```mermaid
@@ -702,13 +743,13 @@ flowchart LR
   PUBL --> FE["busmora-frontend pins version<br/>openapi-typescript → types<br/>openapi-fetch + React Query"]
 ```
 
-- **"Contracts defined first"** (TA §12.1) is met by merging the DTO and controller-signature pull request before the implementation.
+- **Contracts defined first** (ADR-015) is met by merging the DTO and controller-signature pull request before the implementation.
 - **`oasdiff`** blocks unintended breaking changes.
 - **SSE event payloads** are DTOs registered explicitly with `@nestjs/swagger`, so they are typed in the frontend.
 
 ### 6.3 Conventions
 1. **Versioning:** a `/v1` prefix; only additive changes within a version; the frontend pins a contract version.
-2. **Resources by bounded context:** `/auth`, `/workspace`, `/today`, `/onboarding`, `/conversations/{id}/messages`, `/tasks/{id}`, `/tasks/{id}/clarifications/{id}`, `/roadmap`, `/roadmap/tasks/{taskId}`, `/roadmap/revisions/{id}`, `/outcomes/manual`, `/brain/items`, `/brain/relationships`, `/brain/candidates`, `/brain/conflicts`, `/brain/search`, `/deliverables`, `/posts`, `/posts/{id}/versions`, `/connections`, `/notifications`, `/performance-reports`.
+2. **Resources by bounded context:** `/auth`, `/workspace`, `/today`, `/onboarding`, `/conversations/{id}/messages`, `/tasks/{id}`, `/tasks/{id}/clarifications/{id}`, `/roadmap`, `/roadmap/tasks/{taskId}`, `/roadmap/revisions/{id}`, `/outcomes/manual`, `/brain/items`, `/brain/relationships`, `/brain/candidates`, `/brain/conflicts`, `/brain/search`, `/deliverables`, `/posts`, `/posts/{id}/versions`, `/connections`, `/notifications`, `/performance-reports`, `/goals/current`, `/reviews/{id}`, `/tasks/{id}/attestations`, `/media`, `/data-exports`, `/data-deletions/{id}` (detailed contracts: BACKEND §8.1.5).
 3. **One error envelope:** stable code, i18n message key, details, correlation id. Domain codes cover stale Post Version, reconnect needed, capacity queued, and unrecognized CSV headers.
 4. **Optimistic concurrency:** commands on Posts, Knowledge Items, and Roadmaps carry the version they act on; a stale version returns a conflict. This is how "an Approval binds to one Post Version" and roadmap integrity are enforced at the boundary.
 5. **Idempotency keys** on non-idempotent commands: send message / start task, send to Batch Review, approve, retry publish, upload, propose/apply roadmap revision, record manual outcome.
@@ -718,18 +759,18 @@ flowchart LR
 9. **Language:** UI strings belong to the frontend; generated content carries language and dialect tags.
 10. **SSE envelope** (§6.4).
 11. **Security schemes** declared in the spec.
-12. **Uploads:** multipart CSV with documented limits (the values are still open).
+12. **Uploads:** multipart CSV/.xlsx and owner images with documented limits (OD-18), parser safety and format/media validation before approval.
 
 ### 6.4 SSE envelope
 
 | Field | Meaning |
 |---|---|
 | `id` | Monotonic per stream; used for `Last-Event-ID` replay |
-| `event` | Event type: the five Canvas signals now; domain-event types later |
+| `event` | Event type: five legacy agent/handoff signals plus `execution_event`; workspace-wide domain-event fan-out deferred |
 | `data.workspace` | Workspace id |
 | `data.task` | Task id (optional) |
 | `data.occurred_at` | When it happened (UTC) |
-| `data.payload` | Type-specific body |
+| `data.payload` | Type-specific body with stable node ID/kind, recorded state, safe action/evidence refs; no secrets or private reasoning |
 
 Streams also carry heartbeats, and send a **reset** event when a reconnect falls outside the replay window. The client then refetches through queries.
 
@@ -755,17 +796,17 @@ See §4.7. Untrusted crawled text and publishing credentials **never share a pro
 ### 7.3 Reliability and idempotency
 - **Durability:**
   - Temporal resumes tasks, clarification waits and scheduled releases after crashes.
-  - PostgreSQL is the source of truth with RPO 0.
+  - PostgreSQL is the source of truth; recovery objectives require tested evidence (§2.2).
   - Qdrant and Redis are rebuildable.
-- **Publishing exactly once:**
-  - one `PostReleaseWorkflow` per Post;
+- **Publishing safely under uncertainty (FR-34–36):**
+  - one active `PostReleaseWorkflow` per Post, with schedule revision in its workflow ID;
   - an atomic claim on the approved Post Version;
   - idempotency key = Post Version id;
-  - the attempt is recorded **before** calling the platform, and read back before any retry. This covers platforms that don't accept idempotency keys.
+  - the attempt is recorded **before** calling the platform, and read back before any retry. Where no reliable provider idempotency or read-back exists, hold the uncertain attempt; never infer exactly-once external behavior.
 - **Retries:**
   - Agents: tool and sub-agent retries up to 3, then alternative sources, then a transparent error.
   - Crawling: site unreachable → 2 retries; rate limit → backoff, then skip the source; CAPTCHA → skip, use alternatives, notify.
-  - Publishing: 2 retries on an API error, cooldown on a rate limit.
+  - Publishing: at most two provisional retries for established retry-safe failures, after preflight/reconciliation within the approved window; otherwise hold.
   - Time and cost limits produce a **Partial Result**.
 - **If Temporal Cloud is unavailable:** tasks, onboarding crawls, publishing and indexing pause. Quick replies (over `ai-http`), Brain editing, Batch Review edits and Deliverables browsing keep working.
 
@@ -774,17 +815,20 @@ See §4.7. Untrusted crawled text and publishing credentials **never share a pro
 - **Product instrumentation** (stored in PostgreSQL): clarification and correction events, approvals, edits and publishes, Batch Review session timing.
 - **Evaluation:**
   - A fixed scenario set runs on seeded workspaces in **Treatment** (Brain) and **Control** (documents only), with the same model and prompts.
-  - It is scored blind by two Arabic-native reviewers, with a third breaking ties.
+  - It is scored blind by suitable human reviewers (two with a third for ties as the retained design). Appropriate regional review is required for named Gulf audiences; Egyptian/MSA results cannot stand in for missing Gulf evidence.
+  - PRD §10 gates govern: all AC-01–30; zero critical truth/control violations in the release suite; ≥80% held-out usefulness pass overall and per content register; support or explicit owner/hypothesis labels for all audited consequential claims; no unresolved critical/high recovery/security defects; real publishing and production-owner access; deterministic imports/metrics; nonblocking AR/EN mobile journeys; measured runtime/resources at declared load. No finite suite proves zero future risk.
+  - Start with approximately 24 authored cases, held-out from prompt tuning, contrast pairs, fixed sources plus a small live set; record denominators, coverage, reviewer basis and uncertainty. Synthetic fixtures never count as customer outcomes. Include qualification/conversion, healthy acquisition but weak repeat demand, low-volume/long-cycle and capacity-limited cases.
+  - Track accepted next task/artifact, completion/attestation, observations or no-data and owner-reviewed next decision across repeat cycles. Measure active owner time separately from background latency; compare equivalent current-process workflows and actual cost per accepted artifact/cycle. Neither technical completion nor repeat use establishes ROI, demand or paid-pilot validation. Legacy comparison targets remain supplemental.
 
 ### 7.5 Internationalization and time
+- UI, conversation and task/campaign content languages are independent; task overrides preserve the other choices. Store country, currency and IANA timezone explicitly, never infer them from language. Gulf-oriented content follows the named country/audience and requires suitable regional review (FR-32, FR-44).
 - Arabic right-to-left and English left-to-right UI; native generation in Egyptian, Gulf or MSA Arabic and English, including mixed language (product names kept in English).
 - One **Business Time Zone** per workspace. Scheduled Times are stored as UTC instants plus their planning zone, so daylight-saving changes are handled. Changing the zone never moves approved or scheduled Posts.
 
 ### 7.6 Cost control
-- A **Usage Record** is written for every model call, crawl or proxy use, image and X post. Records are kept per workspace and per Task.
-- Guardrails: ≤ $0.40 per task and ≤ $0.05 per search, plus recursion caps.
-- Research is bounded by time (≤ 5 min) and cost rather than by item count.
-- The usage data feeds the cost-derived pricing tiers planned after the pilot.
+- `tasks` owns task authorization, allowance reservations, extension decisions and consumption ledger; `usage` records reportable usage. Reserve worst-case bounded resources before concurrent calls, including child work, failures and retries; settle against actual usage. Unbounded providers cannot run autonomously.
+- Numeric task/search limits from older research are provisional configuration, constrained by owner-authorized limits. Research stops at sufficient evidence, repetition, exhausted access or allowance. A budget increase pauses until explicit owner approval states resources, time/cost effect and benefit; refusal preserves the best supported partial result. No evasion through tools, retries or equivalent tasks.
+- UI exposes allowance, consumption and extensions. Business marketing budget, internal computation allowance and external-spend authority are distinct. Future billing is Phase 4+ and no provider or pricing model is selected (FR-27, FR-45; NFR-06).
 
 ### 7.7 Configuration and versioning
 - Each workflow receives a frozen configuration.
@@ -798,7 +842,7 @@ See §4.7. Untrusted crawled text and publishing credentials **never share a pro
 - **Sequencing:** workflow sequencing and timers are tested in Python.
 - **Contracts:** checked by `oasdiff` and the schema-drift checks.
 - **Scenarios:** run on seeded workspaces.
-- **Load:** a stubbed load test proves 100 concurrent workspaces.
+- **Load:** the historical 100-workspace stubbed experiment measures local capacity; verify actual runtime/resource ceilings at a declared release load before release.
 - The test frameworks themselves are still to be chosen (§9.2).
 
 ### 7.9 Growth path from MVP to later phases
@@ -807,10 +851,10 @@ See §4.7. Untrusted crawled text and publishing credentials **never share a pro
 |---|---|---|
 | **Phase 2 Release Contract (24 weeks)** | Everything in §1–§6 committed to production readiness; Facebook Page publishing; CSV/.xlsx and manual performance learning; 24-case evaluation suite | — |
 | **Phase 3 (Product Expansion)** | Social Profile URL onboarding (P3-01); Instagram Business and X publishing connectors (P3-02); connected platform analytics (P3-03) | Platform enum, MCP tool interface in `workers-publish`, and lazy OAuth flows already architected in domain neutrality |
-| **Phase 4+ (Creation & Commercial Expansion)** | Native AI image generation (P4-01); in-product billing, plan quotas, Stripe/payment provider integration (P4-02) | Usage Records already exist per workspace and Task; quotas become admission checks in `platform.start_task` |
+| **Phase 4+ (Creation & Commercial Expansion)** | Native AI image generation (P4-01); in-product billing, plan quotas and payment integration with provider unselected (P4-02) | Usage Records already exist per workspace and Task; internal allowance admission already applies in `platform.start_task`; later commercial quotas may extend it |
 | **Frontend: Workspace Event Shell (FE-3)** | One workspace-wide SSE stream carries Canvas signals **and** UI events (badges, Post statuses, crawl progress, Deliverables); polling removed | The single writer (`busmora-api`) emits UI events where it already writes audit and notification rows; the envelope (§6.4) and the SSE client module (§5.8) are already in place |
 | **Second Employee** (e.g. Sales) | New Sub-agents, Capabilities and screens | Domain-neutral Employee configuration, frozen per run; the approval and execution semantics and the Brain are reusable; new feature folders in the frontend |
-| **Scale beyond the initial release** | Horizontal scaling of the stateless roles | Validated by the 100-workspace load test |
+| **Scale beyond the initial release** | Horizontal scaling of the stateless roles | To be evaluated using declared-load tests; no capacity result is asserted |
 
 ---
 
@@ -820,9 +864,9 @@ Format: the ADR format of the repository's `domain-modeling` skill (title, conte
 
 ### ADR-001 — Product docs are the single source of truth
 - **Context:** an earlier pitch deck described a different system: Neo4j, an admin "Employee Builder", LinkedIn, other observability tools, a four-agent roster.
-- **Decision:** `project-docs/` is canonical. Where documents conflict: decision registry > PRD > technical architecture > other docs.
+- **Decision:** `core/prd.md` v1.1 is the authoritative product/release contract. Compatible technical decisions remain valid; conflicting registry/older statements are flagged in §9.5 and cannot override it.
 - **Rejected:** treating the deck as canonical. Every deck-only item traced to deleted, superseded specifications.
-- **Consequences:** one consistent design. Refinements to the PRD are recorded in architecture documents rather than by editing the PRD.
+- **Consequences:** one consistent design. Implementation details are recorded here; a product-contract change cannot be invented by a technical design. The PRD remains unchanged.
 
 ### ADR-002 — Four deployables and two standalone repositories
 - **Context:** the decision registry fixes four services. The technical architecture showed a single monorepo.
@@ -875,18 +919,18 @@ Format: the ADR format of the repository's `domain-modeling` skill (title, conte
 - **Rejected:**
   - agent dispatch at publish time: an LLM could alter approved content;
   - a mix of agent dispatch for "post now" and deterministic dispatch for scheduled posts.
-- **Consequences:** byte-for-byte publishing and enforceable idempotency, with no dependence on a live task run.
+- **Consequences:** exact approved request payloads, local duplicate suppression and evidence-based reconciliation without a live agent run. Platform transformations/delay and uncertain outcomes remain outside an exactly-once guarantee.
 
 ### ADR-006 — Approval lifecycle bound to Post Versions
-- **Context:** the PRD state machine lacked cancel and expiry, while TA signals implied them.
-- **Decision:** the states in §3.4, including `cancelled` and `expired`:
-  - Approval binds to one Post Version.
+- **Context:** FR-34–36 require version-bound approval, cancellation limits, delivery windows and uncertain-result recovery.
+- **Decision:** the states in §3.4, including `cancelled`, `expired`, `submitted`, `uncertain` and `held`:
+  - Approval binds to immutable text/media, account, schedule, zone and delivery allowance in one Post Version.
   - Any edit or regeneration returns the Post to `pending_approval`.
-  - Expiry happens only when the Scheduled Time passes while pending.
+  - Unapproved pending posts may expire at schedule time; approved overdue posts are held for a new time and approval.
   - Every social-post output, from a calendar or a one-off request, can enter Batch Review.
 - **Rejected:**
   - a fixed 24-hour approval timer;
-  - copy-only one-off content, as PRD §11.1 originally stated.
+  - forcing every single-post draft into a campaign or publishing action; drafts remain usable/exportable alone (FR-29).
 - **Consequences:** a clear lifecycle that the frontend and backend share.
 
 ### ADR-007 — Knowledge graph in PostgreSQL with Qdrant vectors
@@ -898,7 +942,7 @@ Format: the ADR format of the repository's `domain-modeling` skill (title, conte
   - **Pinecone:** not open source, provider-hosted, and excluded on cost.
 - **Consequences:**
   - One source of truth, and Qdrant is rebuildable.
-  - Retrieval runs in Python, which reads the api-owned approved views.
+  - Retrieval runs in Python, which reads the api-owned eligibility views with provenance and current-version validation (§3.3, §4.5). The document-only control route obeys the same deletion/rejection/supersession controls.
 
 ### ADR-008 — Single migration toolchain: Drizzle
 - **Context:** both NestJS and Python touch PostgreSQL.
@@ -956,7 +1000,7 @@ Format: the ADR format of the repository's `domain-modeling` skill (title, conte
 ### ADR-013 — SSE authentication with a scoped stream cookie
 - **Decision:**
   - A short-lived HttpOnly cookie scoped to `/v1/streams` with the browser's native `EventSource`.
-  - Open streams survive cookie expiry.
+  - Open streams survive cookie expiry only, not explicit revocation/deletion.
   - Reconnect after expiry: 401 → refresh → reopen with `Last-Event-ID`.
 - **Rejected:**
   - `@microsoft/fetch-event-source` with header tokens: unmaintained, and needs custom reconnect logic;
@@ -985,7 +1029,7 @@ Format: the ADR format of the repository's `domain-modeling` skill (title, conte
 - **Consequences:** the frontend waits for the backend's signature pull request, but always has an exact, typed contract.
 
 ### ADR-016 — Single region, Frankfurt (Provisional)
-- **Context:** the requirement was a MENA region. Temporal Cloud and Langfuse Cloud have no Middle East region, and LLM providers are outside MENA too.
+- **Context:** earlier research assumed managed components and LLM processing outside MENA. Current provider/residency evidence must be established before deployment; this ADR is a provisional topology choice, not a verified current region catalogue.
 - **Decision (provisional):** a single region in Frankfurt, resting on the premise that no pilot customer needs in-country hosting. **Not yet a gate.** Under study.
 - **Rejected:**
   - splitting data stores into MENA with services in Frankfurt: data still leaves MENA, and every step crosses regions;
@@ -993,36 +1037,30 @@ Format: the ADR format of the repository's `domain-modeling` skill (title, conte
 - **Consequences:** customer data leaves MENA in any case. Linked to OD-1.
 
 ### ADR-017 — No in-product billing this release
-- **Decision:** pilots are charged outside the app; usage and cost are metered per workspace from day one.
+- **Decision:** billing is Phase 4+; no mandatory paid pilot or charging arrangement is selected. Internal usage limits and actual cost metering are required from day one.
 - **Rejected:**
   - minimal in-app billing (checkout + access gating);
   - full tiers, quotas and gating.
-- **Consequences:** prices are derived later from real usage data. All financial topics, including the payment provider, are deferred.
+- **Consequences:** prices are derived later from real usage data. Commercial pricing and payment provider remain open; business budgets, outcome metrics and resource control remain Phase 2 requirements.
 
 ### ADR-018 — One platform app, tester mode for dev with production release gate (AC-30)
 - **Decision:**
   - One BusMora Meta app for Facebook Pages native publishing in Phase 2; Instagram Business and X are deferred to Phase 3 (K-08).
   - Initial development runs in Meta tester mode. Release gate AC-30 requires verifying production configuration for ordinary owners without developer-role accounts before release.
 - **Rejected:** customers bringing their own developer apps; multi-platform publishing in Phase 2.
-- **Consequences:** a mandatory Sprint-1 check that tester-mode posts are publicly visible. Production app review and release verification gate (AC-30) must be cleared for release. Advanced Access is possible once an entity exists.
+- **Consequences:** a mandatory Sprint-1 check that tester-mode posts are publicly visible. Production app review and release verification gate (AC-30) must be cleared for release. Required review, access and verification depend on the selected app configuration and must be evidenced; unresolved access blocks Phase 2, with no assumed approval timeline.
 
-### ADR-019 — Crawl-only brand assets; no document ingestion
-- **Decision:**
-  - Logo and colors come only from the website crawl.
-  - Fallbacks: the business name as text, a neutral palette, and default Arabic/Latin fonts.
-  - Detected colors and fonts are editable as Brain facts.
-  - No document or PDF ingestion; the only upload is the performance CSV.
-- **Rejected:**
-  - a brand-kit upload in Settings;
-  - full asset and document ingestion (out of scope per the PRD).
-- **Consequences:** Brand Visual quality depends on what the crawl can detect.
+### ADR-019 — Website/guided brand context, text-first assets and bounded uploads
+- **Decision:** website observations and guided owner input provide editable brand facts. Missing logo/colors use business-name text, neutral palette and existing fonts without blocking work. Phase 2 creates editable text/visual briefs and supports text/link or one owner-supplied publishing image; CSV and supported `.xlsx` imports are mandatory.
+- **Excluded:** arbitrary document/PDF ingestion, a design editor and native AI image generation (Phase 4+). A publishing-media upload is not a full brand-asset management product.
+- **Consequences:** validate actual supported media and show missing/invalid states before approval. Brand claims require inspectable support, qualification or omission; approval does not verify facts or testimonial rights (FR-30–31).
 
 ### ADR-020 — Live-only Canvas, whole-message replies
 - **Decision:** Canvas replay covers reconnects during a run plus a short grace window; replies arrive as complete messages.
 - **Rejected:**
   - storing every Canvas event so past runs can be re-watched;
   - token-by-token streaming.
-- **Consequences:** Redis holds only short-lived replay buffers. Langfuse covers after-the-fact inspection.
+- **Consequences:** Redis holds only short-lived replay buffers. Durable task/work/action summaries and accessible lists support later owner inspection; Langfuse supports redacted operator diagnostics. Neither reconstructs unavailable historical live animation.
 
 ---
 
@@ -1033,17 +1071,17 @@ Format: the ADR format of the repository's `domain-modeling` skill (title, conte
 | # | Risk | Mitigation |
 |---|---|---|
 | R-01 | Pilot posts in Meta tester mode may be visible only to app-role users | Mandatory Sprint-1 check: publish from a tester's Page and verify public visibility; release gate AC-30 requires verifying production configuration for ordinary owners without developer-role accounts |
-| R-02 | No legal entity, so no Meta Advanced Access | Tester mode for initial development; production verification gate AC-30 ensures ordinary owners can connect and publish without developer roles |
+| R-02 | Production access requirements/evidence unresolved for the selected app configuration | Tester mode for initial development; production verification gate AC-30 ensures ordinary owners can connect and publish without developer roles |
 | R-03 | Customer data leaves MENA through Temporal Cloud and LLM providers | Region decision provisional; OD-1 (payload encryption) open |
 | R-04 | Python ↔ TypeScript activity contracts drift | Pydantic-canonical schemas, generated types, Ajv, CI drift and evolution checks (ADR-014) |
 | R-05 | Month-long workflows break on incompatible deploys | Workflow versioning discipline; additive payload evolution |
 | R-06 | Quick-reply p95 exceeds 3 s | Internal HTTP path (ADR-004); measured in the walking-skeleton spike |
 | R-07 | A tenant-scoping bug in `ai-http` | Workspace only from the verified service-JWT claim; read-only role with row-level security; tests |
 | R-08 | Scope creep on internal HTTP | Guardrail: two endpoint families only; new ones need a decision record |
-| R-09 | Duplicate post if a platform accepted the post but the attempt wasn't recorded | Record the attempt before calling the platform; read back before any retry |
-| R-10 | Brand Visual quality limited by crawl detection | Fallbacks and editable Brain facts (ADR-019) |
-| R-11 | Polyglot complexity for a 4-person team (B1 feasibility judged 4/5) | Walking-skeleton spike: a Python workflow calling a TypeScript activity, end to end |
-| R-12 | Budget unknown | Financial topics deferred; usage metering from day one |
+| R-09 | Duplicate post if a platform accepted the post but the attempt wasn't recorded | Record before dispatch, preserve provider IDs/evidence, reconcile and hold if acceptance cannot be established; no blind retry |
+| R-10 | Sparse brand context or invalid owner media | Guided corrections, neutral fallbacks, text-only drafts and explicit media validation (ADR-019) |
+| R-11 | Polyglot complexity for a 5-person team (B1 feasibility judged 4/5) | Walking-skeleton spike: a Python workflow calling a TypeScript activity, end to end |
+| R-12 | Budget unknown | Freeze owner-authorized resource limits and measured operating costs early; commercial pricing remains deferred |
 
 ### 9.2 Open decisions and gaps (deferred by choice; to be resolved later)
 
@@ -1051,29 +1089,173 @@ Format: the ADR format of the repository's `domain-modeling` skill (title, conte
 |---|---|
 | OD-1 | Temporal payload encryption, and a codec server for Temporal UI |
 | OD-2 | Cloud provider; region as a gate (G4) |
-| OD-3 | All financial topics: budget, pricing, payment provider |
-| OD-4 | Provider bake-offs: LLMs, embedding model, image model, object-storage vendor, proxy vendor |
+| OD-3 | Commercial pricing/payment provider (Phase 4+); Phase 2 operating allowances and business budgets cannot be deferred |
+| OD-4 | Provider bake-offs: LLMs, embeddings, object storage, proxies; native image model only in Phase 4+ |
 | OD-5 | Secrets store (needed by Temporal keys, the service-JWT private key and app secrets) |
 | OD-6 | Service-JWT key rotation and public-key distribution |
 | OD-7 | i18n/RTL library for the frontend |
 | OD-8 | JSON Schema → TypeScript type generator (plain types only) |
 | OD-9 | Trace propagation through Temporal (the HTTP path is covered) |
 | OD-10 | Email delivery provider |
-| OD-11 | Image composition with Arabic text shaping for Brand Visuals |
+| OD-11 | Phase 4+ only: native image generation/composition, Arabic shaping, rights and costs |
 | OD-12 | Test frameworks (TypeScript, Python, end-to-end, contract) and a load-test tool |
 | OD-13 | Application logs, metrics and error tracking beyond Langfuse and Temporal UI |
 | OD-14 | Rate-limiting mechanism for public endpoints |
 | OD-15 | Local Temporal for Docker Compose |
 | OD-16 | CI/CD, image registry, production runtime and orchestration, ingress/TLS; environments (dev, staging, prod) |
 | OD-17 | Full-stack local development and end-to-end tests across the two repositories |
-| OD-18 | Domain details: performance-CSV formats and normalization; how the crawler discovers open-web pages; mapping the 7 Review sections to the 9 Knowledge Categories; length of the Canvas replay grace window; Redis Streams retention |
-| OD-19 | Markdown rendering and sanitization for Deliverables; form library for structured forms; PDF/Markdown export (a stretch goal) |
+| OD-18 | Domain details: CSV/.xlsx templates, recognized fields, parser and media limits; how the crawler discovers open-web pages; mapping the 7 Review sections to the 9 Knowledge Categories; length of the Canvas replay grace window; Redis Streams retention |
+| OD-19 | Markdown rendering and sanitization for Deliverables; form library for structured forms; required text/Markdown/CSV/original-media export; designed PDF/Word export excluded from Phase 2 |
 | OD-20 | Workspace in the URL path or implied by the token |
+| OD-21 | Platform lead, initial design by week 4 and tested before release: active cleanup deadlines, audit minimum, provider/trace retention, backup expiry/suppression and restore/rollback evidence; validate recovery objectives rather than promise zero loss |
+| OD-22 | AI/evaluation leads, by week 2: public search/discovery + retrieval provider baseline (regional quality, access, grounding, stopping, cost/latency and bounded reservations); retained Scrapling adapter is not evidence of complete search capability |
+| OD-23 | Integration lead, start week 1 and record by week 2: selected Facebook production access path, review/verification requirements, committed format support and real ordinary-owner evidence; unresolved AC-30 blocks release |
+| OD-24 | Evaluation/UX leads, by week 2: freeze held-out rubrics, severity definitions, release load/task limits and regional reviewers; verify all PRD §10 gates before release |
 
-### 9.3 Requirement gaps (not specified anywhere)
-Accessibility. Supported browsers. Upload size limits. Per-user API rate limits. Log and trace retention. Pilot support/SLA. Constraints on sending customer data to LLM providers.
+### 9.3 Implementation gaps (requirements remain binding)
+Accessibility and browser design targets are defined in [DESIGN-SYSTEM.md](./DESIGN-SYSTEM.md) §§12–13. Numeric upload/rate limits, retention durations, provider data-handling constraints, support runbooks and operating-load evidence still need implementation decisions. None permits omitting required data controls, languages, native publishing or recovery.
 
 ### 9.4 Spikes required in the walking skeleton
 1. A Python workflow calling a TypeScript activity, end to end (prompt → api → Temporal → workers → ai stub → SSE).
 2. Quick-reply p95 through `ai-http` with the light model, against the 3-second target.
 3. Meta tester-mode public visibility.
+
+### 9.5 Older-source conflicts and authority disposition
+
+These supporting files are outside the four-document correction scope and remain unchanged. Their contradictions are explicitly flagged here; they cannot override the PRD or supply acceptance evidence. Compatible engineering rationale/ADRs are retained.
+
+| Source | Conflict / limitation | Disposition |
+|---|---|---|
+| [Decision registry](../strategy/decision-registry.md), introduction; D-06, D-10, D-10b | Claims highest authority; mandatory 5–50 cohort/measured superiority; execution without handoffs and safety guarantees | PRD §§1–3 governs. Initial cohort is owner-operated services; Egyptian and GCC evaluation separate; differentiation is a hypothesis; FR-49 requires honest owner handoffs. Registry reconciliation remains an owner-maintained follow-up, not a product decision we invent. |
+| Decision registry D-52; [domain contexts](../domain/contexts.md) Brain supplier contract | Approval-only read views contradict active imported/owner context | Use §3.3/§4.5 eligibility and BACKEND §7.5; preserve single writer/RLS architecture. |
+| [Domain model](../domain/model.md) Knowledge invariant/lifecycle; [historical constraints](../research/technical/01-constraints.md) BG/DT rules | No hard delete/retirement-only, older upload/media/sensitive-finance assumptions | FR-13, FR-42 and NFR-09 require actual owner deletion; permit relevant business metrics; retained historical audits are minimal and retention-limited. |
+| [Technical analysis](../research/technical/00-requirements-analysis.md), [options](../research/technical/02-options.md), [decision](../research/technical/04-decision.md) | Superseded FR numbering, website approval gate, image/IG/X Phase 2 assumptions, CSV-only, export stretch goal, fixed-roster and approved-only retrieval | Historical evidence for architecture choices only; current phase/product behavior is specified in these four corrected documents. No numeric FR substitution is inferred from those files. |
+| [Benchmark](../research/technical/03-benchmark.md) G1/G3 and older constraints | Local idempotency treated as complete duplicate protection; unverified zero-loss/scale/latency gates | Preserve comparative design rationale, but require FR-36 uncertainty/reconciliation and NFR-05 recovery evidence; old numerical targets are provisional (§2.2). |
+| [Business model](../strategy/business-model-value-proposition.md) cohort/tier/cost assumptions; registry D-35–36 | Broad ICP, speculative tier packaging, unlimited/monitoring offers and fixed costs/paid-pilot wording can imply commitments | PRD §12 leaves provider/pricing unselected and paid pilots optional. Owner allowances and explicit extension approval remain Phase 2. No autonomous background monitoring or unlimited usage commitment. |
+| Historical `TA`/`project-docs` source names | Referenced source layout is absent from current repository | Replace active technical requirements with current sections/ADRs; preserved research files document historical rationale, not live contracts. |
+
+No unresolved product contradiction is intentionally left in the four corrected files. External access, provider/format choices, numerical retention/resource policies, implementation and release evidence remain open as named above. A documentation matrix cannot mark Phase 2 complete.
+
+## Appendix A — PRD v1.1 alignment matrix
+
+Baseline: [prd.md](./prd.md), v1.1 dated 28 October 2026, unchanged. Columns refer to [System Architecture](./SYSTEM-ARCHITECTURE.md) (SYS), [Backend Design](./BACKEND-TECHNICAL-DESIGN.md) (BTD), [Frontend Design](./FRONTEND-TECHNICAL-DESIGN.md) (FTD) and [Design System](./DESIGN-SYSTEM.md) (DS). Sections identify the owning design, not evidence of code execution. A dash means the document has no separate responsibility for that requirement.
+
+**Classification:** E = explicitly addressed; J = addressed through a justified engineering decision; M = missing/partial before this correction; C = contradictory before this correction; B = unresolved implementation/external dependency. The disposition records **before → after** documentation status; B overlays identify what still blocks implementation/release evidence, not a deferred Phase 2 commitment. All rows require future implementation and verification; none means an acceptance test has passed. No known M/C remains uncorrected within these four documents. Older-source conflicts are in §9.5.
+
+### A.1 Functional and nonfunctional requirements
+
+| ID | Responsibility | Disposition | SYS | BTD | FTD | DS | Principal acceptance refs |
+|---|---|---|---|---|---|---|---|
+| FR-01 | Single-owner workspace/isolation | E → E | §§4.7, 7.1 | §§6.1, 9.1 | §§3.1, 9.1 | §10.2 | AC-15, AC-17, AC-29 |
+| FR-02 | Today/navigation, calendar and mobile | M → E | §5.3 | §8.1.5 | §§3.1, 6.1–6.2 | §§10.1, 10.4, 10.9 | AC-26, AC-29 |
+| FR-03 | Permitted website intake and honest limits | M → E | §4.6 | §§6.6, 8.1.5, 9.10 | §6.1 | §10.3 | AC-01, AC-27 |
+| FR-04 | Immediately usable imported provenance | C → E | §§3.3–3.4, 4.5 | §§6.5, 7.5 | §§6, 6.1 | §§9.3, 10.3, 10.7 | AC-01, AC-03 |
+| FR-05 | Optional Brain or Director after import | M → E | §§1.3, 4.6 | §8.1.5 | §6.1 | §10.3 | AC-01 |
+| FR-06 | Website-optional progressive guided setup | M → E | §4.6 | §8.1.5 | §6.1 | §10.3 | AC-02, AC-18, AC-21 |
+| FR-07 | Disabled Coming Soon social import | M → E | §5.3 | §9.10; phase boundary in SYS §1.5 | §6.1 | §10.3 | AC-16 |
+| FR-08 | Shared structured context and dependencies | M → E | §§3.1–3.3, 3.7 | §§6.4.1, 6.5, 7.5 | §6.1 | §10.7 | AC-03, AC-23 |
+| FR-09 | Independent epistemic/verification/approval states | C → E | §3.3 | §6.5 | §6 | §§9.3, 10.7 | AC-03, AC-27 |
+| FR-10 | Import/owner/AI update rules and conflicts | C → E | §§3.3–3.4 | §§6.5, 7.5 | §6.1 | §10.7 | AC-03, AC-23 |
+| FR-11 | Historical work without knowledge promotion | M → E | §§3.2–3.3, 4.5 | §§6.7, 7.5 | §6.1 | §10.8 | AC-05, AC-15 |
+| FR-12 | Interactive graph and accessible editing/list | M → E | §5.3 | §§6.5, 8.1.5 | §6.1 | §§10.7, 12 | AC-03, AC-29 |
+| FR-13 | Owner export/deletion/disconnection | C → E; B policy | §4.5; OD-21 | §§8.1.5, 9.9; G-18 | §6.1 | §§10.7–10.10 | AC-03, AC-15, AC-23 |
+| FR-14 | Evidence-linked diagnosis across five lenses | C → E | §3.7 | §6.4.1 | §6.1 | §§9.7, 10.4–10.5 | AC-04, AC-18–21 |
+| FR-15 | Marketing scope, broader context only | E → E | §§1.1, 3.7 | §§6.4.1, 9.10 | §6.1 | §§10.5, 10.12 | AC-04, AC-24 |
+| FR-16 | Capacity-aware, owner-reviewed adaptive roadmap | C → E | §§3.4, 3.7 | §§6.4.1, 8.1.4 | §§6, 6.1 | §10.5 | AC-04, AC-20, AC-26 |
+| FR-17 | Scoped direct chat with shared history | E → E | §§1.3, 3.7 | §§6.3, 9.10 | §6.1 | §10.6 | AC-05, AC-22 |
+| FR-18 | Targeted clarification, optional research choice | C → E | §3.7 | §§6.4.1, 9.10 | §6.1 | §§8.2, 10.6 | AC-05, AC-22 |
+| FR-19 | Fast Router; deterministic UI bypass | J → J | §4.6; ADR-004 | §9.10 | §§7–8 | §10.6 | AC-06 |
+| FR-20 | Dynamic bounded orchestration and authority | M → E | §§4.6, 7.6 | §§6.4.1, 9.10 | §6 | §10.6 | AC-06, AC-09 |
+| FR-21 | Capabilities, variable agents, controlled publisher | C → E | §§1.2, 4.3; ADR-005 | §§3.4, 9.10 | §6 | §10.6 | AC-06–07 |
+| FR-22 | Actual Canvas events with accessible detail | C → E | §§3.5, 5.3, 6.4 | §§8.1.3, 9.7, 9.10 | §§6, 7.3 | §§10.6, 12.4 | AC-07 |
+| FR-23 | Durable tasks, stop and honest recovery | M → E | §§3.4, 4.6, 7.3 | §§6.4.1, 8.1.5, 9.6 | §§6.1, 7.3 | §10.6 | AC-07, AC-17 |
+| FR-24 | Dynamic supported multi-source research | C → E; B provider | §4.8; OD-22 | §9.10; G-19 | §6.1 | §10.6 | AC-08, AC-27 |
+| FR-25 | Decision-useful research, original wording | M → E | §3.7; §4.8 | §9.10 | §6.1 | §10.8 | AC-08, AC-18 |
+| FR-26 | Claim support, contradictions, access gaps | M → E | §§2.2, 3.7, 7.4 | §§6.7, 9.10 | §6.1 | §§10.7–10.8 | AC-08, AC-27 |
+| FR-27 | Owner allowance and approved extensions | C → E | §7.6 | §§6.4.1, 9.10 | §§6, 8 | §10.6 | AC-09 |
+| FR-28 | Modular research and evidence-backed provider choice | M → J; B provider | §4.8; OD-22 | §§3.4, 9.10 | — | — | AC-08–09 |
+| FR-29 | Single item/campaign, usable text artifact path | M → E | §§1.1, 3.7 | §§6.7, 8.1.5 | §6.1 | §§10.6, 10.8 | AC-10, AC-22, AC-24 |
+| FR-30 | Brand context and claim integrity | M → E | ADR-019 | §§6.7, 9.10 | §6.1 | §§10.7–10.8 | AC-10, AC-22 |
+| FR-31 | Text/visual briefs and owner media; no image gen | C → E; B limits | §§4.3, 4.5; ADR-019 | §§3.4, 8.1.5; G-17 | §§6.1, 8 | §10.9 | AC-10, AC-12, AC-16 |
+| FR-32 | Four content registers and audience fit | M → E; B review | §§1.1, 7.4–7.5 | §9.10 | §6.1 | §§10.10, 11 | AC-11, AC-22 |
+| FR-33 | Genuine Facebook and ordinary-owner access | E → E; B access | §4.8; ADR-018; OD-23 | §§6.8–6.9, 10.1 | §6.1 | §§10.9–10.10 | AC-12, AC-30 |
+| FR-34 | Exact individual/batch approval and invalidation | C → E | §3.4; ADR-006 | §§6.8, 8.1.1 | §§6.1, 8 | §10.9 | AC-12–13, AC-29 |
+| FR-35 | Preflight, cancellation, timezone, lateness holds | C → E | §§3.4, 4.6, 7.3 | §§6.8–6.9, 8.1.5 | §6.1 | §10.9 | AC-13, AC-23, AC-28 |
+| FR-36 | Evidence, uncertainty and safe recovery | C → E; B platform evidence | §§3.4, 7.3 | §§6.8, 9.4, 10.1 | §6.1 | §§9.1, 10.9 | AC-12, AC-28 |
+| FR-37 | Separate authority for external effects | M → E | §§1.5, 3.7 | §§6.4.1, 9.10 | §6.1 | §§10.5, 10.14 | AC-16, AC-20, AC-24, AC-27 |
+| FR-38 | CSV/.xlsx mapping and deterministic import | C → E; B parser/limits | §§3.7, 6.1 | §§6.7, 8.1.5; G-17 | §6.1 | §§10.8, 10.14 | AC-14, AC-25 |
+| FR-39 | Goal-based metrics and honest interpretation | M → E | §3.7 | §6.4.1 | §6.1 | §10.14 | AC-14, AC-25–26 |
+| FR-40 | Independent review, roadmap and Brain decisions | M → E | §§3.6–3.7 | §§6.4.1, 8.1.4–5 | §6.1 | §§10.5, 10.14 | AC-14, AC-26 |
+| FR-41 | Versioned saved/reusable/exportable outputs | C → E | §§3.7, 4.5 | §§6.7, 8.1.5 | §§6, 6.1 | §10.8 | AC-05, AC-15, AC-26 |
+| FR-42 | Eligible current/historical context, no resurrection | C → E | §§3.3, 4.5; ADR-007 | §§7.5, 9.9 | §6.1 | §§10.7–10.8 | AC-03, AC-15, AC-23 |
+| FR-43 | Complete bilingual responsive critical workflows | M → E; B verification | §§5.3, 7.5 | §§8, 10.1 | §§6.1, 9.6, 10.1 | §§10–12, 14.5 | AC-11, AC-29 |
+| FR-44 | Independent language, country/currency/timezone | M → E | §7.5 | §8.1.5 | §§6.1, 9.6 | §§10.10, 11 | AC-11, AC-29 |
+| FR-45 | Goal/baseline/target/capacity and budget distinctions | M → E | §3.7 | §6.4.1 | §6.1 | §§10.5, 10.14 | AC-04, AC-18–21, AC-25 |
+| FR-46 | Executable tasks and independent outcome states | M → E | §3.7 | §6.4.1 | §6 | §§9.6, 10.5, 10.14 | AC-04, AC-20, AC-24, AC-26 |
+| FR-47 | Manual aggregate outcomes and recurring review | M → E | §§3.6–3.7 | §§6.4.1, 8.1.4–5 | §6.1 | §§10.4, 10.14 | AC-25–26 |
+| FR-48 | Context impact, holds and explicit resolution | M → E | §§3.3–3.4, 3.7 | §§6.5, 6.8, 8.1.5 | §6.1 | §§10.7, 10.9 | AC-03, AC-15, AC-23 |
+| FR-49 | Honest capabilities and owner handoff | M → E | §3.7 | §6.4.1 | §6.1 | §§10.5, 10.14 | AC-16, AC-24 |
+| NFR-01 | Truthful shared state and activity | C → E | §§3.4–3.7, 6.4 | §§6.4.1, 8.1.3, 9.10 | §§6, 7.3 | §§9–10 | AC-03, AC-07, AC-16, AC-26 |
+| NFR-02 | Inspectable source support/freshness | M → E | §§3.3, 7.4 | §§7.5, 9.5, 9.10 | §6.1 | §§10.7–10.8 | AC-08, AC-23, AC-27 |
+| NFR-03 | Independent workspace authorization/security | E → J | §§4.7, 7.1 | §§7.5, 9.1, 9.8, 10 | §§7–9 | §10.10 (owner controls only) | AC-17, AC-27–28 |
+| NFR-04 | Untrusted sources, SSRF, parsing/export safety | M → E | §§2.2, 4.7 | §§8.1.5, 9.10 | §§6.1, 8 | §10.14 (limits/errors) | AC-17, AC-25, AC-27 |
+| NFR-05 | Durability/recovery/restore/rollback | C → J; B evidence | §§4.5–4.6, 7.3 | §§7.3, 9.6, 9.9, 10.1 | §§7.3, 9.7 | §10.9 (recovery) | AC-17, AC-28 |
+| NFR-06 | Actual usage, reservations and release load | C → E; B numeric limits | §§2.2, 7.6; OD-24 | §§6.4.1, 10.1 | §6 (budget view) | §10.6 | AC-09, AC-17 |
+| NFR-07 | Accessible bilingual mobile and registers | M → J; B verification | §7.5 | §10.1 | §§9.6, 10.1 | §§11–14.5 | AC-11, AC-29 |
+| NFR-08 | Redacted operational observability | E → E; B sink/retention | §7.4; OD-13, OD-21 | §§9.3, 9.9 | §§8, 9.3 | §8.7 (actionable errors) | AC-17, AC-28 |
+| NFR-09 | Data controls across derived data/backups | C → E; B policy/evidence | §4.5; OD-21 | §§8.1.5, 9.9 | §6.1 | §§10.7–10.10 | AC-15, AC-17, AC-23 |
+
+### A.2 Acceptance scenarios and required evidence
+
+Each scenario below is mandatory. Status describes documentation only; all implementation results remain **not assessed by this correction**. Failure to pass a binding gate keeps Phase 2 incomplete, including when a useful manual handoff exists.
+
+| ID | Required scenario | Related requirements | Design / verification location | Disposition / dependency |
+|---|---|---|---|---|
+| AC-01 | Website import usable without mandatory review | FR-03–05 | BTD §§6.5, 8.1.5; FTD §6.1; DS §10.3 | C → E |
+| AC-02 | Minimal no-website setup to action/artifact | FR-06 | BTD §8.1.5; FTD §6.1; DS §10.3 | M → E |
+| AC-03 | Graph governance, provenance, export/delete | FR-08–13 | BTD §§6.5, 7.5, 9.9; FTD §6.1; DS §10.7 | C → E; B OD-21 |
+| AC-04 | Evidence/alternatives, priority/capacity, reviewed tasks | FR-14–16, FR-45–46 | SYS §3.7; BTD §6.4.1; DS §10.5 | M → E |
+| AC-05 | Direct work with context/history | FR-17–18, FR-41–42 | BTD §§7.5, 9.10; FTD §6.1 | E → E |
+| AC-06 | Context-dependent bounded orchestration | FR-19–21 | BTD §§6.4.1, 9.10; FTD §6; DS §10.6 | C → E |
+| AC-07 | Real Canvas and details/recovery | FR-22–23 | SYS §6.4; BTD §8.1.3; FTD §7.3; DS §10.6 | C → E |
+| AC-08 | Dynamic multi-source research and support | FR-24–28 | BTD §9.10; SYS OD-22 | M → E; B provider/access baseline |
+| AC-09 | Parent/concurrent/retry budgets and refusal | FR-20, FR-27 | SYS §7.6; BTD §6.4.1; DS §10.6 | C → E; B measured limits |
+| AC-10 | Single item/text campaign and owner media | FR-29–31 | BTD §§6.7, 8.1.5; FTD §6.1; DS §§10.8–10.9 | C → E |
+| AC-11 | AR/EN and independent languages/registers | FR-32, FR-43–44 | FTD §§6.1, 9.6, 10.1; DS §§10.10, 11–12 | M → E; B regional review |
+| AC-12 | Real committed Facebook formats with exact approval | FR-33–36 | BTD §§6.8, 8.1.1, 10.1; DS §10.9 | C → E; B platform evidence |
+| AC-13 | All approved-detail changes invalidate approval | FR-34–35 | SYS §3.4; BTD §6.8; FTD §6.1; DS §10.9 | M → E |
+| AC-14 | CSV and Excel, goal metrics, separate revisions | FR-38–40 | BTD §§6.4.1, 8.1.4–5; DS §10.14 | M → E; B parser/templates |
+| AC-15 | History, export/delete/disconnect | FR-13, FR-41–42 | SYS §4.5; BTD §§8.1.5, 9.9; DS §§10.7–10.10 | C → E; B retention/recovery |
+| AC-16 | Honest Phase 2/later availability | FR-07, FR-49, P3-01–03, P4-01–02 | SYS §§1.5, 7.9; FTD §6.1; DS §§10.3, 10.10, 10.12 | C → E |
+| AC-17 | Operational/security/recovery readiness | NFR-03–06, NFR-08–09 | SYS §§7.3–7.8; BTD §§9–10.1; FTD §10.1 | J → J; B operational evidence |
+| AC-18 | Unknown audience/baseline; no invented specificity | FR-06, FR-14, FR-45 | SYS §3.7; BTD §6.4.1; DS §10.3 | M → E |
+| AC-19 | Qualification/conversion alternatives before volume | FR-14–16, FR-45 | SYS §§3.7, 7.4; BTD §6.4.1; DS §9.7 | M → E |
+| AC-20 | Two hours/no test budget/full fulfillment | FR-16, FR-45–46 | SYS §3.7; BTD §6.4.1; DS §10.5 | C → E |
+| AC-21 | Actual non-website conversion route | FR-06, FR-14, FR-45 | SYS §§3.7, 4.6; FTD §6.1; DS §10.3 | M → E |
+| AC-22 | One scoped Arabic post, no forced research/campaign | FR-17–18, FR-29–30 | BTD §9.10; FTD §6.1; DS §§8.2, 10.6 | M → E |
+| AC-23 | Changed offer/price, targeted holds/resolution | FR-10, FR-48 | SYS §§3.3–3.4; BTD §§6.5, 8.1.5; DS §10.9 | M → E |
+| AC-24 | Owner handoff and attestation, no fake execution | FR-37, FR-46, FR-49 | BTD §§6.4.1, 8.1.5; FTD §6.1; DS §10.14 | M → E |
+| AC-25 | Unknown/zero/duplicate/overlap/currency cases | FR-38–39, FR-45, FR-47 | BTD §§6.4.1, 6.7, 10.1; DS §10.14 | M → E |
+| AC-26 | Two cycles with inconclusive result | FR-02, FR-40, FR-45–47 | SYS §§3.7, 7.4; BTD §10.1; FTD §10.1; DS §10.14 | M → E |
+| AC-27 | Contradictory/malicious source and disclosure | FR-09, FR-26–27, NFR-04 | SYS §4.7; BTD §9.10; DS §10.7 | M → E |
+| AC-28 | Timeout/revocation/cancel race/overdue send | FR-35–36, NFR-05 | SYS §7.3; BTD §§6.8–6.9, 10.1; DS §10.9 | C → E; B platform/recovery evidence |
+| AC-29 | Mobile mixed-script review/approval and controls | FR-43–44, NFR-07 | FTD §10.1; DS §§10.9, 10.14, 11–12, 14.5 | M → E; B real usability tests |
+| AC-30 | Ordinary-owner production connection/publishing | FR-33 | SYS ADR-018/OD-23; BTD §10.1; FTD §10.1 | E → E; B production access |
+
+### A.3 Phase and release controls
+
+| Contract | Coverage and disposition |
+|---|---|
+| P3-01 | SYS §§1.5, 7.9; FTD §6.1; DS §10.3: Social Profile Import visibly disabled until end-to-end Phase 3 operation. |
+| P3-02 | SYS §4.8/ADR-018; BTD §§3.4, 6.8; DS §10.10: Instagram Business and X independently deferred; no active Phase 2 dispatch/tests/approval promises. |
+| P3-03 | SYS §7.9 and PRD §6.2: connected analytics deferred and separately authorized; Phase 2 file/manual observations retained. |
+| P4-01 | SYS ADR-019/OD-11; BTD G-13; DS §10.9: native image generation/composition deferred, no active runtime/cache/test obligation. |
+| P4-02 | SYS ADR-017/§7.6: billing/provider/pricing unselected for Phase 4+; internal usage limits/accounting remain mandatory now. |
+| PRD §§3.1, 9–10 | SYS §§2.2, 7.4, OD-23–24; BTD §10.1; FTD §10.1: all 30 ACs, ≥80% held-out usefulness overall/per register, zero critical truth/control violations, grounded claims, no unresolved critical/high recovery/security defects, real native workflows and declared-load/resource evidence. No threshold reduction. |
+| PRD §§11, 13 | SYS §9; BTD Appendix A: decisions have accountable workstream roles and project-relative deadlines; re-estimate five-person capacity, protect six-week stabilization, no presumed Phase 3/4 capacity or guaranteed external approval date. Implementation release ledger must add actual person, implementation reference, test conditions/evidence and current status for each row. |
+
+### A.4 Documentation verification record
+
+Documentation validation on 2026-10-28 passed: 102 relative links/heading anchors, 476 FR/NFR/AC references, all 88 individual FR/NFR/AC matrix rows, Markdown fence/table structure, and all 13 Mermaid diagrams parsed with the locally available Mermaid 11.12.2. The diagram check validates syntax, not visual rendering. Manual reconciliation covered phase labels, terminology, shared states/API contracts, approval/resource authorization, retention and restoration. `git diff --check` passed. No repository test suite or documentation-lint command was found; no code-level, operational or product acceptance result is inferred from these checks.
+
+The PRD remains byte-for-byte unchanged (SHA-256 `6377be73e5de8844bd62846588aeb338534dba840568aaf804e29bb5b618f3c6`), and both design-system CSS blocks are unchanged. The four documents retain their engineering decisions, folder organization and visual system. Documentation contracts and references now align with PRD v1.1; evidence-dependent implementation decisions and release blockers remain explicit in §9 and each design’s gap table, and the older-source conflicts remain flagged in §9.5.

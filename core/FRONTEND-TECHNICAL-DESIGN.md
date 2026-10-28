@@ -1,6 +1,6 @@
 # BusMora — Frontend Technical Design
 
-> **Version:** 1.0 · **Status:** Accepted for build · **Date:** 2026-10-18
+> **Version:** 1.1 · **Status:** Aligned design; implementation dependencies remain open · **Date:** 2026-10-28
 > **Scope:** the internal software architecture of the `busmora-frontend` repository (`busmora-web`, Next.js).
 > **Builds on:** [SYSTEM-ARCHITECTURE.md](./SYSTEM-ARCHITECTURE.md) (FE-1 now, FE-3 later; contract; auth), [BACKEND-TECHNICAL-DESIGN.md](./BACKEND-TECHNICAL-DESIGN.md) (API conventions), [domain/](../domain/), [strategy/](../strategy/), and [prd.md](./prd.md).
 > **Design only:** no code. Folder structures are trees.
@@ -8,6 +8,8 @@
 > **Reference knowledge:** the repository's `codebase-design` skill (modules, interfaces, seams, depth) and `domain-modeling` (language, ADR format), applied in the same way as the backend design.
 
 ---
+
+> **Authority:** [PRD v1.1](./prd.md) governs product behavior and release gates. SYS §9.5 flags incompatible older references; SYS Appendix A maps every requirement. Internal `employee` routes/module names remain stable; product-facing labels use **Marketing Director**. This document specifies design, not implemented capability.
 
 ## Table of contents
 1. [Recap of system-level decisions](#1-recap-of-system-level-decisions)
@@ -18,7 +20,7 @@
 6. [Client model layer per feature](#6-client-model-layer-per-feature)
 7. [Data access](#7-data-access)
 8. [API consumption conventions](#8-api-consumption-conventions)
-9. [Cross-cutting concerns](#9-cross-cutting-concerns)
+9. [Cross-cutting concerns](#9-cross-cutting-concerns-only-what-the-docs-require)
 10. [Testing strategy](#10-testing-strategy)
 11. [Naming conventions and coding rules](#11-naming-conventions-and-coding-rules)
 12. [Walkthrough: adding a feature end to end](#12-walkthrough-adding-a-feature-end-to-end)
@@ -36,8 +38,8 @@
 | F-3 | **Contract:** code-first `openapi.json` from the backend. The frontend pins a version and generates types with `openapi-typescript`; the client is `openapi-fetch` + React Query (SYS ADR-015). | One generated client in `shared/api`. Features never hand-write request types. |
 | F-4 | **Tokens** (SYS ADR-012): 15-minute access token **in memory only**; refresh token in an HttpOnly, `SameSite=Strict` cookie on `/v1/auth/refresh`; `app.` / `api.` same-site subdomains; `Origin` + custom-header check; rotation with reuse detection; multi-tab coordination (`BroadcastChannel` / Web Locks); silent refresh on reload. | One `shared/session` module owns the token. Nothing else touches it. |
 | F-5 | **SSE** (SYS ADR-013): a path-scoped HttpOnly **stream cookie** + native `EventSource` with `Last-Event-ID`; reconnect after expiry → 401 → refresh → reopen. | One `shared/streams` module owns every `EventSource`. |
-| F-6 | **Canvas:** one stream per running Task (≤ 2 per workspace); Canvas signals `agent_started`, `agent_tool_used`, `agent_completed`, `agent_error`, `flow_connection`; live only; whole-message replies, no token streaming (SYS ADR-020). | The Canvas is a pure reducer over signals, plus a reset path. |
-| F-7 | **Screens** (SYS §5.3, PRD FR-02, FR-16): auth, onboarding, Today view (default returning view), Marketing Employee (chat + Canvas), Roadmap (Now/Next/Later adaptive board), Brain, Deliverables, Batch Review, Settings, in-app notifications. | One feature per bounded context; pages compose features. |
+| F-6 | **Canvas:** one stream per running Task (≤ 2 per workspace); Canvas signals `agent_started`, `agent_tool_used`, `agent_completed`, `agent_error`, `flow_connection`, plus `execution_event` for actual tool/service/workflow/retry/input activity; bounded live replay; whole-message replies, no token streaming (SYS ADR-020). | The Canvas is a pure reducer over signals, plus a reset path. |
+| F-7 | **Screens** (SYS §5.3, PRD FR-02, FR-16): auth, onboarding, Today, Marketing Director (chat + Canvas), Roadmap, Brain, Deliverables, Outcomes/Reviews, Batch Review/list-week calendar, Settings and in-app notifications. | One feature per bounded context; pages compose features. |
 | F-8 | **i18n:** Arabic RTL and English LTR UI; dates per locale; scheduling in the **Business Time Zone**. | Direction at the document root; logical (start/end) styling; time helpers built on the browser's `Intl`. |
 | F-9 | **Two standalone repositories.** The frontend depends on the backend only through the published contract. | No shared code with the backend except generated types. |
 
@@ -52,7 +54,7 @@
 ## 2. Internal architecture pattern
 
 ### 2.1 Forces
-1. **Ten screen areas** map to the backend's bounded contexts. Five people build them in vertical workstreams alongside the backend modules (PRD §13.1).
+1. **The screen areas in §3.1** map to the backend's bounded contexts. Five people build them in vertical workstreams alongside the backend modules (PRD §13.1).
 2. **Many live surfaces** (Canvas, crawl progress, Post statuses, badges) need one consistent approach, which must later switch from polling to a workspace event stream with minimal change.
 3. **Strict security rules** on tokens and streams must live in one place.
 4. **Arabic-first right-to-left UI** must be the default in every component, not a retrofit.
@@ -117,16 +119,16 @@ flowchart TB
 | Feature | Backend context | Owns | Public interface (`index.ts`) |
 |---|---|---|---|
 | `auth` | Identity & Workspace | Register, verify email, login, logout, password reset screens; `useCurrentUser` | `LoginScreen`, `RegisterScreen`, `VerifyEmailScreen`, `ResetPasswordScreen`, `useCurrentUser()` |
-| `onboarding` | Identity / Market Intelligence | Website URL entry, crawl progress, Business Time Zone setup | `OnboardingScreen`, `CrawlProgressBadge` |
+| `onboarding` | Identity / Market Intelligence | Website or guided intake, disabled Coming Soon social import, truthful crawl progress, post-import Brain/Director choice and first-value entry | `OnboardingScreen`, `CrawlProgressBadge` |
 | `today` | Marketing Employee (Today view) | Default returning-owner screen: current goal, primary constraint, next recommended action, Now tasks preview, pending approvals banner, review due alerts (PRD FR-02) | `TodayScreen`, `useTodayView()`, `invalidateToday()` |
 | `roadmap` | Marketing Employee (Adaptive Roadmap) | Interactive Now/Next/Later board, task cards with FR-46 attributes, capacity indicators, horizon shifts, strategic revision diff review modal (PRD FR-16, FR-46, AC-04) | `RoadmapScreen`, `NowNextLaterBoard`, `RoadmapTaskCard`, `CapacityGauge`, `useRoadmap()`, `invalidateRoadmap()` |
-| `employee` | Marketing Employee | Conversation list, chat thread, the 7 message types, the structured-form renderer, Quick Replies, task status messages | `EmployeeScreen` (chat + Canvas layout), `ConversationList` |
-| `canvas` | Marketing Employee (live view) | The live Task graph (Orchestrator + 5 Sub-agents), signal reducer, reset handling | `TaskCanvas({ taskId })`, `useTaskCanvas(taskId)` |
-| `brain` | Business Brain | Graph view, Candidate Review (7 sections), item side panel (view / edit / retire), manual items and Relationships, filters and search, Provenance/Snapshot view, Conflicts, Brand Kit facts | `BrainScreen`, `CandidateReviewScreen`, `PendingCandidatesBadge`, `invalidateBrain()` |
-| `deliverables` | Deliverables | List with type/date filters and cursor pagination, full viewer (Markdown and structured), Deliverable card | `DeliverablesScreen`, `DeliverableViewer({ id })`, `DeliverableCard({ deliverable })`, `invalidateDeliverables()` |
-| `publishing` | Governed Publishing | Batch Review grid and list, per-Post actions, bulk approve/reject remaining, reschedule, retry, failure reasons, batch-review session timing | `BatchReviewScreen`, `SendToBatchReviewAction({ deliverableId })`, `invalidatePosts()` |
+| `employee` | Marketing Employee | Conversation list, chat thread, the 8 message types, the structured-form renderer, Quick Replies, task status messages | `EmployeeScreen` (chat + Canvas layout), `ConversationList` |
+| `canvas` | Marketing Employee (live view) | Task graph built from actual agents/tools/workflow records, accessible event list, signal reducer and bounded live reconnect handling | `TaskCanvas({ taskId })`, `useTaskCanvas(taskId)` |
+| `brain` | Business Brain | Graph view, Candidate Review (7 sections), item side panel (view / edit / export / delete; separate retire action), manual items and Relationships, filters and search, provenance and verification/uncertainty details, imported/owner/approved context, Conflicts, Brand Kit facts | `BrainScreen`, `CandidateReviewScreen`, `PendingCandidatesBadge`, `invalidateBrain()` |
+| `deliverables` | Deliverables | List with type/date filters and cursor pagination, versioned editor/viewer, reuse/export/delete, CSV/.xlsx import mapping, manual outcomes, recurring-review screens and Deliverable card | `DeliverablesScreen`, `DeliverableViewer({ id })`, `DeliverableCard({ deliverable })`, `OutcomeCapture`, `ReviewScreen`, `invalidateDeliverables()` |
+| `publishing` | Governed Publishing | Batch Review grid and list, per-Post actions, bulk approve/reject remaining, text/link or single owner-image preview, list/week calendar, submitted/uncertain/held recovery, cancellation limitations, batch-review session timing | `BatchReviewScreen`, `SendToBatchReviewAction({ deliverableId })`, `invalidatePosts()` |
 | `connections` | Channel Connections | Connected Accounts list, connect/disconnect, Reconnect Needed, lazy connect prompt, OAuth return handling | `ConnectionsPanel`, `ConnectPrompt({ platform })`, `OAuthReturnScreen` |
-| `settings` | Identity & Workspace | Account, Business Time Zone, UI language | `SettingsScreen` |
+| `settings` | Identity & Workspace | Account, country/currency/IANA zone, independent UI/conversation/content defaults, data export/deletion and accessibility | `SettingsScreen` |
 | `notifications` | Notifications | In-app notification list, unread badge, mark read | `NotificationBell`, `invalidateNotifications()` |
 
 ### 3.2 Shared kernel (`shared/`, no business rules)
@@ -162,9 +164,11 @@ flowchart TB
 employee ─► canvas, deliverables (DeliverableCard), brain (PendingCandidatesBadge link)
 deliverables ─► publishing (SendToBatchReviewAction)
 publishing ─► connections (ConnectPrompt)
-onboarding ─► brain (PendingCandidatesBadge)
+onboarding ─► (shared only; route links to Brain and Director, no mandatory review)
 settings ─► connections (ConnectionsPanel)
-app/ ─► every feature's index.ts
+roadmap ─► today (invalidateToday)
+publishing ─► notifications (invalidateNotifications)
+app/ ─► every feature's index.ts (composition for outcomes/review/data controls)
 auth, notifications, canvas, connections, brain ─► (nothing but shared)
 ```
 
@@ -219,7 +223,9 @@ busmora-frontend/
 │   │   │   │   └── candidates/               # CandidateReviewScreen
 │   │   │   ├── deliverables/                 # DeliverablesScreen
 │   │   │   │   └── [id]/                     # DeliverableViewer
-│   │   │   ├── batch-review/                 # BatchReviewScreen
+│   │   │   ├── outcomes/                     # OutcomeCapture (manual or file import)
+│   │   │   ├── reviews/[id]/                 # ReviewScreen; compose separate roadmap/Brain decisions
+│   │   │   ├── batch-review/                 # BatchReviewScreen + list/week publishing calendar
 │   │   │   └── settings/                     # SettingsScreen
 │   │   │       └── connections/              # ConnectionsPanel
 │   │   ├── connect/
@@ -236,7 +242,7 @@ busmora-frontend/
 │   │   ├── roadmap/                          # same layout; ui/ includes NowNextLaterBoard, RoadmapTaskCard, CapacityGauge, RevisionDiffDialog
 │   │   ├── onboarding/                       # same layout (index.ts, api/, model/, ui/)
 │   │   ├── employee/                         # same layout; ui/ includes the message-type renderers
-│   │   │   └── ui/structured-form/           # renders server-provided form schemas (FR-032)
+│   │   │   └── ui/structured-form/           # renders server-provided form schemas (FR-18; structured forms are an implementation choice)
 │   │   ├── canvas/                           # same layout; model/ holds the signal reducer
 │   │   ├── brain/                            # same layout; ui/ includes graph view, review sections, side panel
 │   │   ├── deliverables/                     # same layout; ui/ includes the viewer and calendar rendering
@@ -294,7 +300,7 @@ busmora-frontend/
 | **Adapter over open libraries** | `shared/i18n`, `shared/forms`, `shared/markdown`, `shared/graph` layout | The library choice (still open) can land without touching features |
 | **Coordinator (leader election across tabs)** | `shared/session` refresh via Web Locks + `BroadcastChannel` | Exactly one refresh at a time; no false reuse detection (SYS ADR-012) |
 | **Idempotent command submission** | `shared/api/idempotency` + mutations | One key per user intent, reused on retry, so a double click or network retry never duplicates a Task, approval or upload |
-| **Schema-driven rendering** | `employee/ui/structured-form` | Clarification forms come from the server as data (field kinds + "Search Yourself"), so new forms need no frontend release |
+| **Schema-driven rendering** | `employee/ui/structured-form` | Clarification forms come from the server as data (field kinds + "Research this"), so new forms need no frontend release |
 | **Error boundary per route segment** | `app/**/error.tsx` + `shared/errors` | A failure in one screen doesn't take down the shell |
 | **Polling strategy isolated per feature** | the `refetchInterval` option in the feature's `api/` | Can be swapped for event-driven updates feature by feature (FE-3) |
 
@@ -320,21 +326,36 @@ The frontend's model layer holds **view models and display rules only**. The bac
 | Feature | View models | Pure rules / reducers |
 |---|---|---|
 | `auth` | `CurrentUser` (id, email, verified, UI language) | Password-field requirements for display |
-| `today` | `TodayView` (pending approvals, scheduled posts for today, active Now roadmap tasks, active diagnosis banner), `TodayActionItem` | Priority ordering; action-needed badges; quick navigation (FR-02) |
-| `roadmap` | `RoadmapView` (version, status, ownerCapacity: 1–3, lenses, horizon columns: now/next/later), `RoadmapTaskView` (id, title, rationale, party, executionMode: native/owner_handoff, inputs, deliverableSpec, dependencies, effort, completionCondition, reviewCadence, status: planned/in_progress/completed/blocked/deferred/not_applicable), `StrategicRevisionView` (diffs: added/shifted/dropped tasks, triggerSummary, status: pending/approved/rejected) | Horizon capacity constraint (1–3 active tasks in Now); allowed status transitions; revision diff computation; non-applicable task display (never hard-deleted, FR-46) |
-| `onboarding` | `CrawlProgress` (pages crawled ≤ 10, estimated completion, outcome) | Progress display; partial/failed messaging |
-| `employee` | `ConversationSummary`, `MessageView` (8 kinds: text, text response, structured form, task status, deliverable card, knowledge notification, budget extension request, error), `StructuredFormView` (fields: text, radio, checkbox, dropdown; per-field Search Yourself), `BudgetExtensionView` (reason, additionalCost, additionalTime, benefit) | Message-kind → renderer mapping; form answer assembly; budget extension approve/reject handling (FR-27) |
-| `canvas` | `CanvasState`: nodes (Orchestrator + Market Research, Competitor Analysis, Content Writer, Campaign Planner, Social Poster) with state idle / active / completed / error, active tool label, animated connections | `applySignal(state, signal)`: the five signal types; `reset()` on a reset event; error shown only if user-visible |
-| `brain` | `KnowledgeItemView` (category, title, summary, properties, status, epistemicState: observation/claim/hypothesis/decision, importedStatus: imported_unverified/confirmed/superseded, version, provenance), `RelationshipView`, `CandidateView` (+ review section), `ConflictView`, `BrandKitView`, `GraphView` | Category → review-section mapping, as supplied by the API (OD-18); allowed actions per status (approve, edit-and-approve, reject; retire for approved); epistemic badges (FR-09, FR-10); filters |
-| `deliverables` | `DeliverableSummary`, `DeliverableView` (type, title, Markdown or structured content, citations, partial flag), `PerformanceReportView` (formats: `.csv` and `.xlsx`), `SchemaMappingPreviewView` (metric definitions, date range, units/currency, duplicate/ambiguous flags, FR-38), `ContentCalendarView` | Type → viewer mapping; deterministic KPI display; validation preview before diagnosis |
-| `publishing` | `PostView` (platform: `facebook_page`, postFormat: `text_link` or `single_image`, `ScheduledTimeView` in the business zone with `latenessAllowanceMinutes`, status: includes `held`, current version id, Brand Visual preview, failure reason), `BatchReviewView` | `allowedActions(status)`, mirroring SYS §3.4: approve/reject/edit/regenerate in pending; cancel in approved/scheduled; resolve-hold/reapprove in held (FR-48); reschedule in expired; retry in failed. "Remaining" selection for bulk actions. Session timer start/stop. |
+| `today` | `TodayView` (primary goal/review horizon, next action, blockers, pending approvals, reviews due, scheduled posts, Now tasks and diagnosis), `TodayActionItem` | Display server priority ordering; action-needed badges; quick navigation (FR-02) |
+| `roadmap` | `RoadmapView` (version, status, ownerCapacity: time/skills/assets/budget/fulfillment constraints, lenses, horizon columns: now/next/later), `RoadmapTaskView` (id, title, rationale, party, executionMode: analysis_draft/connected_execution/owner_execution/blocked/later_phase, inputs, deliverableSpec, dependencies, effort, completionCondition, reviewCadence, workState: planned/in_progress/completed/blocked/deferred/rejected/not_applicable/cancelled, separate actionState and learningState), `StrategicRevisionView` (diffs: added/shifted/dropped tasks, triggerSummary, status: pending/approved/rejected) | Capacity from backend constraints (default 1–3, fewer/none when needed); display server revision diff and impact; owner reprioritize/reject/postpone/revisit; distinguish not-applicable and deletion (FR-16, FR-46) |
+| `onboarding` | `IntakeChoiceView`, `GuidedSetupView` (minimal plain-language fields, explicit unknowns), `CrawlProgress` (actual pages/activity, known total only, source gaps/outcome), `PostImportChoiceView`, `DirectionCardView` | Website optional; imported context already usable; optional Brain inspection or Director; accessible failure → guided fallback; no fabricated ETA or mandatory audit |
+| `employee` | `ConversationSummary`, `MessageView` (8 kinds: text, text response, structured form, task status, deliverable card, knowledge notification, budget extension request, error), `StructuredFormView` (fields: text, radio, checkbox, dropdown; per-field Research this), `BudgetExtensionView` (reason, additionalCost, additionalTime, benefit) | Message-kind → renderer mapping; form answer assembly; budget extension approve/reject handling (FR-27) |
+| `canvas` | `CanvasState`: actual stable node IDs and kind (agent/tool/service/workflow), optional agent identity, recorded planned/active/awaiting_input/held/completed/error/cancelled state, safe tool/evidence details, real handoffs and retries; `live`, `asOfEventId` and gap indicators | `applySignal(state, signal)`: the five legacy agent signals plus execution_event; `reset()` on a reset event; error shown only if user-visible |
+| `brain` | `KnowledgeItemView` (category, title, summary, properties, lifecycle, approvalState, epistemicState: source_observation/owner_claim/ai_hypothesis/owner_decision, verificationStatus, importedUnverified label, version, provenance, freshness and uncertainty rationale), `RelationshipView`, `CandidateView` (+ review section), `ConflictView`, `BrandKitView`, `GraphView` | Category → review-section mapping, as supplied by the API (OD-18); separate eligible active imported/owner/approved states from pending proposals; inspect/edit/export/delete applicable data, distinct retire; approve/edit-and-approve/reject only pending AI proposals; epistemic badges (FR-09, FR-10); filters |
+| `deliverables` | `DeliverableSummary`, `DeliverableView` (type, title, Markdown or structured content, citations/assumptions, partial flag, goal/task/context versions, createdAt, evidentiaryBasisStatus), `OutcomeCaptureView`, `OutcomeReviewView`, `PerformanceReportView` (formats: `.csv` and `.xlsx`), `SchemaMappingPreviewView` (metric definitions, date range, units/currency, duplicate/ambiguous flags, FR-38), `ContentCalendarView` | Type → viewer mapping; deterministic KPI display; validation preview before diagnosis |
+| `publishing` | `PostView` (platform: `facebook_page`, postFormat: `text_link` or `single_image`, `ScheduledTimeView` in the business zone with `latenessAllowanceMinutes`, status: includes `submitted`, `uncertain`, `held`, current version ID bound to text/media/account/time/zone/allowance, optional validated owner image, platform evidence, failure/hold reason and server recovery actions), `BatchReviewView` | `allowedActions(status)`, mirroring SYS §3.4: approve/reject/edit/regenerate in pending; cancel in approved/scheduled; record owner context resolution in held; reapprove changed details/new time; reconcile uncertain attempts; retry only when backend confirms safe within current authority/window. No blind retry or cancellation guarantee after acceptance. "Remaining" selection for bulk actions. Session timer start/stop. |
 | `connections` | `ConnectedAccountView` (platform, status: connected / reconnect needed / disconnected) | Connect-prompt need (no connected account for a platform) |
-| `settings` | `WorkspaceSettingsView` (Business Time Zone with IANA id, UI language ar/en, Conversation language, Content Register: Egyptian, Gulf, MSA, English, FR-44) | Independent language and register configuration |
+| `settings` | `WorkspaceSettingsView` (explicit country/currency, Business Time Zone with IANA id, UI language ar/en, Conversation language, Content Register: Egyptian, Gulf, MSA, English, FR-44) | Independent language and register configuration |
 | `notifications` | `NotificationView` (kind, subject link, read) | Unread count |
 
 **Glossary rule:** view-model names and labels use [domain/GLOSSARY.md](../domain/GLOSSARY.md) terms (Post, Post Version, Approval, Review, Knowledge Item, Candidate, Task, Clarification, Canvas). Translations are in the i18n catalogues, not in code.
 
 ---
+
+### 6.1 Owner journey and review interactions
+
+- **Onboarding (FR-03–07):** show Website Import and Guided Setup equally usable; Social Profile Import is disabled with Coming Soon / Phase 3 text. Guided intake collects name/description, offer, market/country, stage/model, goal, actual conversion destination, languages and rough capacity in conversational groups; unknown audience/baseline/economics remain valid. Sparse/inaccessible sites offer guided setup promptly. On import completion show source gaps and two explicit actions, **Explore Your Business Brain** and **Meet Your Marketing Director**. Imported/unverified items are already usable. Director provides goal, constraint hypothesis, evidence, uncertainty and one next action; selecting it yields an editable initial artifact, responsibility and review date. Measure ten-minute active interaction target, do not advertise it as achieved.
+- **Brain (FR-08–13, FR-42):** graph and accessible detail/list use the same records. Source observations, owner claims, hypotheses and adopted decisions/preferences retain distinct labels and source dates; verification is separate from approval. Explicit unknown/conflict/not-applicable states and item/version links are visible. Edit/add take effect as owner context. Export and Delete are available for applicable records/history; deletion impact dialog names affected artifacts and actual retention limits. Show deletion requested/processing/completed/retry-needed, invalidate affected queries and remove/redact content per server response. Retire is a separate history action, not a Delete alias.
+- **Owner work (FR-45–49):** expose responsibility, feasible effort/capacity, prerequisites, resource allowance, completion condition, metric/baseline status and review date progressively. An unsupported execution task shows the artifact, instructions, checklist and unblock conditions; owner completion is a labelled attestation. Separate draft acceptance, reported implementation, platform verification and observed business impact. A direct request does not force a roadmap interview or optional research.
+- **Outcomes and recurring review (FR-38–40, FR-47):** Today links to review due. Manual aggregate input includes source/period, inquiry/qualified/booking/customer/spend observations, currency and notes; blanks stay unknown. File mapping previews definitions, period/granularity, units, IDs and duplicate/overlap/incompatibility warnings before analysis. Review displays observations → limitations/interpretation → proposed continue/change/stop/gather-evidence/scale decision, including inconclusive/no-data outcomes. Show separate explicit roadmap revision and Pending Brain Update decisions with versioned diffs; neither grants publishing/spend authority.
+- **Publishing (FR-33–36, FR-48):** choose text/link or one validated owner image. Preview exact content/media, Page/account, date/time/zone and lateness allowance before individual/selected/Approve All decisions. Media/details edits invalidate approval. Submitted is not confirmed; uncertain shows reconciliation and a hold/review path without automatic retry. Context holds need recorded owner resolution; unchanged approved details can resume only within current authority/window. New time or changed details requires fresh approval. Cancel undispatched work; after acceptance explain actual outcome and platform removal steps. Reconnect does not send overdue posts.
+- **Languages/mobile (FR-32, FR-43–44):** UI, conversation and task/campaign register are independent; task overrides default without changing the UI. Store country/currency/IANA zone explicitly, including named Gulf country/audience. All correction, artifact/revision review, approval, export/deletion and outcome entry remain available on mobile and keyboard. A list supplements each graph; it never substitutes for implementing the graph.
+
+### 6.2 Required endpoint consumption
+
+Use BACKEND §8.1.4–5 as the shared contract: guided intake `/v1/onboarding/guided`; goal/capacity `/v1/goals/current`; attestation `/v1/tasks/{id}/attestations`; reviews `/v1/reviews/{id}` and `/decisions`; mapping `/v1/performance-reports/{id}/confirm-mapping`; media `/v1/media`; data exports `/v1/data-exports`; applicable Brain/relationship/deliverable/workspace `DELETE` operations with `/v1/data-deletions/{id}` status; context resolution `/v1/posts/{id}/resolve-hold`; internal task cancellation `/v1/tasks/{id}/cancel`. These are designed interfaces awaiting implementation, not connector availability claims.
+
+Navigation links Today, Director Chat, Roadmap, Brain, Deliverables, Outcomes/Reviews, Campaign/Publishing list/week calendar and Settings. Retained `employee` route names are internal; navigation and page titles say Marketing Director. Routes compose outcome/review and independent decision components through public interfaces; no cross-feature private-cache access. `settings` composes export/deletion components at the route. A screen waiting for real implementation remains unavailable/blocked, never simulated success.
 
 ## 7. Data access
 
@@ -356,11 +377,11 @@ The frontend's model layer holds **view models and display rules only**. The bac
   - Each user intent gets an **Idempotency-Key** (`crypto.randomUUID`), held until success or abandonment, so retries reuse it.
   - Commands on Posts carry `postVersionId`; commands on Knowledge Items carry `version`; commands on Roadmaps carry `version`.
   - On success, invalidate the feature's own keys and call the exported `invalidateX()` helpers of affected features (e.g. applying a revision invalidates `roadmap` and `today`).
-  - Governed actions are **not optimistic** (§5.2). Horizon shifts and task reorders on the Roadmap board require backend confirmation to guarantee the 1–3 capacity constraint in "Now".
+  - Governed actions are **not optimistic** (§5.2). Horizon shifts and task reorders on the Roadmap board require backend confirmation to enforce the current owner capacity/dependencies in "Now".
 - **Lists:** cursor pagination (`limit`, `cursor` → `{ items, nextCursor }`). Filters live in the URL search params, so views are shareable and survive reloads.
 - **Polling** (FE-1) is declared only in the owning feature's query options:
   - crawl progress while a crawl runs;
-  - Post statuses on Batch Review while any Post is `scheduled` or `publishing`;
+  - Post statuses on Batch Review while any Post is scheduled/publishing/submitted/uncertain or awaiting a recovery result;
   - notification badge;
   - pending-Candidate badge.
 
@@ -369,7 +390,7 @@ The frontend's model layer holds **view models and display rules only**. The bac
 ### 7.3 Real-time
 - `canvas` subscribes through `shared/streams.subscribeTaskStream(taskId, …)` while a Task is running (at most 2 per workspace). Signals go through `applySignal`.
 - On first load, or on a **reset** event or a replay gap, the Canvas fetches `GET /v1/tasks/{id}/canvas`, redraws from it, and opens the stream with `?after=<asOfEventId>` (BACKEND §8.1.3). Repeated resets are retried a bounded number of times.
-- Task-status chat messages are persisted by the backend and arrive through the `employee` conversation query, which refetches when the Task's stream reports completion or failure.
+- Task-status chat messages are persisted and refetched through the conversation query on live events and while a task is active. Polling recovers missed/expired streams; durable status and action summaries stay accessible after navigation. Reconnect replay is only within the run/grace buffer; finished tasks show recorded summaries, never reconstructed live animation.
 - **The future event shell:** `shared/streams` gains `subscribeWorkspaceStream`, each feature adds `events/` handlers that update its own cache, and polling options are removed. Screens don't change.
 
 ### 7.4 Local state
@@ -389,12 +410,12 @@ The frontend's model layer holds **view models and display rules only**. The bac
 | **Routing** | Calls use the backend's `/v1` resources and action sub-resources (e.g. `POST /v1/posts/{id}/approve`), exactly as the contract defines. |
 | **Validation** | Client-side validation helps the user (required fields, formats). The server's validation is authoritative; `VALIDATION_FAILED` details map onto form fields. |
 | **Errors** | `shared/errors` maps codes to i18n messages and actions: `STALE_VERSION` → refetch + "this changed; review again"; `INVALID_TRANSITION` → refetch; `RECONNECT_NEEDED` → show `ConnectPrompt`; `CAPACITY_QUEUED` → "queued" state; `CONTEXT_STALENESS_HOLD` → "pricing/offer changed; review affected post" (FR-48); `BUDGET_CEILING_REACHED` → "budget ceiling reached; extension requested" (FR-27); `PERFORMANCE_FILE_UNRECOGNIZED` → show mapping preview / manual fallback (FR-38); `RATE_LIMITED` → retry later; 5xx → generic message with correlation id. |
-| **Idempotency** | Required header on: send message / start Task, send to Batch Review, approve, bulk approve / reject, start review session, retry publish, uploads, roadmap revisions, budget extension actions. One key per user intent. |
+| **Idempotency** | Also required for guided intake, attestations, review decisions, export/deletion requests, mapping confirmation and manual outcomes. Required header on: send message / start Task, send to Batch Review, approve, bulk approve / reject, start review session, retry publish, uploads, roadmap revisions, budget extension actions. One key per user intent. |
 | **Concurrency** | Always send the version the user saw (`postVersionId`, `version`). |
 | **Time** | Send `{ instant, zone, latenessAllowanceMinutes }` for Scheduled Times. Show every time in the Business Time Zone, labelled with the zone and delivery allowance. |
-| **Asynchronous work** | Treat 202 + id as "started"; show progress from SSE or polling. |
+| **Asynchronous work** | Treat 202 + id as accepted/queued until recorded execution begins; show truthful status via SSE or polling. |
 | **Streams** | Only through `shared/streams`; the stream cookie is sent automatically (native `EventSource` with credentials). |
-| **Uploads** | Performance CSV or Excel (`.xlsx`) via multipart through `shared/api` with schema mapping validation preview (FR-38); size limit shown from config once defined. |
+| **Uploads** | Performance CSV/supported `.xlsx` through `shared/api` with confirmable mapping/validation preview; owner-supplied single image through `/v1/media` with validation/version. Show supported limits and template/manual fallback (FR-31, FR-38). |
 | **Pagination** | Cursor-based infinite lists; never compute offsets. |
 
 ---
@@ -408,7 +429,7 @@ The frontend's model layer holds **view models and display rules only**. The bac
   3. On failure, the `(app)` layout redirects to login.
 - **Multi-tab:**
   - One tab refreshes, holding a Web Lock; the others receive the new token over `BroadcastChannel`.
-  - Logout is broadcast to all tabs.
+  - Logout is broadcast to all tabs; explicit revocation/deletion closes streams and clears workspace query caches. Cookie-expiry tolerance never overrides revocation.
   - The server's 10-second grace window covers races.
 - **Authorization:** one role (the User of the workspace). The UI hides nothing for permission reasons; the backend enforces workspace scope. A 403/404 shows not-found.
 - **OAuth connect:** the browser is sent to the api's start URL; the api handles the platform callback and redirects to `/connect/[platform]/return`, which refetches `connections` and resumes the pending action (e.g. send to Batch Review).
@@ -430,7 +451,7 @@ No secrets exist in the frontend.
 - **Route-level error boundaries** keep the shell alive.
 - **Feature-level** empty, error and retry states use shared components.
 - **Mutation errors** are mapped by code (§8).
-- **Network loss:** queries retry with backoff, except 4xx. Streams reconnect natively. No offline mode (PRD §16).
+- **Network loss:** queries retry with backoff, except 4xx. Streams reconnect natively. Offline operation is not committed; stale approval/data-control commands wait for server confirmation.
 
 ### 9.5 Caching
 - React Query is the only cache. Stale times per query are defined in each feature's `api/`.
@@ -442,11 +463,11 @@ No secrets exist in the frontend.
 - Icons with direction (arrows, chevrons) flip by direction.
 - **Graph canvases** (Canvas, Brain graph) render inside a fixed left-to-right coordinate container so layout math stays stable; labels inside nodes follow the UI language.
 - Text from generated content is shown with its own direction (Arabic or English, including mixed text with product names in English).
-- An Arabic + Latin font pair is loaded through `next/font` (font choice open).
+- An Arabic + Latin font pair is loaded through `next/font` (Ubuntu + IBM Plex Sans Arabic per DESIGN-SYSTEM §3.1).
 - **Dates and times:** `shared/time` formats with `Intl.DateTimeFormat` in the **Business Time Zone** and the UI locale. Wall-clock picks are converted to `{ instant, zone }` by a pure helper that handles daylight-saving transitions and is unit-tested.
 
 ### 9.7 Background work
-None in the frontend beyond polling (§7.2) and live streams (§7.3). Long Tasks continue on the server when the browser closes (PRD §13.4); on return, queries show the result.
+None in the frontend beyond polling (§7.2) and live streams (§7.3). Long Tasks continue on the server when the browser closes (FR-23; NFR-05); on return, queries show the result.
 
 ### 9.8 Evaluation instrumentation (required by EVAL §8)
 - Batch Review session timing: `publishing` starts a session when the Batch Review screen opens (`POST /v1/batch-review/sessions`) and ends it when every Post is decided (`finished`) or the User leaves the screen (`left`). The backend measures activity and closes abandoned sessions itself (BACKEND §8.1.2).
@@ -469,9 +490,13 @@ Frameworks are still open (OD-12); this strategy is framework-neutral. **The pub
 | **Feature public interface** | Each feature's exported components and hooks render and behave as documented, in Arabic (RTL) and English (LTR) | Component tests through `index.ts` only |
 | **Architecture** | Import boundaries (§2.3, §3.3), no `EventSource`/`fetch`/token access outside shared gateways, no physical left/right classes | Static checks in CI (tool open) |
 | **Contract** | Generated types are up to date with the pinned version; the app compiles | CI step |
-| **End-to-end journeys** | Onboarding → Review; message → Task → Canvas → Deliverable; Batch Review → connect → approve → status; expired → reschedule | Against the backend running in Docker Compose (cross-repo setup open, OD-17) |
+| **End-to-end journeys** | Both website and guided intake → optional Brain/Director → next task + artifact; immediate imported retrieval; scoped direct post; genuine Task/Canvas; exact text/link and single owner-image approval; uncertain/late/context/revocation recovery; CSV/.xlsx/manual outcomes; two review cycles; edit/export/delete/disconnect; mobile RTL/LTR with independent languages | Against the backend running in Docker Compose (cross-repo setup open, OD-17) |
 
 ---
+
+### 10.1 Release-level verification
+
+In addition to component/contract checks, verify all applicable AC-01–30 against real backend workflows. Cover zero/unknown outcomes, duplicates/incompatible data, inconclusive recurring reviews, owner override/capacity constraints, deletion/cache invalidation, actual Canvas events and recovery gaps, unsupported handoff and all four content registers. Run mobile mixed-script correction/review/approval/outcome journeys with keyboard/detail alternatives, DST ambiguity handling and explicit timezones. Source truthfulness and regional/brand quality require suitable human review; screenshots or mocks alone cannot pass native publishing, graph, Canvas, data-control or recovery gates. SYS §7.4 and Appendix A retain PRD §10 thresholds and open evidence dependencies.
 
 ## 11. Naming conventions and coding rules
 
@@ -508,19 +533,19 @@ Frameworks are still open (OD-12); this strategy is framework-neutral. **The pub
 
 ## 12. Walkthrough: adding a feature end to end
 
-**Example: "Reschedule an expired Post"**, the frontend half of the backend walkthrough.
+**Example: "Reschedule an expired or overdue-held Post"**, the frontend half of the backend walkthrough.
 
 | # | Step | Where | What to do |
 |---|---|---|---|
 | 1 | **Confirm the language** | domain/GLOSSARY.md | Post, Expired Post, Scheduled Time, Business Time Zone |
 | 2 | **Locate the owning feature** | §3.1 | `publishing` |
 | 3 | **Wait for or pull the contract** | `contracts/api` | The backend merges `POST /v1/posts/{id}/reschedule` (signature first). Pull the new version and regenerate `shared/api/generated`. The build must pass unchanged elsewhere, because the change is additive. |
-| 4 | **Model rule** | `publishing/model/allowed-actions` | Add `reschedule` as allowed only for `expired`. Unit-test the full status table. |
-| 5 | **Mutation** | `publishing/api` | Add `useReschedulePostMutation`. It sends `{ instant, zone }` built by `shared/time` from the user's pick, plus an idempotency key and `postVersionId`. On success it invalidates its own Post keys; if the badge depends on it, it calls `invalidateNotifications()`. |
+| 4 | **Model rule** | `publishing/model/allowed-actions` | Allow reschedule for expired/eligible overdue-held posts, with unresolved uncertain sends blocked by the backend. Unit-test the full status table. |
+| 5 | **Mutation** | `publishing/api` | Add `useReschedulePostMutation`. It sends `{ instant, zone, latenessAllowanceMinutes }` built by `shared/time` from the user's pick, plus an idempotency key and `postVersionId`. On success it invalidates its own Post keys; if the badge depends on it, it calls `invalidateNotifications()`. |
 | 6 | **UI** | `publishing/ui` | Add a "Reschedule" action and a date-time picker in the Business Time Zone (zone labelled). Map errors: `INVALID_TRANSITION` / `STALE_VERSION` → refetch and explain. |
 | 7 | **i18n** | `shared/i18n/messages/publishing` | Add Arabic and English strings; check right-to-left layout. |
 | 8 | **Public interface** | `publishing/index.ts` | Nothing to export (the action is internal to Batch Review), so no other feature changes. |
-| 9 | **Tests** | `publishing` model, api and public-interface tests; e2e | Model table; mutation sends key/version/zone; Batch Review shows the action only for expired Posts in both directions; e2e: expire → reschedule → pending approval. |
+| 9 | **Tests** | `publishing` model, api and public-interface tests; e2e | Model table; mutation sends key/version/zone; Batch Review shows the action only for eligible expired/held Posts in both directions; e2e: expire → reschedule → pending approval. |
 | 10 | **Review checklist** | pull request | No deep imports; no physical left/right classes; no new `fetch`/`EventSource`; contract version bumped deliberately |
 
 ---
@@ -528,7 +553,7 @@ Frameworks are still open (OD-12); this strategy is framework-neutral. **The pub
 ## 13. Internal decisions (ADRs)
 
 ### FTD-ADR-01 — Feature modules by bounded context with public interfaces
-- **Context:** eight screen areas, 4 developers, and a requirement that changes inside one area never break another.
+- **Context:** the screen areas in §3.1, five students, and a requirement that changes inside one area never break another.
 - **Decision:**
   - `features/<context>/` mirrors the backend modules, with `api/`, `model/` and `ui/` layers.
   - `index.ts` is the only importable surface; routes in `app/` compose features.
@@ -580,7 +605,7 @@ Frameworks are still open (OD-12); this strategy is framework-neutral. **The pub
 - **Consequences:** a brief loading state on first load.
 
 ### FTD-ADR-10 — Schema-driven Structured Forms
-- **Decision:** `employee/ui/structured-form` renders forms from the server's message payload (field kinds, options, Search Yourself).
+- **Decision:** `employee/ui/structured-form` renders forms from the server's message payload (field kinds, options, Research this).
 - **Considered:** a hard-coded component per form.
 - **Consequences:** new Clarification forms need no frontend release. The renderer must cover all four field kinds.
 
@@ -607,8 +632,8 @@ These are not decided here. They add to SYS §9.2 and the backend's Appendix A.
 | FG-5 | Test frameworks; API mock server from OpenAPI; end-to-end tool | §10 | OD-12, OD-17 |
 | FG-6 | Import-boundary and styling lint tooling (deep imports, physical left/right classes) | §2.3, §11 | new (matches backend G-2) |
 | FG-7 | Client error-reporting sink | `shared/telemetry` | OD-13 |
-| FG-8 | Arabic + Latin font choice | `next/font` setup | new |
+| FG-8 | Resolved: Ubuntu + IBM Plex Sans Arabic | `next/font`; DESIGN-SYSTEM §3.1 | design decision |
 | FG-9 | Values: polling intervals, page sizes, upload size limit, Canvas grace window | `shared/config` | OD-18 |
 | FG-10 | **Contract additions:** (a) bulk approve/reject with versions, (b) Batch Review session start/end and (c) the Canvas snapshot are **resolved** in BACKEND §8.1. Still open: (d) the Review-section mapping per Candidate (OD-18). | §6, §7.3, §9.8 | backend API |
-| FG-11 | Accessibility and supported browsers | all UI | SYS §9.3 |
+| FG-11 | Design targets resolved in DESIGN-SYSTEM §§12–13; verification still required | all UI | FR-43; NFR-07 |
 | FG-12 | Workspace in the URL or implied by the token. Routes in §4 assume it is implied; if it moves into the path, `app/(app)/` gains a `[workspaceId]` segment and query keys take it from the route. | §4, §7.2 | OD-20 |
