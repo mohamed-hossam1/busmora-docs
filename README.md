@@ -102,8 +102,8 @@ The team uses the **Obsidian Vault** as an interactive knowledge and execution t
 * [**00 - Home.md**](./Vault/00%20-%20Home.md) — Entry point and navigation map.
 * [**01 - Initiatives/**](./Vault/01%20-%20Initiatives/README.md) — High-level initiatives and PRD tracking.
 * [**02 - Features/**](./Vault/02%20-%20Features/README.md) — Canonical feature overviews, requirements, and per-task Jira records.
-* [**03 - Skills/**](./Vault/03%20-%20Skills/README.md) — AI-agent implementation and PR review workflow skills.
-* [**04 - Rules/**](./Vault/04%20-%20Rules/README.md) — Global documentation lifecycle and team conventions.
+* [**03 - Skills/**](./Vault/03%20-%20Skills/README.md) — Unified AI-agent skills catalog (engineering design, lifecycle, and review skills).
+* [**04 - Rules/**](./Vault/04%20-%20Rules/README.md) — Global documentation lifecycle, team conventions, and the [End-to-End Task Execution Guide](./Vault/04%20-%20Rules/End-to-End%20Task%20Execution%20Guide.md).
 
 ---
 

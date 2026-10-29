@@ -9,7 +9,7 @@ These conventions govern how all team members and AI-agent skills create, find, 
 - `01 - Initiatives/<Initiative Name>/Slices/` contains lightweight Slice overviews and links only. Do not copy full feature specifications here.
 - `02 - Features/<Feature Name>/` is the single canonical home for a Feature's `Overview.md`, `Requirements.md`, `Technical Design.md`, and `Testing.md`.
 - `02 - Features/<Feature Name>/Tasks/JIRA-123.md` holds the execution record for a Jira task associated with that Feature. Create the `Tasks/` directory and record when needed.
-- `03 - Skills/` contains reusable AI-agent skills and workflow instructions.
+- `03 - Skills/` contains the unified catalog of reusable AI-agent skills and workflow instructions, bridged via symlinks to the canonical `.agents/skills/` runtime directory.
 - `04 - Rules/` contains global, team-wide rules. Do not put feature-specific implementation details here.
 - `Templates/` contains reusable starting points for documents.
 
@@ -48,10 +48,11 @@ These conventions govern how all team members and AI-agent skills create, find, 
 
 ## 6. AI-agent and skill boundaries
 
+- **Unified Skills Architecture**: All AI-agent skills are canonically stored under `.agents/skills/` (the execution directory recognized by agent tools like Antigravity, Claude Code, Cursor, Copilot). `Vault/03 - Skills/` and `.claude/skills/` are symlinked to this single source of truth.
 - Agents must map relevant Vault context before inspecting the codebase, then inspect only code areas relevant to the task.
 - Read only the feature documents and additional rules needed for the current task; do not load unrelated parts of the Vault without a reason.
 - Skills define workflow execution. Global conventions belong here in Rules, not copied inconsistently into individual skills.
-- Follow the established skill order and prerequisites. Record completion status and handoff information so a later skill can verify whether prerequisites were completed.
+- Follow the established skill order and prerequisites as defined in the [[04 - Rules/End-to-End Task Execution Guide|End-to-End Task Execution Guide]]. Record completion status and handoff information so a later skill can verify whether prerequisites were completed.
 - The responsible developer owns the task end-to-end. Do not assume a separate team review is mandatory unless an explicit team rule says so.
 
 ## 7. Safety and maintenance

@@ -28,6 +28,8 @@ After implementation code is written and verified test-first:
 1. **Stage 2 (Migration)**: Structural refactoring against Vault rules with zero business logic changes. Record migration outcomes and mark Stage 2 completed in `Tasks/<JIRA-KEY>.md`.
 2. **Stage 3 (Finalize Jira Task)**: Consolidate records, update feature documents if needed, and execute commit and PR workflow.
 
+For the end-to-end integration combining Jira, the Vault, and the Matt Pocock skill suite, see [[End-to-End Task Execution Guide|End-to-End Task Execution Guide]].
+
 ## 4. Jira Status Lifecycle Across Skills
 
 The Jira ticket status transitions at strictly defined milestones:
