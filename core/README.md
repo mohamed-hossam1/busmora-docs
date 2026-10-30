@@ -58,6 +58,18 @@ flowchart TD
 
 ---
 
+## Product Experience Companion
+
+### [Final Product UI Journey (`FINAL-PRODUCT-UI-JOURNEY.md`)](./FINAL-PRODUCT-UI-JOURNEY.md)
+* **Scope:** A detailed Arabic, screen-by-screen walkthrough of the customer experience from the marketing landing page and onboarding through planning, task execution, governed publishing, recurring review, and long-term retention. It includes textual wireframes, lifecycle diagrams, responsive behavior, system states, and explicit Phase 2 versus future-scope labels.
+* **Authority:** This is an explanatory experience blueprint derived from the five canonical specifications. If it ever conflicts with a canonical requirement, the PRD and its supporting canonical designs remain authoritative.
+
+### [UI Demo Master Prompt (`UI-DEMO-MASTER-PROMPT.md`)](./UI-DEMO-MASTER-PROMPT.md)
+* **Scope:** A copy-ready implementation prompt for AI coding tools to build a complete interactive BusMora UI prototype with coherent Arabic demo data, responsive routes, deterministic state transitions, and PRD-aligned acceptance checks.
+* **Authority:** This is an implementation aid derived from the canonical specifications and the Final Product UI Journey. It does not add or change product requirements.
+
+---
+
 ## Interconnection with Related Directories
 
 * [**Domain-Driven Design (`../domain/`)**](../domain/): Tactical aggregates, bounded contexts, domain events, and the canonical [Glossary](../domain/GLOSSARY.md).

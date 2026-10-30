@@ -1,17 +1,17 @@
 # BUSMORA — Product Requirements Document
 
-**Version:** 1.1 — product foundations revised from plan.md  
-**Date:** 28 October 2026  
-**Product:** BUSMORA, an AI Marketing Director for Arabic-first business owners  
-**Planning horizon:** Approximately 24 weeks of development by five students using AI-assisted software development  
-**Revision basis:** [Independent PRD Improvement Plan](/home/mohamed/Mohamed/test/plan.md), 27 October 2026  
+**Version:** 2.0 — approved product redesign\
+**Date:** 30 October 2026\
+**Product:** BUSMORA, an AI Marketing Director for Arabic-first business owners\
+**Development planning period:** Approximately 24 weeks of development by five students using AI-assisted software development\
+**Revision basis:** owner-approved redesign supplied 30 October 2026; this supersedes conflicting v1.1 scope.\
 **Status:** Product and release requirements; not evidence of implemented capabilities or validated market demand
 
 ## 1. Purpose and decision status
 
 This PRD defines BUSMORA's initial customer focus, owner workflows, capabilities committed to its first production-ready release (Phase 2), and later expansion. It specifies user-facing behavior, approval boundaries, evidence standards, and release acceptance. Detailed schemas, model/provider choices, frameworks, infrastructure, and platform API configuration belong in supporting technical designs.
 
-The requirements marked **Phase 2** are binding release commitments. All version 1.0 Phase 2 capabilities remain committed; this revision bounds their implementation and strengthens the decision and learning cycle. **Phase 3** and **Phase 4+** remain in the product vision, but receive no assumed capacity in the 24-week delivery plan. They may proceed only when Phase 2 commitments and stabilization capacity are secure. A later-phase label does not permit presenting an unimplemented feature as operational.
+The requirements marked **Phase 2** are binding release commitments in this revision. The approved redesign supersedes conflicting v1.1 requirements. Phase 3, Phase 4+ and Phase 5 remain future work with no assumed capacity in the approximately 24-week plan. An interface or design is not evidence of operational capability.
 
 BUSMORA is a graduation project with four simultaneous goals: a polished and reliable product, meaningful technical innovation, real value for business owners, and commercial potential. Paid pilots and a fixed number of external testers are not graduation prerequisites. Continuous evaluation is required. Functional readiness, eligibility for use by ordinary business owners, and commercial validation are separate judgments; none may be inferred solely from the others.
 
@@ -25,30 +25,48 @@ BUSMORA is a graduation project with four simultaneous goals: a polished and rel
 
 ### 1.2 Revision and source authority
 
-Version 1.1 preserves FR-01–44, NFR-01–09, AC-01–17, and later-phase identifiers, adds FR-45–49 and AC-18–30, and adopts the bounded scope and delivery approach in plan.md. This PRD is the release contract. The plan supplies rationale; the [Growth Roadmap Playbook](/home/mohamed/Mohamed/test/BUSMORA_Universal_Growth_Roadmap_Playbook.md) supplies diagnostic concepts and task recipes, not additional implicit feature commitments.
+This PRD is the product/release authority. The explicit owner-approved redesign supersedes v1.1 and conflicting supporting documents. Existing engineering choices remain binding where compatible. The repository filename is `prd.md`; the supplied request's `prd(1).md` refers to this same document, so its existing filename and links are preserved.
 
-The five STAR lenses are adapted from the playbook's course interpretation. Its reconstructed worksheets, illustrative schedules, maturity scores, and priority formula are not validated instruments or mandatory product features. Course attribution belongs in design documentation; the UI uses plain-language questions and must not imply endorsement or access to original worksheets.
+Stable FR-01–49 and NFR-01–09 identifiers are retained with the dispositions below. FR-47 and AC-26 are retired, never reassigned. FR-50–58 and AC-31–58 add coverage. AC-01–25, AC-27–58 are active. The original external planning/playbook files are historical rationale, not implicit requirements. Five diagnostic lenses remain useful guidance, not validated scores, mandatory worksheets, or an endorsement.
+
+### 1.3 Revision ledger and cross-document change map
+
+| Decision / requirement disposition | PRD | Design System | Frontend | Backend | System |
+|---|---|---|---|---|---|
+| FR-01 extended; FR-50 new: Google and verification links | §§4–5 | §10.2 | auth/session | identity, §8.2 | §4.7 |
+| FR-03–06, FR-10 rewritten: essential draft intake and confirmation | §§4.1, 5.2 | §10.3 | unified form | identity draft, brain activation | §§3.3, 4.6 |
+| FR-16, FR-45–46 rewritten; FR-51–54 new: Discovery and complete steps | §§4.2, 5.4, 5.12 | §§10.4–10.5 | roadmap feature | tasks models/APIs | §§3.4, 3.6–3.7 |
+| FR-17–18, FR-22–23 clarified: independent Chat, choice-first forms, local Canvas, retry masking | §§4.2, 5.4–5.5 | §10.6 | employee/canvas | conversation/task linkage | §§5–6 |
+| FR-29, FR-41 narrowed; FR-55, FR-57 new: documents vs Posts and calendar | §§5.7–5.10 | §§10.8–10.9 | deliverables/publishing | separate result contracts | §§3–6 |
+| FR-02 rewritten; FR-47 and AC-26 retired; FR-58 new | §§5.1, 9, 12 | remove daily/performance screens | remove obsolete routes/modules | retire exclusive APIs/jobs/tables | replace flows and matrices |
+| FR-38–40 narrowed: requested analysis with existing parsing/math safety | §5.9 | §10.14 | Chat attachment flow | generic analysis uploads | §3.7 |
+| FR-48 retained and strengthened: current knowledge and targeted Post holds | §§5.3, 5.12 | §§10.7, 10.9 | invalidation/reapproval | dependency events/preflight | §§3.3, 4.5 |
+| FR-43–44 retained; FR-56 new: Settings and contextual notifications | §§5.11, 5.14 | §§10.10–10.11 | settings/notifications | identity/connections/notifications | §§5.3, 7.5 |
+| P5-01 new; P3/P4 retained and clarified | §§3, 6 | §10.15 | unavailable capability states | no active Ads endpoints | §7.9 |
+| All safety NFRs retained; acceptance and crosswalk replaced | §§8–14 | §16 | §10 | §10 | Appendix A |
+
+Removal of **Today Dashboard**, **Outcomes & Reviews**, and **Now/Next/Later** is complete in the active product contract. Historical names occur only in explicit retirement and negative acceptance records. No replacement daily dashboard or recurring performance-review workflow is authorized.
 
 ## 2. Product vision and boundaries
 
-BUSMORA is an AI Marketing Director that helps an owner decide what marketing work deserves attention this week, prepare useful assets, complete supported actions with approval, and use actual results to choose what comes next. It combines guided planning with direct conversation. The owner should not need marketing terminology, a self-diagnosed problem, or sophisticated prompts.
+BUSMORA is an Arabic-first AI Marketing Director with minimal owner-confirmed business setup, persistent Business Brain, independent Chat, authentic conversation-linked Agent Canvas, an adaptive executable step-based Roadmap, document/report Deliverables, and a social-media Scheduling calendar with governed publishing. It helps owners choose and complete useful marketing work using available evidence without requiring marketing terminology or sophisticated prompts.
 
 The Marketing Director understands products, services, customers, pricing, goals, constraints, and available performance information. This broader context informs its work; its recommendations and execution focus on marketing, customer acquisition, go-to-market, and marketing-driven growth. Experienced marketers may use BUSMORA for execution and time savings, but marketing expertise is not a prerequisite.
 
-The core experience is an **adaptive marketing cycle**: understand; diagnose; choose feasible work; research or draft; review and execute; observe; learn and propose revisions. It supports both native Facebook execution and accurately labeled owner execution outside BUSMORA. Both return to the same review process. The owner can request a competitor analysis, a single post, a strategy discussion, or another supported task at any time without completing a prescribed sequence.
+The core experience is **confirm essential context → choose Chat or Roadmap → perform bounded work → inspect outputs → authorize supported external actions**. The owner may ask for analysis of supplied evidence or a strategic revision at any time. There is no mandatory campaign-measurement phase, periodic results capture, recurring performance review, or automatic performance-triggered plan revision.
 
-The product's differentiation hypothesis is better decisions, less owner effort, and continuity across cycles in a usable Arabic-first experience. Arabic text generation, persistent context, and multiple agents alone do not establish a competitive advantage. BUSMORA must not claim exclusive capabilities, superior marketing results, or regional product-market fit without evidence.
+The product's differentiation hypothesis is better decisions, less owner effort, and continuity across tasks in a usable Arabic-first experience. Arabic text generation, persistent context, and multiple agents alone do not establish a competitive advantage. BUSMORA must not claim exclusive capabilities, superior marketing results, or regional product-market fit without evidence.
 
 ### 2.1 Primary and secondary users
 
 | User | Need | Product response |
 |---|---|---|
-| Primary launch cohort: Arabic-first owner-operated service business selling through inquiries, consultations, or bookings | Choose feasible work to improve qualified demand, conversion, or follow-up | Explain the likely constraint, prepare useful work, and review actual observations |
+| Primary launch cohort: Arabic-first owner-operated service business selling through inquiries, consultations, or bookings | Choose feasible work to improve qualified demand, conversion, or follow-up | Explain the likely constraint, prepare useful work, with evidence and uncertainty visible |
 | Secondary: owner or marketer with marketing experience | Reduce research, planning, content, coordination, and publishing effort | Direct chat and task execution using the same Business Brain and controls |
 
 The launch focus is a product hypothesis selected for a coherent inquiry-to-customer workflow, not a verified market-size conclusion. Initial evaluation should begin with reachable Egyptian owners and separately identified GCC country cohorts when owner access and suitable native review are available. Discovery selects a service niche; the playbook's website-development studio example does not determine the niche.
 
-The initial cohort should have a deliverable offer, control of its inquiry destination, willingness to act on a small weekly plan and record aggregate results, and capacity to serve the intended demand. A website is optional. Native-publishing pilots should involve businesses for which Facebook is actually relevant; a connected Page does not establish channel fit.
+The initial cohort should have a deliverable offer, control of its inquiry destination, willingness to review and act on relevant marketing work, and capacity to serve the intended demand. A website is optional. Native-publishing pilots should involve businesses for which Facebook is actually relevant; a connected Page does not establish channel fit.
 
 Other business models may receive supported general analysis and drafts, with their limits explicit. Phase 2 does not promise equally deep e-commerce, SaaS, marketplace, enterprise, or regulated-sector workflows. The country/segment focus does not reduce the full Arabic/English UI or English, Egyptian Arabic, audience-specific Gulf-oriented Arabic, and Modern Standard Arabic (MSA) content commitments. Interface, conversation, and campaign audience may each use different languages or registers.
 
@@ -58,7 +76,7 @@ Other business models may receive supported general analysis and drafts, with th
 |---|---|
 | What should I do next with my time and budget? | A defensible priority, evidence and uncertainty, and a feasible next action |
 | Help me get this work done | A usable artifact, an accurately labeled owner handoff, or verified supported execution |
-| What happened, and should we keep doing it? | Observations, a calibrated interpretation, and an owner-reviewed next decision |
+| Help me understand evidence I provide | A scoped one-off analysis with limitations; any strategic revision remains a separate owner decision |
 
 ### 2.3 Product principles
 
@@ -70,16 +88,17 @@ Other business models may receive supported general analysis and drafts, with th
 6. **Accurate representation.** The platform must distinguish available, upcoming, partial, failed, and completed capabilities and actions.
 7. **Capacity before volume.** Active work must fit owner time, budget, skills, assets, and fulfillment capacity, or expose the conflict. More posts or more traffic is not the default answer.
 8. **Diagnosis before channel selection.** Consider offer/audience, destination, conversion, acquisition, and existing-customer opportunities. A missing integration must not bias strategic priority toward the only executable channel.
-9. **Completion is not impact.** Draft completion, owner-reported implementation, verified publication, measured outcomes, and causal explanations are distinct. Unknown data is not zero; an inconclusive review is valid.
+9. **Completion is not impact.** Draft completion, owner-reported implementation, verified publication, measured outcomes, and causal explanations are distinct. Unknown data is not zero; an inconclusive analysis is valid.
 
 ## 3. Phase plan and release contract
 
 | Phase | Product outcome | Included capabilities |
 |---|---|---|
 | **Phase 1 — Foundation** | Establish the necessary platform, data, integration, and operational foundations for Phase 2 | Account and single-owner workspace foundation; isolation; task and deliverable persistence; knowledge and approval states; event and audit records; secure integration and background-work foundations; evaluation and observability foundations |
-| **Phase 2 — First production-ready release** | An intended owner can choose useful work, complete a native or owner-executed task, and review results in a repeatable cycle | Website/guided intake; goal and capacity context; Business Brain and interactive graph; evidence-backed diagnosis and executable Now/Next/Later roadmap; Director Chat; Fast Router and bounded dynamic multi-agent orchestration; authentic Canvas; dynamic multi-source research; text-first campaigns and owner media; real Facebook connection, approval, scheduling and verified publishing; CSV/Excel and manual outcome capture; recurring review and controlled updates; context staleness; saved/exportable deliverables; full Arabic/English responsive interface and four content registers; operational safeguards |
+| **Phase 2 — First production-ready release** | Confirm essential context and independently use Chat, Roadmap, documents and governed social publishing | Email/password verification links and Google; unified website/manual draft confirmation; Brain Graph/List; choice-first Director Chat; bounded research/Tasks and conversation-local Canvas; resumable adaptive Roadmap Discovery and complete actionable steps; owner completion, Skip/Revisit and approved revisions; document Deliverables; first-class Posts; Scheduling Month/Week/List and Unscheduled; real Facebook Page publishing and recovery; notifications; Settings, AR/EN and four content registers; scoped requested CSV/.xlsx analysis |
 | **Phase 3 — Product expansion** | Broaden inputs, publishing reach, and automatic measurement | Operational social-profile-link onboarding; independently activated Instagram Business and X publishing integrations; connected-platform analytics where authorized and available |
-| **Phase 4+ — Further expansion** | Extend creation and commercialization | Native AI image generation and a later subscription/billing capability, subject to separate design and evaluation |
+| **Phase 4+ — Further expansion** | Extend creation and commercialization | Native AI image generation and later billing, subject to separate design and evaluation |
+| **Phase 5 — Meta Ads Management** | Authorized in-product ad campaign management | Future eligible Meta Business/Ad Account connection, campaign/creative setup, explicit budgets/spend authorization, launch, supported metrics and controlled optimization; API/access validation required |
 
 The roughly 24-week schedule and AI-assisted development do not automatically remove agreed capabilities. A handoff can complete a task designed for owner execution, but cannot replace the mandatory native Facebook integration, graph, Canvas, research, or another committed capability. Development milestones (§13) are distinct from customer roadmap stages; no business is forced through a universal 12-week growth program.
 
@@ -95,76 +114,72 @@ Development/test-account publishing proves only the access path exercised. Phase
 
 | Surface | Committed release behavior | Boundary |
 |---|---|---|
-| Diagnosis and tasks | Five diagnostic lenses, a primary constraint hypothesis, capacity-aware priorities, and a small curated recipe set | No universal business audit, numeric health score, or mandatory worksheet sequence |
+| Diagnosis and tasks | Adaptive Discovery, complete actionable steps, a relevant constraint hypothesis and a small curated recipe set | No universal business audit, numeric health score, or mandatory worksheet sequence |
 | Research | Dynamic search/retrieval and synthesis across distinct relevant public source types, including accessible websites and review/community material | No guarantee of every site, private-group access, authenticated social harvesting, paid databases, or comprehensive ad-library coverage |
 | Creation | Editable text, campaign/offer/page-copy briefs, response/interview guides, visual briefs, and owner media | No native image/video generation, design editor, live-site editing, or message sending |
 | Facebook publishing | Text/link posts and a single owner-supplied image with caption, with approval, scheduling, verification, and recovery | Verify API support early; no implicit video, story, reel, carousel, or every-format promise. A format change requires a documented contract decision |
-| Measurement | Documented CSV and Excel (.xlsx) templates, recognized-field mapping, manual aggregate observations, and deterministic supported metrics | No arbitrary workbook interpretation, live analytics, CRM, cohort/LTV forecast, or multi-touch attribution |
+| Requested analysis | Explicit Chat task using documented CSV and Excel (.xlsx) templates, recognized-field mapping and deterministic supported metrics | No arbitrary workbook interpretation, live analytics, CRM, cohort/LTV forecast, or multi-touch attribution |
 | Brain and Canvas | Interactive typed entity/relationship graph and actual task execution visualization, with accessible detail/list views | No ontology designer, unrestricted graph workspace, or workflow builder |
-| Calendar and export | List/week publishing view; text/Markdown/CSV and applicable original media exports | No enterprise calendar or document-design suite |
+| Calendar and export | Month/Week/List calendar and Unscheduled Posts; text/Markdown/CSV and applicable original media exports | No enterprise calendar or document-design suite |
 | Unsupported external work | Clear owner-ready draft/instructions, responsibility, and owner-reported completion | Never represented as executed or independently verified by BUSMORA |
 
 Supported limits, blocked states, and later-phase capabilities must be visible at the point of use. Failures outside supported limits require a useful explanation and fallback, not simulated success.
 
 ## 4. Core user journeys
 
-### 4.1 Establish context and reach first value
+### 4.1 Authenticate and confirm essential context
 
-1. The owner creates an account and single-owner business workspace.
-2. They choose website import or guided manual setup. The onboarding screen also displays Social Profile Import as **Coming Soon** and disabled until Phase 3.
-3. Website import extracts accessible business and brand information and stores it as immediately usable, source-labelled **imported** context. It does not demand field-by-field approval before use.
-4. After import, the owner chooses **Explore Your Business Brain** or **Meet Your Marketing Director** and can return to the Brain later.
-5. Guided setup collects enough context to start: offer, market/country, stage, goal, actual inquiry/conversion destination, language, and rough owner capacity. Unknown audience, baseline, or economics are valid and clarified progressively.
-6. The Director presents a short direction card: goal, likely limiting factor, relevant evidence, material uncertainty, and one recommended next action. It offers an editable Now/Next/Later plan without requiring a complete audit.
-7. The owner selects the next action and receives a relevant initial artifact, such as offer copy, a post, an inquiry-response draft, a measurement template, or an interview guide. The system records responsibility and an appropriate review date.
+Register using email/password only, verify a secure email link, then enter Onboarding; or use secure Google signup/login. Registration does not ask for business facts. Onboarding presents Import from Website, Manual Setup, and disabled Import from Social Media — Coming Soon — Phase 3.
 
-The first-value target is an understandable next action and usable initial artifact within ten minutes of active owner interaction for a typical supported case. This is an evaluation target, not a measured or advertised result. Background latency is measured separately (§10).
+Website URL → permitted crawl → structured extraction → validation → editable draft form → owner confirmation → active Brain. Manual Setup uses the **same form and schema**. Crawl observations, extracted proposals, owner-confirmed values and activated records are distinct. Partial results survive and manual completion is immediately available. Confirmation covers the displayed draft version once; it does not create a second Pending Brain Updates queue.
 
-### 4.2 Get direction and work directly
+Require name, description, at least one offering, country/service area, and a contact/conversion route state (a supported route or explicitly not ready). Pricing is optional and supports fixed, starting-from, quote-required and unknown values. Strategy, audience research, competitors, past campaigns, baseline, budget and weekly owner hours are not onboarding requirements.
 
-1. The Director considers the goal, evidence, conversion path, and constraints; it explains its main hypothesis, material alternatives, and what would change the recommendation.
-2. Each task states why now, responsibility, execution mode, effort, dependencies, expected output, missing inputs, completion condition, metric/review need, and any required approval.
-3. The owner may approve, reject, postpone, reprioritize, challenge, or revise activities. They may also request a supported task directly in chat.
-4. New evidence, completed work, changed goals, and performance results can prompt proposed roadmap changes. The owner reviews changes before they are applied.
-5. A direct request for one post or answer remains scoped. It does not require a full strategy interview, campaign, research run, or roadmap rewrite. Direct work shares context and history with planned work.
+After confirmation offer **Chat with Marketing Director** and **Create My Roadmap** prominently; Brain remains directly accessible. Useful first output within ten minutes of active owner interaction remains a usability target, with background latency measured separately, not a claimed result.
 
-### 4.3 Research, create, approve, publish, learn
+### 4.2 Independent Chat and Roadmap Discovery
 
-1. The owner requests research, a campaign, one post, or another supported marketing task.
-2. BUSMORA reuses relevant Brain context, clarifies only essential missing details, and offers a choice when optional extra research would improve the result.
-3. The Router answers simple interactions directly or sends substantive work to the Orchestrator. The Orchestrator plans and delegates dynamically within its authorization and resource limits.
-4. The owner can inspect real work in the Agent Canvas and receives a source-supported deliverable or an honest partial result.
-5. The owner reviews exact post text, media, destination, time/timezone, and disclosed delivery allowance. Selected or batch approvals bind to those versions. Unchanged approved details may execute without a second approval, subject to current authorization, cancellation, and context checks.
-6. The system records actual dispatch and verification, or a failed/uncertain outcome with a recovery path. It holds affected posts when context becomes stale, authorization fails, or the approved delivery window expires.
-7. The owner imports a CSV/Excel file or enters aggregate observations. BUSMORA interprets them against the task/campaign objective and proposes review decisions and separate roadmap/Brain changes.
+Direct Chat reuses current eligible context and clarifies only material gaps, with three or four meaningful choices plus Other / Custom Answer where suitable. Quick acknowledgments do not fabricate specialist work. Substantive requests create authorized durable Tasks. Conversation → its Tasks → selected Task Canvas is the only primary Canvas relationship; switching conversations leaves other work running.
 
-### 4.4 Complete work outside BUSMORA
+Create My Roadmap opens a saved, resumable Discovery draft. The first significant question selects the objective (first customer, more customers, better inquiry conversion, offering launch, existing-customer revenue, or custom). Questions adapt to the objective and known context. Unknown, Skip and Not Applicable remain distinct; explain indispensable questions. Research with Director saves the draft, creates a durable question-linked conversation/task, and returns through **Use in Roadmap** to that exact question for selected-answer confirmation. Direct Chat and step execution do not show that action.
 
-When the best action needs an unsupported connector, the Director prepares a ready-to-use artifact, instructions, completion checklist, and observation plan. The owner performs the work and may attest to completion or attach evidence. BUSMORA labels that report accurately; draft acceptance does not prove external implementation. Website changes, inquiry responses, follow-up, and paid experiments use this path in Phase 2 and do not acquire new execution permissions.
+Generation produces a complete proposed plan with actionable steps, evidence, uncertainty, outputs and real dependencies. Initial approval activates one Roadmap; saved drafts and archived versions remain inspectable. Approval of a plan grants no publishing or spending permission.
 
-### 4.5 Return and review
+### 4.3 Execute, skip, revisit and revise
 
-The Today view shows the current goal, next action, owner blockers, approvals, and review due. The review identifies completed/not-completed work, observations and their period/source, missing data, interpretation limits, and a proposed decision: continue, change, stop, gather evidence, or propose scale. Scale remains a recommendation; it never authorizes spend.
+The full vertical plan is visible. Recommended sequence is not a universal blocker. Run with Director validates prerequisites, task/resource authorization and the hard limit of two running Tasks per workspace, creates an idempotently linked Task and opens its conversation/Canvas. Waiting for capacity is shown truthfully. Reopening a step never reruns work.
 
-Review cadence defaults to weekly where useful and adapts to the sales cycle and data volume. A result may be inconclusive. The owner reviews strategic revisions and persistent knowledge proposals separately, even when displayed together. Changes to business facts flag dependent work without automatic regeneration. Phase 2 needs an in-app return/review experience, not notification channels or autonomous background market monitoring.
+Unsupported external actions receive instructions, artifacts and a checklist. Mark as Done records **Owner-reported** completion and optional evidence. Skip records owner intent/time and dependency impact, never completion or cancellation; Revisit recomputes eligibility. Skipping running work does not stop its Task or undo a platform action. Discuss or Revise Roadmap produces an added/modified/removed-or-superseded/dependency diff. Material revisions apply only after exact-version owner approval; rejection preserves the active plan.
+
+### 4.4 Create documents and Posts, then publish safely
+
+Research/strategy outputs create versioned documents in Deliverables. Social copy creates Publishing-owned Posts in Scheduling. A mixed campaign has documents and independent Posts linked by campaign/task/conversation/step references, without duplicate authoritative Post content. Manual New Post works without a connection or publishing date; no date means Unscheduled.
+
+Scheduling defaults to Month on desktop, with Week/List and Unscheduled. The editor shows content, media, Page, date/time, planning zone and lateness allowance. Draft save is not approval. Individual/bulk approval binds exact versions and parameters. Any approval-critical edit or reschedule requires fresh approval. Publication requires current authority, valid window, no unresolved holds and platform evidence. Uncertain acceptance is reconciled, never blindly resent. Historical published Posts use actual publication dates.
+
+### 4.5 Return, correct and analyze on request
+
+Return to the last valid accessible page, otherwise Marketing Director; preserve authorized deep links. Focused notifications open exact forms, documents, Posts, revisions, Brain proposals or connection settings. Read state is not subject approval.
+
+Editing a current price updates future context, preserves history, flags only affected work and holds affected scheduled Posts. Resolve explicitly and reapprove changed details. On an explicit request, supported CSV/.xlsx analysis produces a one-off document with deterministic calculations and limitations; it creates no monitoring cadence, dashboard, review reminders or automatic roadmap revision.
 
 ## 5. Functional requirements — Phase 2
 
 ### 5.1 Accounts, workspaces, and navigation
 
-**FR-01.** The owner must be able to create and access a business workspace. Each workspace has one primary Owner with control of its Brain, integrations, approvals, deliverables, and data. The system must isolate one business workspace's information and credentials from every other workspace.
+**FR-01. Accounts and workspace.** The owner can register/login/logout, verify email, reset a local password and access one primary-owner Workspace. Isolate every workspace’s knowledge, credentials, files, Tasks and approvals. FR-50 defines secure Google identity and email-link flows; Google-only accounts have no assumed password.
 
-**FR-02. Navigation and Today view.** The default returning-owner view must show the current goal, next action, blockers, approvals, and review due, with clear access to Director Chat, roadmap, Business Brain, deliverables, campaign/publishing work, and settings. Related tasks, artifacts, sources, and decisions must be reachable in context. The calendar is a list/week view of publishing records. Critical flows must work responsively on mobile. Team invitations, organization hierarchy, shared approvals, and multi-user role management are outside Phase 2.
+**FR-02. Navigation.** Primary areas are Marketing Director, Roadmap, Business Brain, Deliverables, Scheduling and Settings, with a Notification Bell in the top bar. Auth/public pages and initial Onboarding are distinct. First confirmed setup offers Chat or Roadmap; returning login restores the last valid accessible page or Marketing Director and honors authorized deep links. Mobile offers all critical actions. No daily dashboard, team invitations, shared approvals or multi-user administration is included.
 
 ### 5.2 Onboarding and initial business context
 
 **FR-03. Website import.** The owner can submit a business website. BUSMORA must access permitted content, extract useful business and marketing context, including available brand messaging and visual identity cues, and indicate real progress, completion, partial completion, or failure. Page selection must prioritize relevant business content; login/signup and other low-value pages are excluded by default unless relevant. The import must expose meaningful source gaps. An inaccessible or sparse site must promptly offer guided setup and must not block useful work. Extracted text alone cannot establish page speed, visual quality, mobile functionality, or successful form submission.
 
-**FR-04. Imported knowledge.** Website-derived items enter the Brain automatically as usable imported context with source/page where available, import time, extraction or verification status, and an uncertainty indicator when meaningful. Confidence in the extraction process must remain distinguishable from confidence that the underlying website claim is true. The product must not show arbitrary numerical confidence percentages.
+**FR-04. Confirmed intake.** Crawling stores raw observations and structured extraction separately from proposed onboarding field values. Neither is active Brain knowledge. The owner inspects/edits the unified validated draft and confirms its exact version before activation. Persist sources, dates, extraction status and owner decision separately; confirmation is not independent truth verification. No arbitrary confidence percentages or duplicate initial proposal-review queue.
 
-**FR-05. Post-import choice.** The owner can inspect and correct the Brain immediately or start with the Marketing Director, using the imported context. Initial manual review is optional.
+**FR-05. Completion choice.** After successful confirmation offer Chat with Marketing Director and Create My Roadmap. Brain stays directly accessible. Chat does not require a Roadmap or strategic interview.
 
-**FR-06. Guided setup.** With or without a useful website, the owner can provide business name/description, offer, target market/country, known or unknown audience, business model/stage, primary goal, conversion destination, language, and rough weekly capacity in plain language. Use conversational groups and progressive clarification; unknown fields are valid. The owner may ask for audience help. Logo, colors, tone, positioning, price/economics, channels, skills/assets, and budget are collected only as needed. Missing details must not prevent preliminary guidance or the first-value journey. A functioning messaging or marketplace route must be considered before recommending a new website.
+**FR-06. Unified essential business form.** Both active intake paths use the same editable persisted schema: business name, description, one or more products/services, country and relevant market/service area, and conversion/contact route state. Accept website, WhatsApp, telephone, social page, booking, marketplace or supported other route, or explicit “I do not have a contact/conversion route ready yet.” Each offering has name/description, optional category/details, pricing model fixed/starting_from/quote_required/unknown, optional decimal amount, and currency if amount is supplied. Never infer missing prices as zero or require numeric pricing. Optional logo, colors, links, tone, languages, timezone/currency are progressive. No goal, audience/competitor discovery, prior results, baseline, budget, weekly owner hours or detailed strategy gate belongs here.
 
 **FR-07. Social import visibility.** The onboarding interface must display Social Profile Import as clearly unavailable and **Coming Soon** in Phase 2. It must not begin a simulated import or imply access to private profile information. Its actual operation is a Phase 3 requirement.
 
@@ -174,7 +189,7 @@ Review cadence defaults to weekly where useful and adapts to the sales cycle and
 
 **FR-09. Epistemic and lifecycle state.** The system must distinguish source observations, owner-provided claims, AI hypotheses/interpretations, and owner-confirmed decisions/preferences. Source type, verification status, approval, confidence rationale, and current/superseded status are separate dimensions. Conflicts, unknown values, and non-applicability must be explicit. Approving an item for persistent use does not independently verify its truth; neither a citation nor prominence on a website establishes the underlying claim or revenue contribution.
 
-**FR-10. Update rules.** Initial website imports are active with an **imported/unverified** designation. Owner edits take effect as owner-provided information. AI-proposed persistent facts, interpretations, or preferences from conversations, research, deliverables, or analysis enter **Pending Brain Update**; the owner can approve, modify, or reject them. Re-imports and reports must not silently overwrite established information. Material changes create a version and trigger the dependency/staleness behavior in FR-48; conflicting evidence must remain intelligible until resolved or handled under data controls.
+**FR-10. Update rules.** Initial onboarding knowledge activates only after FR-04 confirmation. Later explicit owner edits update current values with owner provenance. AI-proposed durable facts, interpretations and preferences enter Pending Brain Updates for individual approve, edit-and-approve or reject. Reimports and research reveal material conflicts rather than overwrite confirmed decisions. Every material edit creates a historical version and triggers FR-48; saving reports is not knowledge adoption.
 
 **FR-11. Historical work.** Conversations, tasks, decisions, research, campaigns, and deliverables must remain retrievable and reusable as context when relevant. Saving a deliverable does not promote all its statements into approved persistent business knowledge. Personalization should improve through approved knowledge, owner corrections, and relevant prior work; it does not require retraining the underlying model after each interaction.
 
@@ -188,13 +203,13 @@ Review cadence defaults to weekly where useful and adapts to the sales cycle and
 
 **FR-15. Marketing scope.** Recommendations and execution should remain within marketing, customer acquisition, go-to-market, and marketing-driven growth. Broader business facts can inform a recommendation without making BUSMORA a general business manager.
 
-**FR-16. Adaptive roadmap.** The Director must produce an editable, versioned Now/Next/Later roadmap aligned with goals, evidence, dependencies, and owner capacity, using FR-45–46. Default to one to three active tasks, fewer when capacity requires; expose blocked, deferred, and not-applicable work distinctly. Explain why each priority deserves attention now and why alternatives are deferred. Owners can approve, change priority, reject, postpone, or revisit tasks. Record overrides and their consequences; rejection is a planning decision, not a permanent market fact. Strategic revisions require owner review before application; actual task status may update from execution evidence.
+**FR-16. Complete actionable Roadmap.** Generate a personalized full step-based plan from separate Discovery (FR-51), current Brain and evidence. Show all steps in a vertical responsive view with optional plan-specific sections. Order is recommended; only real dependencies block eligible execution. Each proposed initial plan and material strategic revision is reviewed before activation. One active plan, saved drafts and archived history follow FR-54. No planning-column task limits: the independent runtime limit is two running Tasks per Workspace.
 
 Prioritization must first identify critical observed failures and enforce authorization, capability, budget, dependency, and fulfillment constraints. It then favors the best-supported constraint on the goal; if uncertainty could change the decision, a cheap discriminating question or research task may take priority. Rank feasible alternatives by effort and time to useful feedback. Do not use the playbook's multiplicative priority index, aggregate maturity score, or mandatory universal sequence. The correct recommendation may be no new acquisition campaign.
 
-**FR-17. Direct chat.** The owner can ask questions, challenge assumptions, change priorities, or launch a supported task without following the roadmap in order. Roadmap-driven and direct work must share the same Business Brain, decisions, and deliverable history.
+**FR-17. Direct Chat.** Owners can ask, discuss, clarify or launch supported work without any Roadmap. Direct Chat, Wizard question research and existing-step execution have distinct validated origins. All reuse eligible Brain and history; only Wizard-linked research exposes Use in Roadmap (FR-52).
 
-**FR-18. Intelligent clarification.** BUSMORA must reuse available context and ask targeted questions only when missing information materially affects the requested work. If optional research goes beyond the owner's request, it must offer the owner a choice to authorize that research or proceed with transparent assumptions when feasible.
+**FR-18. Choice-first clarification.** Ask only material missing questions; use current Brain facts for three or four meaningful options plus Other / Custom Answer. Radio for single choice, checkboxes for multiple, dropdowns when useful; text/number/link inputs when real values are required. Allow Unknown, Skip and Not Applicable where legitimate. Never fabricate choices. Optional expanded research needs bounded owner authorization; declining preserves a feasible result with explicit limitations.
 
 ### 5.5 Router, orchestration, agents, and Agent Canvas
 
@@ -202,11 +217,11 @@ Prioritization must first identify critical observed failures and enforce author
 
 **FR-20. Dynamic Orchestrator.** The Orchestrator must interpret the objective, load relevant context, plan work, select tools/specialists, execute suitable work directly, adapt as evidence arrives, consolidate results, and report outcomes. Runs retain workspace/task identity, context snapshot, objective, inputs, permitted tools, evidence/output contract, review state, proposed knowledge updates, and iteration/time/usage/concurrency ceilings. Child work inherits the parent allowance. The system must support genuinely context-dependent plans, including selecting, skipping, or repeating authorized steps; no fixed sequence is required for every task. Unrestricted tool invention, recursive spawning, and arbitrary executable workflows are excluded. Authorization, budget checks, validated state transitions, and external execution must be enforced outside model discretion.
 
-**FR-21. Specialist capabilities.** Phase 2 must support research, marketing analysis, campaign planning/copy, publishing, and performance interpretation. The exact agent count, module boundaries, and model assignments remain technical choices; eleven playbook roles do not imply eleven independent agents. The Canvas must reflect whichever agents actually run and distinguish tool/service calls from agent work. Publishing uses a controlled execution service, not discretionary agent authority. Multiple specialists are used when the task justifies them, not to fill a visual sequence.
+**FR-21. Specialist capabilities.** Phase 2 must support research, marketing analysis, campaign planning/copy, publishing, and requested data interpretation. The exact agent count, module boundaries, and model assignments remain technical choices; eleven playbook roles do not imply eleven independent agents. The Canvas must reflect whichever agents actually run and distinguish tool/service calls from agent work. Publishing uses a controlled execution service, not discretionary agent authority. Multiple specialists are used when the task justifies them, not to fill a visual sequence.
 
-**FR-22. Authentic Agent Canvas.** For tasks benefiting from visualization, the Canvas must show actual plan/execution states, agents involved, tool/source activity, useful evidence/findings, handoffs, retries, failures, and owner-input points. A focused task diagram with expandable details and an accessible event list is sufficient; no workflow builder is required. Events and progress must correspond to recorded execution. Use percentages only when total work is known; otherwise show actual steps/activity. Action summaries must not expose secrets, sensitive raw prompts, or private model reasoning.
+**FR-22. Authentic conversation-local Canvas.** Conversation → related Tasks → Canvas for selected Task. Default to the latest relevant active Task; multi-Task selection stays in that conversation’s cards/history, never a workspace-wide selector. Show only recorded agent/tool/service/workflow nodes, connections, evidence and safe details, plus an accessible chronological list. Planned/Active/Awaiting Input/Held/Completed/Error/Cancelled are real presentation states. No private reasoning, secrets or invented percentages. Answer in Chat opens the exact pending form.
 
-**FR-23. Recoverable work.** Longer tasks must have durable identities and retrievable status after navigation or ordinary interruptions. Partial results, failures, retries, and next recovery steps must be visible. Owners must be able to stop further internal work; cancellation cannot claim to undo an already completed tool action. Publishing cancellation follows FR-35–36. Execution and event-delivery mechanisms remain technical choices.
+**FR-23. Durable work and retry presentation.** Tasks survive navigation, browser closure and ordinary worker interruption. Recoverable internal failures stay Running / Processing while authorized recovery remains; omit attempt counters and transient failure incidents from normal Canvas. Retain diagnostics internally. Exhausted recovery yields truthful terminal failure or partial completion and available actions. Operation-specific retry policies apply; uncertain publication never follows generic retries. Cancellation stops future cancellable work without undoing accepted external effects.
 
 ### 5.6 Research Agent and evidence-backed intelligence
 
@@ -224,7 +239,7 @@ All delegated work and retries share the parent budget. Independent controls mus
 
 ### 5.7 Campaigns, content, and brand voice
 
-**FR-29. Flexible output size.** BUSMORA must respond to the requested scope. A single-post request must not force a campaign. Campaign packages may contain objective, audience, strategy/hypothesis, messages, channels, duration/schedule, channel-specific copy, CTA, relevant hashtags, visual briefs/owner media, approval state, and metric/review context. Link packages to their task and goal. Offer/page-copy briefs, interview guides, response drafts, and other owner-ready text use the same artifact/editor/export path, not separate applications. A planned channel does not imply a publishing integration.
+**FR-29. Flexible output size.** BUSMORA must respond to the requested scope. A single-post request must not force a campaign. Campaign packages may contain objective, audience, strategy/hypothesis, messages, channels, duration/schedule, channel-specific copy, CTA, relevant hashtags, visual briefs/owner media, approval state, and success context where relevant. Link packages to their task and goal. Offer/page-copy briefs, interview guides, response drafts, and other owner-ready text use the same artifact/editor/export path, not separate applications. A planned channel does not imply a publishing integration.
 
 **FR-30. Brand understanding and claim integrity.** Accessible website content is the primary committed import source for tone, messaging, positioning, and communication patterns; guided owner context also supports no-website businesses. Distinguish observed wording from inferred traits. A compact profile includes audience, tone, vocabulary to use/avoid, offer facts, prohibited/unsupported claims, and useful owner examples. Content supplied in chat can inform the task; persistent AI interpretations follow FR-10. A separate historical-content import system is not required.
 
@@ -246,37 +261,37 @@ Material claims such as quantified results, testimonials/customer logos, offer a
 
 **FR-37. Other external actions.** Sending outreach, spending money, modifying a live website, and any other externally consequential operation require separate explicit owner approval if a future capability enables them. These action classes are not implicitly authorized by approving research, a roadmap, or a campaign draft. Paid ad management and live website modification are not Phase 2 execution commitments.
 
-### 5.9 Performance analysis and continuous improvement
+### 5.9 Explicitly requested one-off analysis
 
-**FR-38. Performance-file import.** Phase 2 must accept CSV and Excel (.xlsx) campaign-performance data using documented templates and recognized-field mapping. Before analysis, show a mapping/validation preview establishing metric definitions, date range, granularity, units/currency, and identifiers. Flag repeated imports, overlapping totals, malformed values, incompatible currencies/definitions, and ambiguous identifiers; do not silently combine them. Preserve observations with source, import date, and measurement period. Explain unsupported files/layouts and offer the template or manual capture (FR-47). Supported metrics must be computed deterministically from supplied values, without inventing measurements or executing spreadsheet macros/formulas.
+**FR-38. Requested file analysis.** An explicit Chat request may attach CSV or supported Excel (.xlsx) using documented templates and recognized-field mapping. Preview metric definitions, period, granularity, units/currency and identifiers before confirmation. Flag duplicate/overlapping/incompatible/ambiguous data; unknown is not zero. Parse without executing macros/formulas; deterministic code computes supported metrics. Unsupported layouts offer a template or corrected owner input. The result is a one-off analytical Deliverable, with no recurring product workflow.
 
 **FR-39. Goal-based interpretation.** The Director must compare available observations with the task/campaign goal, its baseline status, and period, then identify patterns, limitations, and recommendations. Keep business outcomes, funnel conversions, and channel/operating signals distinct. Supported measures may include reach, impressions, engagement, clicks, inquiries/leads, qualified inquiries, bookings/customers, costs, and financial ratios only when inputs and attribution support them. Rates require defined denominators; zero denominators and unknown inputs must not produce fabricated results. ROAS requires attributed revenue and ad spend; ROI requires a stated profit/cost basis. Application code calculates; the model explains. Engagement, completed tasks, and publication do not establish sales, profit, or causation. No forecast, LTV model, cohort engine, or causal-attribution platform is committed.
 
-**FR-40. Controlled learning.** Store sourced observations as historical data. A review presents observations first, interpretations second, and a proposed decision third, including inconclusive findings and attribution/sample limitations. AI interpretations proposed for persistent Brain use enter Pending Brain Update. Strategic roadmap revisions require owner review. Both decisions may share a review screen but remain separate, and neither authorizes publication/spend. Preserve diagnosis, decisions, expected versus actual observations, and caveats for future work. Task status can update from actual events without approval for every internal transition.
+**FR-40. Evidence governance.** Requested analysis preserves sourced observations and limitations separately from interpretations. Durable AI interpretations enter Pending Brain Updates. A roadmap change requires separate owner direction and explicit revision approval; analysis completion cannot start monitoring, schedule recurring reviews, or change strategy automatically.
 
 ### 5.10 Deliverables and history
 
-**FR-41. Persistent outputs.** Research, strategies, plans, copy/briefs, calendars, and review diagnoses must be saved with originating task/goal, version, creation time, relevant context version, and sources/assumptions. The owner can find, inspect, reuse, export, delete, and reopen the related next action. Use text/Markdown for narrative outputs, CSV for structured records, and applicable original-media downloads; a designed PDF/Word export suite is not required. Task/approval/history relationships must survive ordinary navigation and retrieval.
+**FR-41. Document Deliverables.** Save research reports, analyses, strategies, positioning, campaign planning, briefs, visual/content strategy and other non-Post documents with stable identity and immutable historical versions, task/conversation/step/campaign refs, dates, context, sources, assumptions and limitations. Search/type/date filters and cursor pagination support the library. Edit, Copy, Export, Reuse, Continue with Director and governed Delete preserve lineage. Text/Markdown, suitable CSV and original-media exports remain supported; no Phase 2 PDF/Word design suite. Social Posts live only in Publishing/Scheduling (FR-57).
 
-**FR-42. Context reuse.** The Director must retrieve relevant approved Brain information, active imported/owner-provided context with their status labels, and prior work without treating historical deliverables as current authority. Deleted records and rejected updates must not re-enter active context through retrieval. Expose time-sensitive dates, limitations, supersession, and dependencies under FR-48. A proposed preference does not become an adopted preference merely because it appears in an old conversation.
+**FR-42. Context reuse.** The Director must retrieve relevant approved Brain information, current owner-confirmed intake/owner-provided context with their status labels, and prior work without treating historical deliverables as current authority. Deleted records and rejected updates must not re-enter active context through retrieval. Expose time-sensitive dates, limitations, supersession, and dependencies under FR-48. A proposed preference does not become an adopted preference merely because it appears in an old conversation.
 
 ### 5.11 Application language and accessibility of information
 
-**FR-43. Full localization and responsive access.** Phase 2 must localize Today/navigation, onboarding, Brain graph/details, Director Chat, Canvas/events, roadmap/tasks, campaigns/calendar, approvals, import/manual outcome/review flows, data controls, settings, and empty/loading/error states in Arabic and English. Support Arabic RTL, English LTR, mixed scripts, keyboard operation, readable labels/errors, and responsive mobile critical flows. The owner must be able to review content, choose destination/time, approve, correct context, and record results without a desktop-only dependency. Accessible lists supplement the graph and Canvas.
+**FR-43. Full localization and responsive access.** Localize auth, onboarding, Director/Canvas, Wizard/Roadmap/steps, Brain Graph/List/proposals, documents, Scheduling/editor/calendar/Batch Review, Settings, notifications, scoped analysis and all loading/empty/error states in Arabic and English. Preserve keyboard access, RTL/LTR/mixed scripts, mobile actions and accessible graph/event lists. Brain List is the preferred mobile default.
 
 **FR-44. Independent language choices.** Application interface language, conversation language, and marketing-content language must be separately selectable or inferable from the owner's request and context. A user may use an English interface, converse in Egyptian Arabic, and create Gulf-oriented campaign content.
 
 Country, currency, and IANA timezone must be stored explicitly rather than inferred from language. Dates, numbers, currencies, names, and links must remain understandable in mixed-script views. Scheduling must use timezone rules, including seasonal clock changes, rather than a permanent offset for Cairo or another market.
 
-### 5.12 Outcome, task, review, and context contracts
+### 5.12 Goal, step and context contracts
 
-**FR-45. Outcome and capacity contract.** The system must retain one owner-selected primary goal and review horizon, a relevant conversion path, and available owner capacity. Baselines and targets must be separate, with observed, owner-reported, estimated, unknown, and not-applicable states as appropriate. A target is a desired outcome, not a forecast. Metric definitions retain source, period, and unit. Active work must fit time, skills/assets, budget, and fulfillment constraints or explicitly expose the conflict. Business budget, AI resource allowance, and authority to spend externally are distinct; none implies another.
+**FR-45. Goal and practical constraints.** Roadmap Discovery records owner-selected objective, conversion route and material constraints: assets, permissions, fulfillment/customer-service capacity, relevant skills or business budget. Do not restore a standard weekly-owner-hours question. Reuse eligible known facts. Relevant success measures and optional baseline/targets retain observed/owner_reported/estimated/unknown/not_applicable distinctions, source, period and unit; targets are not forecasts. Business budget, AI resource allowance and external spending authority remain independent.
 
-**FR-46. Executable roadmap tasks.** Every active task must state its rationale/evidence, responsible party, execution mode, inputs, deliverable, dependencies, effort, completion condition, and review need. It must retain applicable resource limits, task authorization, artifact review state, and a separate external-approval reference. Metric/baseline status, review date, observations, caveats, and proposed decisions are attached when relevant; not-applicable fields need not burden a single-item request. Use progressive disclosure instead of a long mandatory form.
+**FR-46. Executable steps.** Each stable Roadmap step includes title/objective, rationale/evidence/uncertainty, responsible party, execution mode, required inputs, dependencies, expected output, completion condition, estimated effort, task/output refs, work status, owner attestation and external-approval requirements. Work state, platform action state and owner completion are independent. Generated documents do not prove implementation, Post approval does not prove publication, and publication does not prove commercial impact.
 
-Maintain independent work, external-action, and learning states. A completed draft is not completed owner implementation; an owner attestation is not independent verification; a published post is not measured commercial success. An experiment adds hypothesis, baseline status, observation window, comparison basis where available, primary outcome, guardrail, and decision rule before interpretation. It does not require a separate experimentation platform or authorize automatic scaling.
+Step execution follows FR-53. No mandatory learning state or periodic review date belongs to the step model. Suggested owner checks can appear in task instructions without creating recurring jobs or approval authority.
 
-**FR-47. Outcome capture and recurring review.** Alongside CSV/Excel import, owners must be able to enter relevant aggregate inquiries, qualified inquiries, bookings/customers, spend, and qualitative observations with reporting owner, source, period, and currency where applicable. Unknown fields are optional and never default to zero; customer-level contact storage is not required. The Director must produce a concise review and proposed next decision, including inconclusive results, and surface reviews due in the Today view. Cadence follows the business's sales cycle. Strategic roadmap and persistent Brain changes retain separate review under FR-40.
+**FR-47. Retired in v2.0.** The v1.1 aggregate-outcome capture and recurring performance-review requirement is removed, with no replacement under this identifier. Requested analysis retains FR-38–40 safety; Post Batch Review and Brain/revision approvals remain independent features.
 
 **FR-48. Context impact and freshness.** Version decision-critical context and retain dependencies for active tasks/artifacts. Changes to offer, price, audience, service area, or claim support must flag affected work for review; hold conflicting scheduled posts pending owner resolution. Do not silently rewrite approved content, regenerate everything, spend new research resources, trigger external actions, or overwrite historical evidence. If approved publishing details change, FR-34 requires fresh approval; even if they do not change, record the owner's resolution before clearing a context hold. Unrelated work must remain usable. Conflicting/superseded records stay intelligible subject to data controls.
 
@@ -284,9 +299,29 @@ Maintain independent work, external-action, and learning states. A completed dra
 
 ### 5.13 Curated task recipes
 
-Use a small set of reusable configurations of FR-46, initially about ten to twelve recipes: goal/baseline setup; audience/alternative research; claim-proof review; offer/message clarification; destination/CTA review; inquiry qualification; inquiry-response drafting; one-channel campaign preparation; approved Facebook publishing; outcome review; and an appropriate existing-customer follow-up/referral draft. A recipe is selected only when relevant and supported; it is not a mandatory checklist or separate module. Verify any claimed external measurement or use an owner QA checklist with honest limits.
+Use approximately ten to twelve relevant recipes: goal discovery; audience/alternative research; claim-proof inspection; offer/message drafting; destination/CTA observations; inquiry qualification; response drafts; campaign preparation; governed Facebook publishing; requested file analysis; existing-customer/referral drafts. These are configurations, not mandatory steps or new product modules. Verify external measurements or provide an honestly limited owner checklist.
 
-## 6. Phase 3 and Phase 4+ requirements
+### 5.14 Additional redesign requirements
+
+**FR-50. Authentication.** Email/password registration collects no business details and sends a secure single-use expiring verification link with resend and expiry handling. Preserve reset, logout, session rotation/revocation. Google signup/login uses authorization code OIDC with state, PKCE S256 and nonce; validate issuer, audience, signature, expiry, subject and verified email. Provider identity is issuer + subject, not an email string. Never silently merge matching emails; require sign-in and recent reauthentication of the existing account plus a separate explicit linking intent. Cancellation/failure creates no partial authenticated account. Use the existing session architecture; provider tokens do not become browser session tokens.
+
+**FR-51. Roadmap Discovery.** Persist draft, adaptive question identities/order, answers and status (unanswered/answered/skipped/unknown/not_applicable/researching/confirmed) with provenance and versions. Goal selection drives questions. Reuse currently eligible Brain context and accepted previous decisions, asking again only for a material gap/conflict/staleness. Save and resume across browser closure. An indispensable answer has an explanation; otherwise a preliminary plan exposes uncertainty. Draft editing and generation are separate from initial activation.
+
+**FR-52. Exact-question research.** Save the draft before opening Director. Backend validates Workspace, draft, question, conversation, Task, result and return destination. Research stays within task authority. Only valid active linkage enables Use in Roadmap; owner selects/edits a source-aware result, returns to the exact question, then confirms. Persist accepted decisions/context with provenance for future reuse. Query parameters alone are never linkage or authority; skipped/unknown cannot become positive facts.
+
+**FR-53. Step control.** Run with Director is idempotent, creates linked Task/conversation/output refs, checks dependencies/authority and queues truthfully at two running Tasks. Mark as Done records owner-reported checklist/evidence, never verification. Skip records intent/time and impact; Revisit recomputes readiness. Skipped is not Completed or Cancelled. Skipping running work leaves its Task active and offers a distinct Cancel action. Block dependents whose actual prerequisite is unmet; suggest alternatives/revision, never silently waive a dependency. Progress separates completed, owner-reported, skipped, blocked and inapplicable counts; no inference of achieved business objective.
+
+**FR-54. Plan lifecycle and revision.** Support saved drafts, proposed initial plans, one active plan, versioned proposed revisions and archived historical plans. Initial/revision approval binds displayed proposal and active base version. Activation atomically archives the previous active version/plan under a workspace lock. Rejection keeps active plan intact. Revisions show added/modified/removed-or-superseded steps, dependency changes, rationale, evidence and constraints. In-flight Tasks/results retain original step/version references; no silent restart, cancellation or publishing approval.
+
+**FR-55. Scheduling.** Single home for every Post, with desktop Month default, Week/List alternatives and Unscheduled. Month remains available on mobile. Calendar shows proposed/unapproved times distinctly from authorized scheduled sends, plus held/failed and historical published Posts at their actual dates. New Post accepts draft text/link or validated owner image, optional target/date; connect a Page only when needed. Editor/detail supports versioned edit, schedule/reschedule, timezone, preview and approvals. Drag reschedule has an accessible form alternative and requires fresh approval. Bulk decisions enumerate exact displayed versions and report partial failures. Duplicate published content creates a new Draft; history is never rewritten or falsely removed from Facebook.
+
+**FR-56. Settings and notifications.** Account shows providers and verification; password controls only when applicable. Region stores country, currency and IANA zone independently. Connection status is connected/reconnect_needed/disconnected with consequences explained before disconnect; reconnect never auto-releases overdue sends. In-app notifications include unread/read controls and exact subject links for completion, terminal failure, clarification, document/research ready, Post approval/publication/hold/uncertainty, reconnection, Brain proposal and revision approval. No transient retry notification. Unavailable subjects show an honest unavailable state; read state grants no approval.
+
+**FR-57. Output ownership.** Publishing owns Posts/Post Versions, Campaign grouping, approval, schedule, attempts and outcomes. Deliverables owns non-Post documents and applicable upload/export storage. Task result assembly creates either/both through their public contracts; a Post never requires a document origin. Chat retains eight baseline kinds and adds typed `post_reference` for a Scheduling link, never a disguised Deliverable. Origin refs distinguish direct conversation, Wizard research, roadmap execution and manual creation.
+
+**FR-58. Removed surface exclusion.** No active Today Dashboard, Outcomes & Reviews, replacement daily dashboard, recurring marketing-performance review or Now/Next/Later roadmap model is shipped. Remove exclusive routes, APIs, view models, jobs, notifications and acceptance obligations. Retain legitimate Post Batch Review `ReviewSession` records, knowledge/revision review and requested analysis. Historical records follow safe compatibility/deletion policy, not destructive undocumented migration.
+
+## 6. Future-phase requirements
 
 Later phases retain their own acceptance standards and receive no assumed delivery capacity before the binding Phase 2 release is secure. Order additional integrations by observed owner friction; a read-only measurement source may be more valuable than another publisher. Do not enable a feature merely because its interface is present.
 
@@ -298,7 +333,7 @@ Later phases retain their own acceptance standards and receive no assumed delive
 
 **P3-02.** Instagram Business and X can each be connected, approved, scheduled, published, verified, monitored, and disconnected independently. Each must meet the same approval, version binding, authorization, idempotency, failure visibility, and release-quality principles as Facebook Pages before being labelled available.
 
-**P3-03.** Where the owner authorizes it and the platform makes metrics available, BUSMORA can retrieve connected-platform performance data and use it in the same goal-based analysis and controlled-learning process as manual imports. Direct analytics access is distinct from publishing authorization.
+**P3-03.** Where the owner authorizes it and the platform makes metrics available, BUSMORA can retrieve connected-platform performance data and support a separately designed future performance-analysis experience. Direct analytics access is distinct from publishing authorization. It does not feed an active recurring-review subsystem in Phase 2.
 
 ### 6.3 Phase 4+ — Creation and commercial expansion
 
@@ -306,18 +341,23 @@ Later phases retain their own acceptance standards and receive no assumed delive
 
 **P4-02.** A later commercial phase may add subscriptions, payment collection, plan-based usage quotas, and billing administration. No payment provider, pricing structure, or mandatory paid pilot is selected by this PRD. Phase 2 still requires internal usage controls and cost monitoring.
 
+### 6.4 Phase 5 — Meta Ads Management
+
+**P5-01. Planned, not implemented.** The owner connects an eligible Meta Business/Ad Account, inspects permissions/constraints, prepares strategy and creatives, configures supported campaigns/targeting, reviews setup, explicitly authorizes budgets/spending, launches through verified APIs, inspects supported metrics and discusses controlled optimization with Director. Routine supported management is intended inside BUSMORA. Account eligibility, production API access/permissions, formats and measurement must be independently verified; none is guaranteed. Meta Pixel / Conversions API or another permitted measurement integration may be needed for conversion metrics. Never invent attribution. Campaign creation approval does not grant unbounded future spend; material changes need appropriate new authorization. This is separate from Phase 2 organic Page publishing and adds no current routes, tools or credentials.
+
 ## 7. Approval and knowledge-control matrix
 
 | Activity | Phase 2 rule |
 |---|---|
 | Internal steps necessary for an explicit owner request | Proceed within task authorization and resource limits; clarify only essential gaps |
 | Optional new research or a substantial workflow outside the request | Present the choice and wait for owner authorization |
-| Initial website import | Store and use immediately as imported, source-labelled context; owner can inspect and correct |
+| Initial website/manual intake | Persist an editable draft; confirm the displayed version before Brain activation; preserve source labels |
 | Owner edits to business information | Apply as owner-provided information; version material changes and flag dependencies, without treating the edit as verification or publication approval |
 | AI-proposed persistent fact, interpretation, or preference | Hold as Pending Brain Update until owner approves or edits and approves |
-| Saving a historical deliverable or performance observation | Save with source and date; do not automatically promote its interpretations to trusted Brain knowledge |
+| Saving a historical document or requested analysis | Save with source and date; do not automatically promote its interpretations to trusted Brain knowledge |
 | Actual task/execution status | Update from recorded events or explicitly labeled owner reports; do not require approval for every internal transition or equate completion with growth |
-| Proposed strategy/roadmap revision | Show the change, rationale, dependencies, and impact on capacity; apply after owner review |
+| Initial Roadmap activation | Review the exact proposed plan and source context before explicit approval; atomically preserve one active plan |
+| Proposed strategy/roadmap revision | Show the versioned diff, rationale, dependencies and practical impact; apply only after explicit approval |
 | Artifact acceptance | Accept a draft for its task; do not infer approval to publish, spend, send, or change persistent knowledge |
 | Research-budget increase | Obtain explicit owner approval before any increase; no automatic extensions |
 | Publish or schedule external content | Obtain exact-version approval for text, media, destination, time/timezone, and disclosed delivery allowance; check current authority immediately before dispatch |
@@ -332,7 +372,7 @@ Task authorization, artifact acceptance, knowledge approval, roadmap approval, a
 
 ## 8. Quality, security, and operational requirements
 
-**NFR-01. Truthful state.** Brain graph, Canvas, tasks, calendar, and review information must derive from stored knowledge and actual events. Planned, running, awaiting input/review, completed, failed, held, cancelled, and uncertain states require corresponding evidence. Drafted, owner-implemented, published, and commercially effective are distinct. Do not simulate agents, tool calls, sources, progress percentages, metrics, or customer results.
+**NFR-01. Truthful state.** Brain graph, Canvas, tasks, calendar, and approval information must derive from stored knowledge and actual events. Planned, running, awaiting input/review, completed, failed, held, cancelled, and uncertain states require corresponding evidence. Drafted, owner-implemented, published, and commercially effective are distinct. Do not simulate agents, tool calls, sources, progress percentages, metrics, or customer results.
 
 **NFR-02. Source integrity.** Retain enough source identity, date, and supporting context to inspect consequential claims. Source validity and actual claim support must be evaluated separately. Inaccessibility, staleness, contradiction, uncertain independence, and limited geographic coverage must be visible. Cache reuse must preserve freshness labels. Generated claims and owner approvals must never be substituted for independent evidence.
 
@@ -342,7 +382,7 @@ Task authorization, artifact acceptance, knowledge approval, roadmap approval, a
 
 **NFR-05. Durable execution and recovery.** Research, imports, tasks, and scheduled publishing must remain traceable through ordinary navigation and worker interruptions. Preserve approvals and attempt/outcome history; test retries, concurrent workers, cancellation races, revocation, uncertain provider responses, and overdue work. Do not blindly replay external operations after recovery or backup restore. Recovery must revalidate authority and reconcile uncertain outcomes. Backup/restore and deployment/rollback procedures must be exercised before release.
 
-**NFR-06. Resource accountability.** Monitor actual model/tool/search/integration usage per task and workspace, including failed calls, retries, and child work. Enforce limits and concurrency reservations independently of agents; record budget approvals. Declare task-specific latency, timeout, usage, and concurrency ceilings at a stated release load, then measure them (§10). Internal resource authorization is distinct from customer charging. Cost per useful cycle must include repeated work and relevant service costs, not only successful model calls.
+**NFR-06. Resource accountability.** Monitor actual model/tool/search/integration usage per task and workspace, including failed calls, retries, and child work. Enforce limits and concurrency reservations independently of agents; record budget approvals. Declare task-specific latency, timeout, usage, and concurrency ceilings at a stated release load, then measure them (§10). Internal resource authorization is distinct from customer charging. Cost per useful task must include repeated work and relevant service costs, not only successful model calls.
 
 **NFR-07. Accessible bilingual operation.** Critical mobile and keyboard journeys, RTL/LTR/mixed-script layouts, forms/errors, graph/list interactions, Canvas/events, dates, currencies, and approvals must be understandable in the selected language. Verify country/timezone handling, seasonal clock changes, independent language settings, and all four content registers. The owner must be able to identify precisely what will happen, where, and when. English or Egyptian Arabic success does not establish Gulf-oriented quality.
 
@@ -356,36 +396,65 @@ The following are mandatory product-level release checks. Detailed fixtures and 
 
 | ID | Scenario | Observable pass condition |
 |---|---|---|
-| AC-01 | Website onboarding | An owner imports an accessible site; usable business and brand context appears in the Brain with sources and status; the owner can enter the Director without mandatory field review |
-| AC-02 | No-website onboarding | Minimal guided context, including unknown audience/baseline, leads to a concise next action and useful artifact without forcing complete economics or a website |
+| AC-01 | Website onboarding | Crawl prefills a validated editable draft; no Brain eligibility before exact-version owner confirmation; sources and partial fields survive. |
+| AC-02 | Manual onboarding | The same form accepts essential fields only, supports a not-ready conversion route and leads to Chat/Roadmap choice without strategy questions. |
 | AC-03 | Brain governance | The owner explores and edits the graph, distinguishes imported from confirmed or inferred items, and approves, edits, rejects, exports, or deletes applicable information |
-| AC-04 | Diagnosis and roadmap | BUSMORA explains its evidence-linked constraint hypothesis, material alternatives, key missing evidence, why-now priority, capacity/dependencies, and next action; tasks have completion/review criteria; revisions require review |
+| AC-04 | Diagnosis and Roadmap | Separate Discovery produces a complete actionable proposed plan; evidence, uncertainty, real dependencies and completion conditions are visible; activation/revision require approval. |
 | AC-05 | Direct work | The owner launches a supported task from chat without completing preceding roadmap tasks; the task reuses relevant Brain context and history |
 | AC-06 | Dynamic orchestration | Simple input avoids fabricated specialist work; complex tasks vary planning/delegation with context inside shared tool/iteration/time/concurrency limits; ordinary UI actions do not require AI routing |
-| AC-07 | Agent Canvas | The owner sees genuine task events, sources, handoffs, failures, and input requests and can inspect useful details; displayed progress matches recorded execution |
+| AC-07 | Authentic Canvas | Only the selected conversation’s actual Task nodes/events appear, with safe detail/list and exact form links; no fictional progress or history. |
 | AC-08 | Multi-source research | Research dynamically examines distinct relevant supported source types, verifies claim support, distinguishes duplicated sources, exposes gaps/contradictions, and links implications to an actionable next task; access/stopping limits produce honest partial results |
 | AC-09 | Research budget | Parent, child, concurrent and retried work stay within the authorized allowance; attempted increases pause for owner approval; refusal preserves a bounded result without tool/task budget evasion |
 | AC-10 | Campaign creation | The owner can request either a single item or an editable text-first campaign, with brand-aware copy, channel details, visual briefs, and owner media when needed |
 | AC-11 | Language experience | The complete application works in Arabic RTL and English LTR; separate interface, conversation, and content-language choices work across the agreed registers |
 | AC-12 | Facebook publishing | An authorized Page accepts each committed format after exact individual/batch approval; a scheduled job publishes for real, retains platform evidence, and handles retries without duplicate publication; unsupported/missing media is rejected before approval |
 | AC-13 | Approval invalidation | Editing approved content, media, destination, time/timezone, or delivery allowance prevents dispatch under the old approval until the new details are approved |
-| AC-14 | Performance learning | Both a valid CSV and a valid Excel file pass mapping/validation and deterministic calculation against a goal; observations and interpretations remain distinct; unusable layouts produce a useful template/manual fallback; roadmap and Brain changes require separate review |
+| AC-14 | Requested file analysis | Explicit Chat tasks accept valid CSV and .xlsx through mapping/validation and deterministic math; result is a one-off document, with no recurring jobs or automatic revision. |
 | AC-15 | History and control | Deliverables and task history are retrievable and reusable; the owner can export or delete them and disconnect a linked account |
 | AC-16 | Honest availability | Social Profile Import is visibly disabled and labelled Coming Soon; Instagram Business, X, connected analytics, native image generation, and billing are not represented as operational until implemented |
 | AC-17 | Operational readiness | Security, isolation, integration, failure and recovery, observability, and end-to-end checks pass against the implemented workflows |
 | AC-18 | New service business with unknown audience/baseline | Unknown/not-applicable remains explicit; propose useful evidence or offer work without invented audience proportions, CAC, or growth forecasts |
 | AC-19 | Many inquiries, few qualified conversations | Investigate qualification, offer, response process, and alternative explanations before automatically recommending more posting or spend |
-| AC-20 | Two owner hours per week and no test budget | Active work fits the capacity or exposes the conflict; no unsupported multi-channel plan or paid execution; acquisition is not pushed when fulfillment is already full |
+| AC-20 | Material practical constraints | Discovery respects relevant assets, permissions, budget and fulfillment; no standard weekly-hours onboarding question or unsupported paid execution. |
 | AC-21 | No website but working messaging/marketplace route | The actual route informs the plan; no unnecessary site requirement or simulated social import |
-| AC-22 | Direct request for one Arabic post | Produce a scoped, brand-aware draft without a mandatory campaign or unapproved research; unsupported claims are omitted, qualified, or queried |
+| AC-22 | One scoped Arabic Post | Direct Chat creates a Publishing Post visible in Scheduling without forced research/campaign or a duplicate Deliverable. |
 | AC-23 | Offer/price changes after approval | Affected work becomes stale and conflicting scheduled posts are held; owner resolution is recorded; edits/rescheduling require fresh approval; unrelated work remains usable |
 | AC-24 | Best task needs an unsupported connector | Supply usable owner instructions/artifacts and a completion checklist; distinguish attested implementation from system-verified execution |
 | AC-25 | Unknown outcomes, zero denominator, duplicated or incompatible data | Unknown never becomes zero; invalid ratios are withheld; repeated/overlapping totals, currencies and metric definitions are flagged before combining; provenance/period remain inspectable |
-| AC-26 | Two work/review cycles with an inconclusive result | Today view surfaces next work/review; observations, hypotheses and decisions remain distinct; cadence fits the sales cycle; owner-reviewed revisions or further evidence follow without a false causal winner |
+| AC-26 | Retired | Removed v1.1 recurring work/review-cycle acceptance; identifier reserved, not a release test. |
 | AC-27 | Contradictory or malicious public source | Conflict remains visible; source instructions cannot authorize tools, override knowledge, raise budgets, leak private data, or redirect retrieval to internal resources |
 | AC-28 | Timeout, revocation, cancellation race, or overdue publish | Reconcile or hold uncertain outcomes; no blind duplicate, unauthorized late dispatch, or silent send after reconnection; cancellation state and platform acceptance remain honest |
 | AC-29 | Mobile mixed-script review and approval | Text/media, destination, date/time/timezone, status and controls are legible and usable in Arabic RTL and English LTR; keyboard/detail alternatives and independent language settings work |
 | AC-30 | Intended ordinary owner connects and publishes | The production configuration supports the owner's actual access path and genuine publication; developer-role account success alone cannot satisfy the gate |
+
+| AC-31 | Email verification link | Email/password-only signup sends a single-use expiring link; invalid/expired/replayed tokens fail, resend works, verification continues to Onboarding. |
+| AC-32 | Google identity | Signup/login validate state/PKCE/nonce/claims; cancellation is safe, matching email never silently links, explicit reauthenticated link succeeds without takeover. |
+| AC-33 | Optional offering pricing | Multiple offerings accept fixed, starting-from, quote-required and unknown models; optional amounts require currency and missing values never become zero. |
+| AC-34 | Completion and return routing | After confirmation Chat and Create My Roadmap are available; later login restores an authorized last page/deep link or Director. |
+| AC-35 | Choice-first forms | Current Brain personalizes meaningful choices plus Other; legitimate unknown/skip/not-applicable and real numeric/text fields work. |
+| AC-36 | Wizard persistence | Close/reopen after edits and adaptive branching: saved draft/questions/statuses restore; conflicts do not overwrite another edit. |
+| AC-37 | Question research and return | Save → linked conversation/task → selected evidence-aware result → exact question → confirmation survives switching/reconnect; forged/cross-tenant origins fail. |
+| AC-38 | Knowledge reuse | Later Discovery reuses confirmed current answers/provenance; stale/conflicting facts are flagged and skipped/unknown answers never become positive knowledge. |
+| AC-39 | Execute step | Eligible step launch checks authority/dependencies and creates one Task under double click/retry; reopening does not relaunch. |
+| AC-40 | Skip and Revisit | Record intent/time, preserve non-completion, explain blocked dependents and alternate paths; Revisit recalculates readiness without cancelling running work. |
+| AC-41 | Task capacity across conversations | Two running Tasks in different conversations continue; third remains truthfully requested/waiting, with atomic admission on release. |
+| AC-42 | Conversation Canvas switching | Switching conversation changes selected Canvas; late old-stream events cannot contaminate it; conversation-local history selects other related Tasks. |
+| AC-43 | Recoverable retry UX | Authorized transient retries remain Processing with no failure flash/attempt counter/notification; internal diagnostics retain causes. |
+| AC-44 | Terminal failure | After operation-specific recovery is exhausted, show truthful failed or partial result and supported recovery; never conceal it as Processing. |
+| AC-45 | Strategic revision | Diff includes added/modified/removed-or-superseded/dependency changes; stale approval fails, reject preserves active plan, accepted revision is atomic. |
+| AC-46 | One active Roadmap | Concurrent activations cannot create two active plans; drafts survive, archived versions and original execution references remain inspectable. |
+| AC-47 | Document lineage | Research saves a non-Post Deliverable; owner/Chat edits create a new immutable version of the same artifact with sources/context and staleness labels. |
+| AC-48 | Manual New Post | Create/edit a draft in Scheduling without a connected Page; subsequent publishing requires connection and exact-version approval. |
+| AC-49 | Unscheduled | Null publishing date appears only in Unscheduled; no invented calendar date or release workflow dispatch. |
+| AC-50 | Calendar views | Month/Week/List and range/filter pagination agree; proposed dates are visibly unapproved; mobile and keyboard alternatives work across DST. |
+| AC-51 | Bulk approval | Only enumerated displayed versions are decided; stale/missing/ineligible items report per-item failure and retry cannot approve a newer unseen version. |
+| AC-52 | Rescheduling | Drag/form change of an approved Post creates a new version and invalidates approval; timezone default change never moves an approved instant. |
+| AC-53 | Historical publication | Confirmed Posts appear at actual publishedAt, not an obsolete proposed date; duplicate creates a new Draft and local deletion claims no platform removal. |
+| AC-54 | Connection recovery | Disconnect blocks sends and advances authorization generation; reconnect does not release overdue/uncertain work without fresh checks/approval as required. |
+| AC-55 | Contextual notifications | Read/unread/count and mark-all-read work; exact form/Post/document/revision/proposal/settings links validate access and deleted subjects show unavailable. |
+| AC-56 | Removed route absence | Active router/OpenAPI/module/job inventories contain no Today or Outcomes/recurring-review resources, including renamed substitutes. |
+| AC-57 | Step model absence checks | Active schemas/components/DTOs/events contain no Now/Next/Later or horizon properties, board controls or planning-column limits. |
+| AC-58 | Deferred Meta Ads | Phase 5 vision is consistent across documents/UI; no current Ads connector/tool/spend permission is advertised or executable. |
 
 Evaluation must also include an established business with healthy acquisition but weak repeat demand, and low-volume/long-cycle cases. Different evidence must change priorities appropriately without implying a full e-commerce lifecycle or statistical-testing platform.
 
@@ -405,7 +474,7 @@ The following gates adopt plan.md's proposals as the revision's evaluation basel
 
 | Area | Gate or target | Required interpretation/evidence |
 |---|---|---|
-| Required behavior | All AC-01–30 pass under declared conditions, with detailed tests covering applicable FRs/NFRs | Native publishing, graph, Canvas, research, imports, and data controls use their real implementations |
+| Required behavior | All active AC-01–25 and AC-27–58 pass under declared conditions, with detailed tests covering applicable FRs/NFRs | Native publishing, graph, Canvas, research, imports, and data controls use their real implementations |
 | Truthfulness/control | Zero critical violations in the release suite: invented evidence/results, unauthorized action, budget bypass, cross-workspace disclosure, or fake execution | Any observed violation blocks release until repaired and retested; passing a finite suite is not proof of zero future risk |
 | Decision/content usefulness | At least 80% of held-out cases pass the prewritten human rubric without major strategic/factual correction, overall and within each content register | Report counts, denominators, case coverage, reviewer basis, and small-sample uncertainty; do not hide failed language coverage in an aggregate |
 | Grounding | All audited consequential factual claims have inspectable support or explicit owner-claim/hypothesis designation; no fabricated citation | Check source existence and actual support, not citation count |
@@ -419,11 +488,7 @@ Gulf-oriented content needs appropriate regional review; a missing assessment is
 
 ### 10.3 Product measures and baseline comparison
 
-Define activation as the owner accepting a useful next task and its initial artifact after seeing the direction and limitations. Track setup → first direction → accepted task → accepted artifact → recorded completion/attestation → observations or explicit no-data state → owner-reviewed next decision. Keep this usage funnel separate from customer business outcomes.
-
-A **completed review cycle** contains an accepted task, recorded completion state, observations or explicit absence of data, and an owner-reviewed next decision. Report subsequent-cycle completion by activated-owner cohort, denominator, and review window; exclude team/test activity. Do not label this retention measure marketing ROI.
-
-Measure major edits, rejected recommendations/reasons, context-entry effort, clarification burden, failed imports, uncertain publications, and actual cost per accepted artifact/completed cycle. Compare equivalent tasks with the owner's current process, such as general AI chat, spreadsheets, and native publishing, using comparable business facts/evidence. Repeat sessions to assess context reuse and correction. These studies measure usefulness and effort; small samples do not establish regional market demand or causal revenue lift.
+Track confirmed setup → chosen Chat or Roadmap → requested Task → accepted useful output → recorded execution or owner attestation. Measure return use, correction effort, clarification burden, failed intake, uncertain publication and actual cost per accepted artifact/Task. There is no required review-cycle funnel or periodic performance dashboard. Compare equivalent work with owners’ existing tools using the same facts/evidence, and assess reuse after corrections. Report denominators, assistance and active interaction time separately from background latency. Small samples and repeated use do not establish revenue causality, regional demand or willingness to pay.
 
 ## 11. Dependencies, risks, and technical investigations
 
@@ -436,7 +501,7 @@ Assign actual team members to these workstream roles at kickoff. Deadlines are p
 | Launch cohort / product and evaluation lead | Weeks 1–2: reachable service niches, conversion paths, owner capacity, Facebook relevance, and separate GCC evaluation needs | Narrow the first-use promise without claiming validated demand or reducing language commitments |
 | Facebook / integration lead | Start week 1; by week 2 document selected app configuration, required access, verification/review path, supported formats, and blockers; publish a real test as early as access permits | Submit for production access at the earliest eligible point; no promised approval duration; developer-only evidence cannot pass AC-30 |
 | Research / AI lead with evaluation partner | By week 2: evaluated baseline for source access, regional relevance, grounding, stopping, provider cost/latency, and budget control | Preserve dynamic multi-source research inside supported access; do not promise private-source workarounds; finalize bounded tool/provider choices from evidence |
-| Shared data and state / platform lead | Weeks 1–2: entity/evidence/task/metric/approval/version contracts and transition rules; integrate through weeks 3–4 | Graph, Canvas, chat, publishing, and review share records; no competing sources of truth or silent knowledge writes |
+| Shared data and state / platform lead | Weeks 1–2: entity/evidence/task/metric/approval/version contracts and transition rules; integrate through weeks 3–4 | Graph, Canvas, chat, Roadmap and publishing share records; no competing sources of truth or silent knowledge writes |
 | Execution / platform and integration leads | Weeks 1–4: durable jobs/events, budget reservations, action preflight, retry/reconciliation, cancellation and context-hold design | Model decisions cannot override controls; ambiguous outcomes remain held rather than blindly repeated |
 | Evaluation / evaluation lead | By week 2: rubrics, held-out coverage, severity definitions, sampling, load and numeric runtime limits; extend evidence with each slice | Do not invent success rates or lower gates to mask failures; arrange relevant native reviewers early |
 | Data governance / platform lead | Initial design by week 4: retention, deletion/derived records, backup expiry/restore, export, logs, and token lifecycle | Test owner controls before release; retain only justified audit data and explain actual retention |
@@ -449,7 +514,7 @@ Risk signals requiring corrective work include generic content-first plans acros
 
 The default approach is one modular application with a shared system of record, file storage, and durable background execution, using established managed components where suitable. A relational store with explicit relationships can support the graph; a dedicated graph database, microservice fleet, custom agent framework, or streaming platform is not required. Provider/framework/database selections remain technical decisions.
 
-Keep clear logical boundaries for context/evidence, tasks/artifacts/versions, proposals/decisions, approvals/integrations/attempts, calculations/reviews, and execution events/usage. Graph and Canvas render those records. A small set of research/analysis/drafting specialists may be selected dynamically; deterministic services own permissions, calculations, scheduling, imports, and side effects. Start with a small evaluated model/tool path and add complexity only for demonstrated quality/cost/latency benefit.
+Keep clear logical boundaries for context/evidence, tasks/artifacts/versions, proposals/decisions, approvals/integrations/attempts, deterministic requested analysis, and execution events/usage. Graph and Canvas render those records. A small set of research/analysis/drafting specialists may be selected dynamically; deterministic services own permissions, calculations, scheduling, imports, and side effects. Start with a small evaluated model/tool path and add complexity only for demonstrated quality/cost/latency benefit.
 
 Supporting engineering designs must record concrete schemas, state transitions, source/format limits, deletion behavior, and failure tests. This section does not add public APIs, user-programmable workflows, or a separate research product.
 
@@ -459,7 +524,7 @@ Supporting engineering designs must record concrete schemas, state transitions, 
 
 | Excluded work | Phase 2 alternative / disposition |
 |---|---|
-| Operational Social Profile Import; Instagram Business/X publishing; connected analytics | Remain Phase 3; use guided context, owner examples, export, and manual/file observations |
+| Operational Social Profile Import; Instagram Business/X publishing; connected analytics | Remain Phase 3; use guided context, owner examples, export, and explicitly supplied evidence in Chat |
 | Native AI image generation and subscription/billing infrastructure | Remain Phase 4+; use owner media, internal quotas, task allowances, and real cost monitoring |
 | Full CRM, contact database, lead enrichment, cold-outreach sequencer | Aggregate results, qualification definitions, and owner-sent drafts |
 | WhatsApp/DM/social inbox reading, sending, or automation | Owner-supplied conversion destination and response/follow-up drafts; no implied connector |
@@ -477,9 +542,9 @@ Recommending work does not grant permission or create a connector for it. Owner 
 
 ### 12.2 Commercial learning during development
 
-Evaluate whether owners need direction more than additional content volume; whether the chosen service cohort shares a useful workflow; where qualified demand actually originates; whether manual observations are tolerable; whether Arabic flows improve comprehension; whether corrected context improves later work; and whether repeated value earns willingness to pay. Use real owner sessions when available, initially assisted and later without explanation, and compare with current workflows.
+Evaluate whether owners need direction more than additional content volume; whether the chosen service cohort shares a useful workflow; where qualified demand actually originates; whether Discovery and task interactions are useful; whether Arabic flows improve comprehension; whether corrected context improves later work; and whether repeated value earns willingness to pay. Use real owner sessions when available, initially assisted and later without explanation, and compare with current workflows.
 
-These are commercial hypotheses, not asserted facts or paid-pilot graduation prerequisites. Small samples can expose usability problems but cannot establish regional demand, retention, or causal growth. Choose packaging only after observing useful repeat behavior and service costs, including failed/repeated calls, infrastructure, and support. Weak repeat use should trigger examination of recommendations, feasibility, and measurement friction before adding channels or notifications.
+These are commercial hypotheses, not asserted facts or paid-pilot graduation prerequisites. Small samples can expose usability problems but cannot establish regional demand, retention, or causal growth. Choose packaging only after observing useful repeat behavior and service costs, including failed/repeated calls, infrastructure, and support. Weak repeat use should trigger examination of recommendations, feasibility, and task friction before adding channels or notifications.
 
 ## 13. Delivery and scope control
 
@@ -487,7 +552,7 @@ These are commercial hypotheses, not asserted facts or paid-pilot graduation pre
 
 Five people over 24 weeks provide 120 person-weeks of calendar allocation, not necessarily full-time engineering. The initial scenario is **20 productive hours per person per week**, or 2,400 hours; actual availability must be checked. At 15 hours the total is 1,800; at 25 it is 3,000. These are planning calculations, not verified estimates of implementation effort.
 
-Reserve the final six weeks, approximately 600 hours in the 20-hour scenario, for integration failures, language/usability repair, security/recovery testing, and stabilization. The first 18 weeks have a 1,800-hour allocation including ongoing tests and supporting design work. No Phase 3/4 work is funded by this envelope.
+Reserve the final six weeks, approximately 600 hours in the 20-hour scenario, for integration failures, language/usability repair, security/recovery testing, and stabilization. The first 18 weeks have a 1,800-hour allocation including ongoing tests and supporting design work. No Phase 3/4/5 work is funded by this envelope.
 
 | Shared workstream | Initial allocation | Accountable role |
 |---|---:|---|
@@ -495,7 +560,7 @@ Reserve the final six weeks, approximately 600 hours in the 20-hour scenario, fo
 | Director, research, recipes, grounding, resource controls | 400 hours | AI lead with evaluation partner |
 | Bilingual responsive UX, tasks, graph, Canvas | 380 hours | UX lead |
 | Facebook access, scheduling, publishing and recovery | 260 hours | Integration lead |
-| Imports, metrics, manual results, review | 220 hours | Evaluation/data lead |
+| Confirmed intake, Discovery and requested analysis | 220 hours | Evaluation/data lead |
 | Cross-system integration, tests, deployment, runbooks | 220 hours | Shared; rotating integration owner |
 | **First 18 weeks** | **1,800 hours** | Shared allocation, not solo-person estimates |
 | **Final six weeks** | **600 hours** | Stabilization/contingency, not new features |
@@ -510,9 +575,9 @@ Weeks below are relative to the project's development schedule, not dates implie
 |---|---|---|
 | **1–2** | Confirm cohort/capacity; freeze supporting contracts and evaluation; source/cost research spike; Facebook access investigation; bilingual base components | One supported owner scenario, declared quality/resource gates, access path or named blocker, and measured provider costs/latency |
 | **3–4** | Usable Phase 1 foundation: isolation, guided/URL intake, provenance, task/artifact persistence, first Director response, early real publishing spike | Real input produces saved context and useful draft; actual events only; development publishing evidence labeled at the access level exercised |
-| **5–8** | First Phase 2 slice: diagnosis/Now–Next–Later, direct chat, claim review, bounded graph/Canvas, exact approval, publishing worker | Owner corrects context, chooses a task, inspects work, reviews a draft and executes an approved supported test post; production-access submission starts as soon as eligible |
+| **5–8** | First Phase 2 slice: confirmed intake/Discovery/step Roadmap, direct chat, claim review, bounded graph/Canvas, exact approval, publishing worker | Owner corrects context, chooses a task, inspects work, reviews a draft and executes an approved supported test post; production-access submission starts as soon as eligible |
 | **9–12** | Research quality/stopping, dynamic specialists, campaign/calendar review, owner handoffs, initial recipes, cost/error visibility | Research informs an actionable decision; budget/source failures return honest partial results; shared context works across views; early usability findings addressed |
-| **13–16** | CSV/Excel mapping, deterministic metrics, manual outcomes/reviews, context staleness, deletion/export, publishing edge cases | Two cycles with actual entered/imported observations; controlled revisions; no fabricated result or automatic stale-content publication |
+| **13–16** | CSV/Excel mapping for requested analysis, deterministic metrics, Wizard research return, step execution/revisions, context staleness, deletion/export, publishing edge cases | Persisted Discovery, direct work and requested analysis; controlled revisions; no fabricated result or automatic stale-content publication |
 | **17–18** | Complete committed language/control paths; full acceptance suite; intended-owner access validation; feature freeze | Requirement ledger records implemented behavior and every unresolved failure; no feature inferred complete from UI alone |
 | **19–22** | Reliability/fault injection, isolation/security, native review, mobile accessibility, cost/load checks, backup restore | Critical/high defects resolved; acceptance evidence and operator recovery paths complete |
 | **23–24** | Release rehearsal, deployment/rollback, final relevant regressions, user/operator documentation and graduation evidence | Release only after binding gates pass; unmet production access or native capability remains a blocker |
@@ -527,33 +592,27 @@ If the estimate exceeds capacity: stop later-phase/cosmetic work; simplify withi
 
 ## 14. Requirement-to-acceptance crosswalk
 
-This is the product-level starting map for the release ledger, not a report of tests already run. Detailed tests must cover each individual requirement and its failure paths; an AC association alone does not prove coverage.
+This maps design commitments, not executed tests. Every release ledger entry needs an implementation reference, accountable person, fixture/load conditions, evidence and status. Retired FR-47/AC-26 cannot become active obligations. System Architecture Appendix A provides the five-document implementation map and the 40 approved redesign checks.
 
 | Requirements | Principal acceptance scenarios |
 |---|---|
-| FR-01–02 | AC-15, AC-17, AC-26, AC-29 |
-| FR-03–07 | AC-01–02, AC-16, AC-18, AC-21, AC-27 |
-| FR-08–13 | AC-03, AC-15, AC-23, AC-27 |
-| FR-14–16 | AC-04, AC-18–21, AC-24, AC-26 |
-| FR-17–18 | AC-05, AC-22 |
-| FR-19–23 | AC-06–07, AC-09, AC-17 |
-| FR-24–28 | AC-08–09, AC-18, AC-27 |
+| FR-01–02, FR-50 | AC-17, AC-29, AC-31–32, AC-34 |
+| FR-03–07 | AC-01–02, AC-16, AC-21, AC-27, AC-33–34 |
+| FR-08–13, FR-42, FR-48 | AC-03, AC-15, AC-23, AC-27, AC-38 |
+| FR-14–16, FR-45–46, FR-51–54 | AC-04, AC-18–21, AC-24, AC-36–40, AC-45–46, AC-57 |
+| FR-17–18 | AC-05, AC-22, AC-35, AC-37 |
+| FR-19–23 | AC-06–07, AC-09, AC-17, AC-41–44 |
+| FR-24–28 | AC-08–09, AC-18, AC-27, AC-37 |
 | FR-29–32 | AC-10–11, AC-22, AC-24 |
-| FR-33–36 | AC-12–13, AC-23, AC-28–30 |
-| FR-37 | AC-16, AC-20, AC-24, AC-27 |
-| FR-38–40 | AC-14, AC-25–26 |
-| FR-41–42 | AC-05, AC-15, AC-23, AC-26 |
-| FR-43–44 | AC-11, AC-29 |
-| FR-45 | AC-04, AC-18–21, AC-25 |
-| FR-46 | AC-04, AC-20, AC-24, AC-26 |
-| FR-47 | AC-25–26 |
-| FR-48 | AC-03, AC-15, AC-23 |
-| FR-49 | AC-16, AC-24 |
-| NFR-01–02 | AC-03, AC-07–08, AC-16, AC-23, AC-26–27 |
-| NFR-03–06 | AC-09, AC-12–13, AC-17, AC-25, AC-27–28 |
-| NFR-07 | AC-11, AC-29 |
-| NFR-08–09 | AC-15, AC-17, AC-23, AC-28 |
-| P3-01–03, P4-01–02 | AC-16 checks honest Phase 2 availability only; later-phase operation requires its own real end-to-end evidence under §6 |
-
-
-
+| FR-33–37, FR-55 | AC-12–13, AC-23, AC-28–30, AC-48–54 |
+| FR-38–40 | AC-14, AC-25, AC-27 |
+| FR-41, FR-57 | AC-15, AC-22, AC-47–49 |
+| FR-43–44 | AC-11, AC-29, AC-50 |
+| FR-49 | AC-16, AC-24, AC-58 |
+| FR-56 | AC-15, AC-34, AC-54–55 |
+| FR-58 | AC-56–57 |
+| NFR-01–02 | AC-03, AC-07–08, AC-16, AC-23, AC-27, AC-42–44 |
+| NFR-03–06 | AC-09, AC-12–13, AC-17, AC-25, AC-27–28, AC-31–32, AC-37, AC-41, AC-51–54 |
+| NFR-07 | AC-11, AC-29, AC-35, AC-50 |
+| NFR-08–09 | AC-15, AC-17, AC-23, AC-28, AC-43–44 |
+| P3-01–03, P4-01–02, P5-01 | AC-16, AC-58 verify honest current availability; future operation needs separate real evidence |

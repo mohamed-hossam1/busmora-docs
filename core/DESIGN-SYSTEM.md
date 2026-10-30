@@ -1,6 +1,6 @@
 # BusMora — Design System
 
-> **Version:** 1.1 · **Status:** PRD-aligned design; implementation verification pending · **Date:** 2026-10-28
+> **Version:** 2.0 · **Status:** PRD-aligned design; implementation verification pending · **Date:** 2026-10-30
 > **Applies to:** `busmora-frontend` (Next.js 14+ App Router, TypeScript, Tailwind CSS, shadcn/ui owned in `shared/ui`, React Flow).
 > **Builds on:** [FRONTEND-TECHNICAL-DESIGN.md](./FRONTEND-TECHNICAL-DESIGN.md) (structure, RTL rules, `next/font`, graphs in LTR containers), [SYSTEM-ARCHITECTURE.md](./SYSTEM-ARCHITECTURE.md) §5.3 (screens), [prd.md](./prd.md) §5 (screen requirements), [domain/GLOSSARY.md](../domain/GLOSSARY.md) (names and statuses).
 > **Resolves:** FTD gap **FG-8** (Arabic + Latin font choice) and the design part of **FG-11** (accessibility target and supported browsers).
@@ -8,7 +8,7 @@
 > - **talentsarena.net**: colour palette, typography, shape, layout rhythm, buttons, gradient-stroke cards, dark "stage" sections.
 > - **firecrawl.dev**: motion vocabulary (orbiting rings, counter-rotation, live ping, shimmer, typing cursor, reveals).
 >
-> **Product authority:** [PRD v1.1](./prd.md), 28 October 2026. SYS Appendix A records requirement coverage and §9.5 flags older-source conflicts. The visual system below is preserved; documented screens and demonstrations are not evidence of implemented capability.
+> **Product authority:** [PRD v2.0](./prd.md), 30 October 2026. SYS Appendix A records requirement coverage and §9.5 flags older-source conflicts. The visual system below is preserved; documented screens and demonstrations are not evidence of implemented capability.
 >
 > Where a reference value failed WCAG 2.2 AA, it was adjusted. Every adjustment is listed in §15.
 
@@ -530,7 +530,7 @@ Every status has a **colour family + icon + translated label**. Names follow [do
 ### 9.3 Knowledge Item, Connected Account, Crawl
 | Entity | Value → family / icon |
 |---|---|
-| Knowledge Item | Active imported/unverified → sky / `Globe`; owner-provided → sky / `UserCheck`; owner-approved persistence → mint / `CircleCheck`; pending AI proposal → orange / `Sparkles`; rejected → danger / `CircleX`; retired/superseded → mist / `Archive`; deletion_pending/deleted → mist with explicit deletion label. Separate epistemic labels: source observation / owner claim / AI hypothesis / owner decision. Verification and approval are independent (FR-09–10). |
+| Knowledge Item | Owner-confirmed imported/unverified → sky / `Globe`; owner-provided → sky / `UserCheck`; owner-approved persistence → mint / `CircleCheck`; pending AI proposal → orange / `Sparkles`; rejected → danger / `CircleX`; retired/superseded → mist / `Archive`; deletion_pending/deleted → mist with explicit deletion label. Separate epistemic labels: source observation / owner claim / AI hypothesis / owner decision. Verification and approval are independent (FR-09–10). |
 | Connected Account | connected → mint / `Link` · reconnect_needed → orange / `RefreshCw` (+ "Reconnect" action) · disconnected → mist / `Unlink` |
 | Crawl outcome | complete → mint · partial → orange · failed → danger · in progress → mint with **M2** + **M7** |
 
@@ -552,22 +552,40 @@ Colours meet 3:1 against white as graphics. Chips use the family's 100 backgroun
 Families repeat, so the **icon and label are mandatory** on every node and chip.
 
 ### 9.5 Pending AI proposal review sections (FR-10; layout is a design choice)
-Company Info · Products & Services · Brand & Messaging · Audience & Market · Contact & Locations · Policies & FAQ · Other. Shown as a section list with counts (the mapping from categories to sections is OD-18).
+Keep seven groups. The API returns `reviewGroup` using category plus typed subtype, not model-selected labels:
 
-### 9.6 Roadmap task status & horizons
-| Horizon / Status | Family | Icon (lucide) | Meaning / Rule |
-|---|---|---|---|
-| **Now** | mint | `Flame` | Current operational focus; default one to three active tasks, fewer or none when owner capacity/dependencies require |
-| **Next** | sky | `ArrowRight` (mirrored in RTL) | Queued immediately after Now; dependencies staged |
-| **Later** | mist | `Clock` | Strategic backlog; deferred or exploratory items |
-| planned | sky | `Circle` | Task defined and scheduled on the board |
-| in_progress | mint | `Loader` (M1-fast) | Actively executing (native or owner handoff) |
-| completed | mint | `CircleCheck` | Work completion condition met; label draft completion, owner attestation or platform evidence separately; no impact claim |
-| blocked | danger | `AlertOctagon` | Blocked by missing input or prerequisite |
-| deferred | orange | `History` | Temporarily pushed back due to capacity constraints |
-| rejected | danger | `CircleX` | Owner planning decision, not a permanent business fact |
-| cancelled | mist | `Ban` | Work stopped; completed external actions are not undone |
-| not_applicable | mist | `Archive` | Explicitly inapplicable work, distinct from rejection, cancellation, supersession and owner deletion |
+| Group | Mapping |
+|---|---|
+| Company Info | `company_profile`; general identity `company_fact` |
+| Products & Services | `offering` |
+| Brand & Messaging | `brand_rule`, `positioning`; style/language procedural proposals |
+| Audience & Market | `audience`, `competitor` |
+| Contact & Locations | `channel`; contact/location/route subtypes of `company_profile` or `company_fact` |
+| Policies & FAQ | policy/FAQ subtypes of `company_fact` |
+| Other | `strategic_goal`; other supported company facts/procedural proposals |
+
+Typed subtype overrides the general category mapping. These presentation groups do not alter the nine categories. Initial onboarding values do not appear in this later AI-proposal queue.
+
+### 9.6 Roadmap step and Discovery states
+
+| Step state | Family / icon | Meaning |
+|---|---|---|
+| planned | sky / Circle | Defined, not yet ready |
+| ready | mint / Play | Backend says prerequisites permit launch |
+| running | mint / Loader | Actual Task executing |
+| awaiting_input | orange / MessageCircleQuestionMark | Open exact clarification |
+| awaiting_approval | orange / Clock | A specific decision is needed; no inferred publishing consent |
+| completed | mint / CircleCheck | Declared work completion condition met |
+| blocked | orange / Lock | Real dependency or capability/input blocker, with reason |
+| failed | danger / TriangleAlert | Terminal work failure |
+| cancelled | mist / Ban | Further cancellable work stopped |
+| skipped | mist / SkipForward | Owner skipped; excluded from completion count |
+| not_applicable | mist / Archive | Explicit applicability decision |
+| superseded | mist / History | Historical plan step |
+
+**Owner-reported Done** is a separate attestation badge (`ownerAttestation.status=reported_done`); show it instead of implying verified completion. External action state is separately not_required/awaiting_owner/submitted/verified/uncertain/failed/held/cancelled. A completed document and a verified platform action have different evidence.
+
+Discovery answer status is unanswered/answered/skipped/unknown/not_applicable/researching/confirmed. Draft/proposed/active/archived describes the plan lifecycle, not question or work state. Show honest counts rather than fabricated progress; completed and owner-reported counts remain distinct from skipped or inapplicable steps.
 
 ### 9.7 Diagnostic lenses and plain-language labels
 The five diagnostic lenses are adapted from the Growth Roadmap Playbook’s course interpretation (PRD §1.2), not validated scores, original worksheets or an endorsement. Keep this attribution in design documentation. UI questions use plain language; do not force STAR terminology, a fixed sequence or a numeric business-health score.
@@ -595,6 +613,7 @@ Breakpoint names follow §4.2. "Stage" means the dark graphite style.
 | md – lg | Sidebar collapses to a **72px icon rail** (tooltips on labels, active bar kept); content gains the space |
 | < md | Dark top bar 56px (menu button, logo, notification bell); the sidebar becomes a full-height **drawer** from the inline-start over a `graphite-500/60` overlay; a skip link is the first focusable element |
 
+- Primary navigation, in order: Marketing Director, Roadmap, Business Brain, Deliverables, Scheduling, Settings. The top bar contains Notification Bell. Returning users reopen the last valid accessible page or Marketing Director; onboarding completion offers Chat or Roadmap. Preserve authorized deep links.
 - Viewport units use `dvh`.
 - Safe-area insets (`env(safe-area-inset-*)`) apply to fixed bars on iOS.
 
@@ -605,44 +624,56 @@ Breakpoint names follow §4.2. "Stage" means the dark graphite style.
 - **< lg:** a single column; the stage panel becomes a 160px stage header.
 - Inputs are 48px; the primary CTA is full width; password visibility toggle; errors inline (§8.2).
 
-### 10.3 Onboarding
-- Begin with **Website Import** or **Guided Setup**; a separate disabled **Social Profile Import — Coming Soon (Phase 3)** card explains availability and cannot start a simulated import.
-- Guided setup uses conversational groups for name/description, offer, market/country, stage/model, goal, actual inquiry/conversion destination, languages and rough weekly capacity. Audience/baseline/economics may be unknown; optional brand, budget and assets are clarified progressively. A working messaging/marketplace route never forces a website.
-- Website crawl card retains the stroke-card styling and decorative scan, labelled as decoration rather than page evidence. Display actual pages/steps, source gaps and complete/partial/failed states; show a total or ETA only when supported. Sparse/inaccessible sites promptly offer guided setup. Continue to the Director remains available; imported/unverified context is usable as it arrives (FR-03–04).
-- On completion show two explicit actions: **Explore Your Business Brain** and **Meet Your Marketing Director** (FR-05). Imported items are not pending AI proposals and do not inflate the review-required badge. Brain inspection is optional; no Website → Zone → mandatory Review gate.
-- Director’s direction card shows goal, likely limiting factor, evidence/uncertainty and one next action. Owner selection leads to an editable artifact, responsible party and review date. The ten-minute active-interaction objective is an evaluation target, not an achieved marketing claim (AC-01–02).
-- Country, currency and IANA timezone are explicit settings, collected progressively and confirmed when needed for scheduling. Mobile uses a single column and sticky actions; all fields, corrections and route choices are keyboard accessible.
+- Registration fields: email and password only; business information follows after verification. Show **Sign Up with Google** and **Login with Google** alongside the local flow.
+- Verification is an email **link** journey: sent, validating, verified, expired/invalid and resend states; no primary OTP-code screen. Avoid exposing whether an unrelated account exists.
+- Google callback shows a brief validating state then resumes onboarding or the valid destination. Cancellation/failure offers retry/local login. A matching-email conflict asks the owner to sign in to the existing account and explicitly link after recent authentication; never show an automatic merge. No tokens in URLs or UI.
+- Settings identifies Google-only accounts and omits inappropriate local-password change fields. Login/link and connected-Facebook OAuth are separate actions.
 
-### 10.4 Today view (default returning view, FR-02)
-- **Purpose:** Daily executive command center greeting returning owners, aligning operational tasks with strategic diagnosis.
-- **Top banner:** Current owner goal/review horizon, primary constraint hypothesis, evidence/uncertainty and a concise next action, with a plain-language lens label (§9.7) and roadmap link.
-- **Layout (≥ lg):** 3-column responsive dashboard:
-  1. **Decisions & Attention Needed (inline-start):** pending Post approvals with Scheduled Time countdowns, pending AI Brain proposals, owner blockers, unanswered clarifications and **reviews due**, with a Record outcomes / Review action.
-  2. **Active Focus / Now Horizon (center):** Feasible Now tasks (default 1–3 or fewer) currently in the "Now" column of the Roadmap with execution mode pills and progress indicators.
-  3. **Today's Publishing & Delivery (inline-end):** scheduled Facebook posts for today in the Business Time Zone with publishing status pings.
-- **Responsive (< lg):** Prioritized vertical stack: Decisions Needed → Active Now Tasks → Today's Schedule.
+### 10.3 Onboarding — one essential business form
 
-### 10.5 Roadmap (Now/Next/Later adaptive board, FR-46)
-- **Header:**
-  - Board title and active roadmap version pill (e.g. `v1.2 Active`).
-  - **Capacity Gauge:** shows estimated work versus actual owner time, skills/assets, budget and fulfillment constraints. Display task count as context, not as the definition of capacity; unavailable constraints stay unknown.
-  - Hypothesis summary with evidence/source dates, alternatives, disconfirming evidence and what could change the recommendation; no mandatory scoring system.
-  - "Propose Strategic Revision" button + "Revision Pending Approval" amber notification pill when an outcome-driven revision is waiting.
-- **Board structure (3 columns):**
-  - Logical RTL ordering: inline-start = **Now** (mint-700 header accent), center = **Next** (sky-700 header accent), inline-end = **Later** (mist-400 header accent).
-  - Column headers include task counts, horizon description, and Now includes current capacity/conflict status.
-- **Roadmap Task Card (`radius-card`, stroke card):**
-  - **Header:** Plain-language lens chip (§9.7) + execution mode: Analysis/draft, Connected Facebook execution, Owner execution, Blocked, or Later phase. Capability is distinct from task status.
-  - **Body:** Title (14px bold, max 2 lines), Rationale/evidence summary (12px graphite-400), Deliverable type icon + input prerequisite icons.
-  - **Footer:** Effort estimate pill (`Low`, `Medium`, `High`), Review cadence badge (`Weekly`, `Bi-weekly`), Dependencies count.
-  - **Task actions:** Launch supported task, accept artifact, record owner implementation/checklist, reprioritize/reject/postpone/revisit or shift horizon as appropriate. Display separate work/action/learning states; attestation says Owner-reported, never Verified execution.
-  - **Capacity guard:** Moving work into Now checks backend capacity/dependencies. A conflict dialog explains time/budget/fulfillment impact and lets the owner revise the plan; default 1–3 is not a minimum. All drag actions have equivalent buttons/forms.
-  - **Not Applicable tasks:** Muted surface with readable text and an explicit status badge; separate filters for not-applicable, rejected, cancelled and superseded work. Owner data controls still apply.
-- **Strategic Revision Diff Modal:**
-  - Triggered by outcome evaluation (CSV/.xlsx or manual observations) when strategic reprioritization is proposed.
-  - Visual diff: Added tasks (mint tint card), Shifted tasks (sky tint card with horizon change indicator `Next → Now`), Dropped tasks (mist tint card marked `not_applicable`).
-  - Displays Director’s observations, interpretation limits (including inconclusive results), rationale and capacity/dependency impact; persistent Brain proposals have separate decisions.
-  - Actions: "Approve Revision" (primary mint) -> atomic cutover to new version; "Reject Revision" (secondary) -> retains current roadmap.
+Three distinct entry cards: **Import from Website**, **Manual Setup**, and disabled **Import from Social Media — Coming Soon — Phase 3**. The disabled card has explanatory text and cannot start an import.
+
+`BusinessInformationForm` is shared by both active paths. Website URL → actual crawl/extraction progress → prefilled editable draft; Manual Setup → empty editable draft. Both continue through validation → explicit **Confirm business information** → Brain activation. Show draft save/saving/error states; leaving and returning resumes the server draft. Crawl completion never means confirmed business knowledge. Initial confirmation is not another Pending Brain Updates screen.
+
+| Form group | Required interaction |
+|---|---|
+| Business name | Plain text |
+| Description | Short editable explanation of the business |
+| Products/services | Repeatable offering rows, at least one; name/description, optional category/details |
+| Country and market/service area | Country selection plus relevant geographic scope; no UI-language inference |
+| Contact/conversion route | Choose website, WhatsApp, telephone, social page, booking, marketplace, supported other; valid route value or explicit “I do not have a contact/conversion route ready yet” |
+
+Offering pricing uses Fixed / Starting from / Quote required / Unknown or not set. Numeric value is optional; if supplied, require currency. Never prefill missing prices with zero. Optional brand links/logo/colors/tone/language and region defaults use expandable groups. No audience, goal, competitor, past-results, baseline, budget, weekly-hours or strategy interview.
+
+Prefilled fields expose source/page and extraction status on demand; edit controls are identical to manual fields. Confirmation adopts the displayed values without claiming independent verification. Material edits after confirmation use Brain governance.
+
+Successful, partial, sparse, inaccessible, timed-out and unsupported-page crawls show actual evidence/gaps, preserve useful fields and immediately offer manual completion. Decorative scan is labelled decoration; text extraction does not prove speed, form functionality, mobile usability or visual quality. Announce save/error status politely; focus the first invalid group.
+
+Completion shows two prominent actions in separate regions: **Chat with Marketing Director** and **Create My Roadmap**, plus a Business Brain link. Mobile is a single column with non-obscuring sticky actions; no forced strategy route.
+
+### 10.4 Roadmap Discovery Wizard
+
+Empty state explains a tailored plan and offers Create My Roadmap, with Director available. Saved drafts show Resume; active plans show Create new draft and History without implying multiple active plans.
+
+`RoadmapDiscoveryScreen` shows the draft name/save state, accessible question navigation and one focused question card. First significant choice: Get first customer / Get more customers / Improve inquiry conversion / Launch an offering / Grow existing-customer revenue / Other. Subsequent questions adapt to the objective and eligible Brain facts. Show reused context with source/version and Change; do not ask basic business setup again.
+
+Default card uses 3–4 meaningful radio/checkbox choices plus Other / Custom Answer; number/link/text fields remain appropriate for real values. Unknown, Skip, Not Applicable and Research with Director appear only where legitimate. Explain indispensable questions; otherwise allow a preliminary plan with explicit uncertainty. There is no fixed questionnaire length or invented completion percentage.
+
+Research with Director saves first, discloses bounded scope/allowance and opens a linked conversation. The linked header identifies the original question. Only this origin shows **Use in Roadmap** on eligible results. Owner selects/edits evidence-aware findings, returns to the exact question and confirms. Stale question/draft conflicts require refreshing; deleted/unavailable origins disable return with an explanation. Resume works after closing the browser or switching conversations. Generate produces a proposed plan for owner inspection before activation.
+
+### 10.5 Roadmap — complete vertical steps
+
+Header shows goal, active version, evidence/uncertainty and **Discuss or Revise Roadmap**; saved drafts and archived plans are accessible. Render the full step list, optionally in plan-specific sections, with readable anchors. Sequence numbers express recommendation, not a universal locked order.
+
+Each `RoadmapStepCard` shows title/objective, rationale, responsible party, execution mode, effort estimate, status and real dependency blockers. Expanded `RoadmapStepDetails` shows sources/uncertainty, required inputs, output/completion condition, tasks/documents/Posts and separate work/platform/attestation status. Desktop uses a side panel; mobile a full-screen accessible view.
+
+- **Run with Director** launches eligible supported work, then opens its stable conversation and Task Canvas. Disable duplicate submit; Waiting for capacity is truthful and never animated as active. Reopening links to existing work.
+- Owner-executed work shows instructions/checklist, optional evidence and **Mark as Done**, labelled Owner-reported.
+- **Skip** explains dependent-step impact and records intent. Running work remains running unless the owner separately cancels it. **Revisit** recomputes eligibility. Not Applicable, Cancel, Delete and Skip are separate labelled actions.
+- Progress shows counts by actual state; skipped is never completed and finished steps do not imply achieved commercial goals.
+- `RoadmapRevisionComparison` shows added, modified, removed/superseded steps and changed dependencies, evidence/rationale and constraints. Explicit Approve displayed revision / Reject controls wait for server confirmation. Version conflicts refetch for inspection; rejection leaves the active plan untouched. Activation preserves historical and in-flight references.
+
+No fixed planning columns or drag-between-section scheduling. At every width use one coherent step sequence and keyboard-accessible actions; dependency links scroll/focus the actual referenced step.
 
 ### 10.6 Marketing Director (chat + Canvas)
 | Range | Layout (with the app sidebar from §10.1) |
@@ -659,12 +690,14 @@ Width check: the chat column never drops below **560px** when the Canvas is dock
 - **User bubble:** graphite-500 fill, white text, `radius-card`, the corner at the inline-end bottom is 6px. Max width 80% (90% < sm).
 - **Assistant bubble:** white, 1px mist-400, graphite-500 text, the inline-start bottom corner is 6px.
 - **Task status line:** centred chip (mist-200, 14px) with an icon. The **running** item uses M1-fast + M3; finished items get a mint check. Wrapped in `aria-live="polite"`.
-- **Structured form** (FR-18): a standard card with a title, fields per §8.2, optional Research this under §8.2 and Submit (primary). Unknown answers are valid when nonessential; optional research requires a scoped choice, never an automatic blanket search. One column always.
-- **Deliverable card:** stroke card with a type icon tile, title, type chip and time; actions "View" (secondary) and "Send to Batch Review" (primary, content types only). Actions stack < sm.
-- **Knowledge notification:** tint card for pending **AI proposals**, separate from usable imported context.
+- **Structured form** (FR-18): a standard card with 3–4 meaningful personalized options plus Other / Custom Answer by default; radio/checkbox/dropdown or necessary text/number/link fields, and legitimate Unknown/Skip/Not Applicable. Ask only material questions. Optional research requires bounded authorization. One column always.
+- **Deliverable card:** stroke card with a type icon tile, title, type chip and time; actions View and Continue with Director. A separate typed **Post reference** card opens Scheduling; it is not a document Deliverable. Actions stack < sm.
+- **Knowledge notification:** tint card for pending **AI proposals**, separate from confirmed initial intake.
 - **Budget extension request:** allowance consumed, requested extra resources/time or cost effect and benefit; explicit Approve extension / Decline choices. Decline retains the supported partial result (FR-27).
 - **Error message:** error state (§8.7) inline in the thread.
 - **Composer:** sticky at the bottom; white, `radius-card`, 1px mist-400; autosizing textarea (max 6 lines, 16px); send = primary icon button 44px (flips in RTL); `Enter` sends, `Shift+Enter` adds a new line; disabled while sending. On mobile it respects the safe area and the keyboard (`dvh`).
+
+**Conversation and Task context:** Direct Chat needs no Roadmap. Stable `/employee/[conversationId]` URLs open the conversation and its related Tasks. Default Canvas to its latest relevant active Task; select another through this conversation’s Task cards/history only. On conversation switch clear the prior graph and subscribe to the selected conversation’s Task; other conversations continue server work. No workspace-wide Task Selector. Step execution shows originating step links; only validated Wizard research shows Use in Roadmap.
 
 **Canvas (stage):**
 - **Background:** graphite-500 with a dotted grid of `white/6` 1px dots every 18px. **The graph container is `dir="ltr"`** (FTD §9.6); labels translated.
@@ -678,9 +711,10 @@ Width check: the chat column never drops below **560px** when the Canvas is dock
   | completed | mint-500 border at 50%, mint check badge |
   | error | danger-600 border + alert badge (only if the error is user-visible) |
 
+- **Retry presentation:** authorized recoverable internal attempts remain Running / Processing; no failed flash, attempt counters or transient incident nodes. Diagnostic traces retain attempts internally. Terminal exhausted failures/partial results are explicit; publishing uncertainty keeps its safe reconciliation flow. Awaiting Input offers **Answer in Chat** to the exact pending form and explains the seven-day expiry.
 - **Edges:** `white/18` 1.5px; active = mint-500 2px with M12; "delegated / returned" labels as 11px chips on hover/focus.
 - **Layout:** arrange only the recorded plan/execution graph, distinguishing agents from tools/services. A planned node is not evidence it ran; quick replies never fabricate specialists. Below md use a vertical layout or event-list toggle.
-- **Accessibility:** the Canvas has `role="img"` with an `aria-label` summary, plus a **visible, selectable accessible event list** with actual actions, source/evidence links, handoffs, retries, input points and recovery. Redact secrets/private reasoning; never infer percent complete without a known total.
+- **Accessibility:** the Canvas has `role="img"` with an `aria-label` summary, plus a **visible, selectable accessible event list** with actual actions, source/evidence links, handoffs, meaningful input points and final recovery. Redact secrets/private reasoning; never infer percent complete without a known total.
 
 ### 10.7 Brain
 - **Header:** title, the pending candidates badge, "Review AI proposals" when any are pending, "Add item", and Export/data controls, a list/graph segmented control.
@@ -688,7 +722,7 @@ Width check: the chat column never drops below **560px** when the Canvas is dock
 - **Graph view** (light workspace, not stage):
   - mist-100 background with mist-400 dots
   - nodes are white cards with a 2px border in the category colour, icon + title (truncated at 2 lines) and a status chip
-  - pending AI proposals use a **dashed** border; imported/unverified and owner-provided nodes are active with distinct provenance labels; retired/superseded are historical-only filters, deleted content disappears
+  - pending AI proposals use a **dashed** border; confirmed imported/unverified and owner-provided nodes are active with distinct provenance labels; retired/superseded are historical-only filters, deleted content disappears
   - edges graphite-250 1.5px with a relation label chip
   - container `dir="ltr"`
   - zoom/fit controls at the inline-end bottom
@@ -698,40 +732,37 @@ Width check: the chat column never drops below **560px** when the Canvas is dock
 - **Candidate Review:**
   - 7 sections (§9.5) as a vertical tab list ≥ md, or a select/accordion below md
   - each candidate is a card with Approve (primary), Edit (secondary, inline edit then "Approve edited"), Reject (danger)
-  - **individual AI-proposal decisions** as a retained layout choice; website-import review is optional and owner edits are immediately usable (FR-04, FR-10)
+  - **individual AI-proposal decisions** as a retained layout choice; initial intake confirmation is required once in Onboarding; later owner edits update current knowledge (FR-04, FR-10)
   - the next candidate gets focus after an action
 - **Conflicts:** orange tint cards listing the conflicting items side by side (stacked < md) with inspectable sources/status and an explicit Keep A / Keep B / Edit resolution. Approving persistence does not verify truth; retain history only subject to data controls.
 
-### 10.8 Deliverables
-- **List:** type filter chips + date range; a card grid (§4.4) of stroke cards with the type icon tile, title (2 lines), type chip and relative date. "Load more" is cursor based.
-- **Performance Upload Modal (FR-38):**
-  - Drag-and-drop zone supporting both `.csv` and `.xlsx` (Excel) formats.
-  - **Schema Mapping Preview Card:** displays detected columns, date range, metric definitions (impressions, clicks, inquiries, bookings, spend), currency validation, and warning flags for overlapping dates or duplicate rows.
-  - Manual entry alternative CTA: "Enter aggregate outcomes manually" (FR-47).
-- **Viewer:**
-  - reading width 800px; header with type chip, date and title
-  - toolbar: Edit (new version), Copy, Export text/Markdown or CSV and applicable original media, Delete, Reuse/open next action; Send to Batch Review only for supported post drafts. No PDF/Word design-export suite in Phase 2
-  - toolbar items collapse into a ⋯ menu < sm
-  - "Context used" tint card (expandable version/source/status chips; removed evidence is marked unavailable, never shown as current authority)
-  - body uses the Markdown typography (§3.3)
-  - tables scroll horizontally inside their own container, never the page
-  - sources/citations list at the end with external-link icons
+### 10.8 Deliverables — documents and reports
 
-### 10.9 Batch Review
-- **Header:** title, session hint, view toggle (grid/list), and the bulk bar "Approve all remaining (n)" (primary) / "Reject all remaining" (danger).
-- **The bulk bar is sticky:** at the top on desktop; on mobile it's a bottom action bar with safe-area padding.
-- **Post card** (stroke card):
-  - platform icon + name, Scheduled Time in the **Business Time Zone with the zone label and delivery lateness allowance** (FR-34), status pill (§9.1)
-  - a **platform preview** that keeps the platform's own look (Facebook Page in Phase 2; Instagram/X remain unavailable until their independent Phase 3 implementations pass), so it is *not* re-themed
-  - **Text/link state:** no image placeholder or generated-visual dependency. **Single-image state:** the owner-supplied validated image and exact caption, with alt text and immutable media version. Missing/invalid required media blocks approval with useful correction; supported limits come from the verified format contract
-  - **Context Staleness Hold banner:** When a post is `held` (FR-48), displays an amber warning bar "Offer/price changed since approval" with Review context change. Record explicit owner resolution; unchanged details may retain approval if authority/window remain valid, whereas changed details or a new schedule require reapproval. Uncertain external acceptance cannot be cleared into a resend.
-  - actions: Approve (primary), Edit (secondary, opens the editor with a live preview), Reject (danger), and a ⋯ menu for Regenerate / Reschedule / Cancel / Retry, shown only when the status allows (§9.1)
-- **Recovery:** show submitted, confirmed, failed, uncertain and held distinctly, with platform evidence/link where available. Retry appears only when the backend establishes it is safe; unknown acceptance offers Reconcile / Review hold. Explain overdue-window and revoked-account holds. Cancel undispatched work; if already accepted by the platform, explain actual outcome and any owner removal step. Platform processing delay is not guaranteed.
-- **Lazy connect prompt:** orange tint card "Connect Facebook Page to publish" + Connect (primary).
-- **Grid:** 1 column < md, 2 columns md–xl, 3 columns ≥ xl. List view: dense rows (preview thumbnail 64px).
+Library has search, type/date filters, clear artifact cards, cursor Load more, useful empty/error/loading states and mobile rows. Types are `research_report`, `competitor_analysis`, `audience_research`, `marketing_strategy`, `positioning_report`, `campaign_plan`, `marketing_brief`, `visual_brief`, `content_strategy`, `analytical_report`, `general`. Posts are absent from this library.
+
+Viewer uses 800px reading width, title/type/date/version, safe formatted content, sources, assumptions/limitations and expandable Context used with versions/staleness. Link originating Task, conversation, step and campaign where present. Toolbar: Edit, Copy, Export, Reuse, Continue with Director, Delete. Edits append immutable historical versions of the same document; Chat revisions retain identity. Exports are text/Markdown, suitable CSV and applicable original media; no Phase 2 designed PDF/Word suite. Historical reports are not rewritten when facts change; reuse surfaces affected context.
+
+### 10.9 Scheduling — all social-media Posts
+
+`SchedulingScreen` is the single Post home, regardless of direct Chat, Roadmap, campaign or manual origin. Desktop defaults to **Month**, with **Week**, **List** and **Unscheduled Posts** tabs. Mobile may start Week/List; Month remains available. Header has previous/next month, month/year, business timezone, New Post and platform/campaign/status filters. Selected view/range/filter state survives URLs/reload.
+
+Month is a real seven-day grid with localized weekday headers, day numbers, compact Post cards and overflow “n more” opening the accessible day list. Each card shows time, title/content excerpt, platform and status. Proposed/unapproved times have a clear Draft/Pending label, never scheduled authorization. Held/failed/uncertain are discoverable. Week presents days with readable times; List is chronological and cursor-paginated. Published records display at **actual publication time** on historical dates; details also retain planned time. Unknown actual publication time is explicitly unavailable, never replaced with a fabricated date.
+
+Unscheduled contains every undated draft and has search/filter/edit/schedule controls. Do not invent a date for visibility. Empty calendar and empty Unscheduled have distinct messages and New Post actions. Range loading, partial pages and fetch failures are explicit; a date-range query is not assumed complete before pagination ends.
+
+`PostEditor`: platform/destination, text, supported link, optional validated single owner image/caption, platform preview, optional date/time, planning IANA zone and delivery allowance. Save Draft never grants approval. Review for Publishing validates required destination/time/media; draft creation needs no Facebook connection. Lazy connect explains why it is needed. Unsupported format options are unavailable, not simulated.
+
+`PostDetails`: desktop side panel and mobile full-screen sheet, current/version history, preview/media, Page, scheduled instant/zone, status, campaign and source links, publish attempts/evidence/URL and safe actions. Edit/reschedule (including drag-and-drop) creates a new immutable Post Version; approved parameters require fresh approval. The accessible date/time form is always available; ambiguous DST times require explicit choice, nonexistent wall times require correction. Workspace timezone changes do not move approved instants.
+
+**Batch Review inside Scheduling** (`/scheduling/review`): selected Posts, individual approve/reject/edit, Approve selected, Reject selected and Approve all remaining eligible **displayed versions**. Preview exact text/link/media version/Page/time/zone/allowance. Show per-item stale/invalid/missing outcomes; partial success never hides failed items. Sticky action bar respects focus and mobile safe areas. `ReviewSession` timing is solely Post Batch Review instrumentation.
+
+**Holds and recovery:** affected price/offer changes show Held / Needs Review with the exact context reason and explicit owner resolution. Unchanged approved details may resume only if authority/window remain valid; changed content/schedule requires reapproval. Uncertain external acceptance offers reconciliation, never blind retry. Submitted is not Published. Cancel cannot reverse accepted effects. Reconnect never auto-sends overdue work. Preserve actual platform identifiers/URLs; duplicate a published Post creates a new Draft, and local deletion does not claim Facebook deletion.
+
+Campaign filters group independent Posts and linked planning documents without implying paid ads. No separate document copy of Post content is authoritative.
 
 ### 10.10 Settings
 - **Layout:** vertical tabs (Account · Connected Accounts · Country/currency/timezone · Language & accessibility · Data controls) ≥ md; a select/accordion below md; content max 720px.
+- **Account:** email, verification and authentication providers; local password change/reset only when applicable, explicit reauthenticated provider linking and Logout. Google-only accounts never require a nonexistent current password.
 - **Connected Accounts:** Facebook Page card with account/status and Connect / Reconnect / Disconnect (with explicit consequences); IG/X cards are disabled and labelled Phase 3. Disconnection stops future sends, not existing platform posts; reconnection does not release overdue work automatically.
 - **Business Time Zone:** a searchable select of IANA zones showing the current local time preview, and a note that approved/scheduled Posts don't move.
 - **Language & accessibility:** independent UI language, conversation language and content-register defaults (English, Egyptian Arabic, audience/country-specific Gulf Arabic, MSA), task-level overrides, plus **Reduce animations** (§7.5). Country/currency/IANA timezone are explicit and not inferred from language.
@@ -740,16 +771,17 @@ Width check: the chat column never drops below **560px** when the Canvas is dock
 ### 10.11 Notifications
 - A bell in the top bar with a count badge, opening a popover ≥ md or a full sheet < md.
 - Items: 56px rows, icon by kind, title, relative time, unread dot (mint-700) + bold title; "Mark all read".
-- Each links to its subject (the Brain review, a deliverable, Batch Review).
+- Kinds: Task completed/terminal failure/awaiting clarification, research/document ready, Post awaiting approval/published/held/uncertain, reconnect needed, Brain proposal, Roadmap revision awaiting approval. No per-retry notices.
+- Each deep link opens the exact conversation/form, document, Scheduling Post, Roadmap revision, Brain proposal or connection settings after access validation. Read/unread and Mark all read update notification state only; unavailable/deleted subjects show an honest unavailable view. Badge polling is not described as real-time push.
 
 ### 10.12 Landing page (marketing)
 | # | Section | Surface | Content and motion | Responsive |
 |---|---|---|---|---|
 | 1 | Top bar | stage | §8.5 marketing top bar | drawer < lg |
 | 2 | **Hero** | stage + hero ring + M8 glows | Section tag ("AI Marketing Director · Arabic-first"), Display headline with the key phrase in mint-500 and **M4** cursor, Body-L in graphite-100, CTAs: "Get started" (primary lg) + "Try the demo" (secondary lg). Visual: **M1 orbit** with the BusMora core (mint glow, logo) and illustrative research/planning/drafting activity chips, translated labels and a persistent **Illustrative demonstration** label. Never imply a fixed agent count or a recorded run. Pause-animations toggle. | ≥ lg: two columns (text inline-start, orbit inline-end). < lg: centred text, orbit below scaled to the container (SVG viewBox, max 420px). < sm: CTAs full width stacked; orbit max 300px, outer ring hidden |
-| 3 | Capability overview | light | 3 stroke cards: "Choose useful work", "Review and execute", "Learn from observations"; no unsupported success statistics or fixed agent-count advantage | 3 columns ≥ md, 1 column < md |
-| 4 | How it works | light | Section tag + Title-1 + 3 stroke cards (Understand → Do useful work → Review results), explaining owner execution and approved native Facebook work with **M5** stagger | 3 columns ≥ lg, 1 column below |
-| 5 | Reads your website | stage | Website-or-guided-setup explanation + clearly labelled illustrative browser card with M7 scan → imported/unverified chips; no website prerequisite | two columns ≥ lg, stacked below |
+| 3 | Capability overview | light | 3 stroke cards: "Choose useful work", "Review and execute", "Keep useful business context"; no unsupported success statistics or fixed agent-count advantage | 3 columns ≥ md, 1 column < md |
+| 4 | How it works | light | Section tag + Title-1 + 3 stroke cards (Confirm context → Choose work → Review and execute), explaining owner execution and approved native Facebook work with **M5** stagger | 3 columns ≥ lg, 1 column below |
+| 5 | Reads your website | stage | Website-or-guided-setup explanation + clearly labelled illustrative browser card with M7 scan → editable draft → owner-confirmed chips; no website prerequisite | two columns ≥ lg, stacked below |
 | 6 | Watch it work | light | A clearly labelled illustrative Canvas/mock chat, separate from real recorded activity; actual product runs show only recorded nodes/events | two columns ≥ lg |
 | 7 | Governed publishing | light | Facebook-style post preview card + approval → dispatch → confirmation/recovery example, clearly illustrative; uncertain/held cases are not hidden behind guaranteed-success checks | stacked < lg |
 | 8 | Final CTA | stage + hero ring | Title-1 + primary lg button | — |
@@ -763,15 +795,15 @@ Width check: the chat column never drops below **560px** when the Canvas is dock
 
 ---
 
-### 10.14 Outcome capture and recurring review (FR-38–40, FR-45–49)
-- Today and task/artifact details link to Record outcomes and Review due. File upload has a keyboard file picker as well as drag/drop. Display supported CSV/.xlsx templates/limits, confirmed field mapping, period/granularity, source, definitions, units/currency and ID/duplicate/overlap warnings; unsupported layouts offer the template or manual form.
-- Manual capture uses short labelled groups for aggregate inquiries, qualified inquiries, bookings/customers, spend and qualitative notes with source and period. Show reporting owner; optional blanks mean unknown, never zero. No contact database is requested. Show baseline and target separately, including estimated/unknown/not-applicable states; invalid denominators or incompatible values produce unavailable metrics with reasons.
-- Task detail separates work completion, owner-reported implementation, platform-confirmed publication and measured outcomes. Owner execution provides ready-to-use artifact/instructions, checklist, responsible party and optional evidence; label the completion attestation accurately.
-- Review stacks observations, interpretation/limitations, then proposed next decision. Explicit no-data and inconclusive panels are valid. Proposed continue/change/stop/gather-evidence/scale actions explain evidence and sales-cycle review cadence; scale is advice, not spend authority.
-- A review may show **Roadmap revision** and **Pending Brain Update** cards together, but each has its own diff and explicit Approve/Modify/Reject controls. Artifact acceptance and publication approval are separate. A strategic revision can be rejected without discarding observations or approving a Brain inference.
-- Mobile presents the same correction, mapping, review and decision controls in a single column with sticky actions that never cover fields/errors. Keyboard alternatives, readable mixed-script numbers/currencies, focus return and AR/EN empty/error/loading states are required. Link reviewed decisions to the next task and review date for the second cycle (AC-25–26, AC-29).
+### 10.14 Requested one-off analysis in Chat
 
----
+Chat attachment control accepts supported CSV/.xlsx, with keyboard file picker and published limits/templates. Mapping preview shows fields, source, period/granularity, units/currency, identifiers, duplicate/overlap and invalid-value warnings. Confirm mapping before analysis; unsupported layout offers correction/template. Unknown is not zero; undefined denominators produce unavailable metrics with reasons. Never execute formulas/macros. The supported requested Task creates an analytical report in Deliverables. No periodic capture screen, review cadence, reminder, performance dashboard or automatic roadmap change is introduced.
+
+### 10.15 Phase labels and removal checks
+
+Phase 2 includes the six primary work areas above plus initial setup/auth. Phase 3 Social Import, Instagram Business/X and future authorized analytics remain unavailable until separately verified. Native image generation/billing are Phase 4+. **Phase 5 Meta Ads Management is planned, not implemented:** future in-product eligible Business/Ad Account connection, permission inspection, creative/campaign/targeting setup, explicit budget/spend authorization, launch, supported metrics and controlled changes. Formats, access, account eligibility and Pixel/Conversions API measurement need independent validation; no current Ads controls or automatic spend.
+
+Negative UI checks (AC-56–58): no Today Dashboard, Outcomes & Reviews or Now/Next/Later model; no renamed daily/performance replacement. Legitimate Post Batch Review, Brain proposal and roadmap revision review remain.
 
 ## 11. Bilingual and RTL rules
 
@@ -786,7 +818,7 @@ Width check: the chat column never drops below **560px** when the Canvas is dock
    - Prices and units always come from the source text unchanged.
    - Times are always shown in the **Business Time Zone with the zone label** (FTD §9.6).
 7. **Text expansion:** English strings are often 20–30% longer than Arabic ones. Layouts never rely on fixed text widths; buttons grow and labels truncate with an ellipsis + tooltip only in dense lists.
-8. **Now/Next/Later Roadmap Columns:** Follow reading direction logic. In RTL (`dir="rtl"`), the **Now** column is positioned at the inline-start (right), **Next** is in the center, and **Later** is at the inline-end (left). In LTR (`dir="ltr"`), Now is at the left.
+8. **Roadmap and calendar:** the vertical step sequence follows reading order; calendar headers/grid follow locale conventions. Chronological meaning and stored instants do not change under RTL.
 
 ---
 
@@ -1081,7 +1113,7 @@ html[data-motion="reduced"] .shimmer-text { -webkit-text-fill-color: currentColo
 | DS-2 | Illustration/screenshot set for landing sections 5–7 (the specs use clearly labelled illustrative UI, never real-execution evidence) | landing polish |
 | DS-3 | Dark theme for the whole app (tokens are structured to allow it; not in scope) | future |
 | DS-4 | Email templates (verification, reset) in this visual language | auth emails (provider still open, OD-10) |
-| DS-5 | Mapping of the 9 categories to the 7 Review sections | §9.5 (OD-18) |
+| DS-5 | Mapping resolved in §9.5; verify typed subtype consistency in API and UI | §9.5 |
 | DS-6 | Accessibility test tooling choice (axe-core in CI) | §12.6 (FTD FG-5) |
 
-Required workflow validation follows SYS Appendix A and PRD §10: all AC-01–30 use real implementations where applicable. These design checks preserve WCAG/RTL and visual identity; they do not establish native publishing access, language quality, ten-minute first value or business impact.
+Required workflow validation follows SYS Appendix A and PRD §10: all active AC-01–25 and AC-27–58 use real implementations where applicable. These design checks preserve WCAG/RTL and visual identity; they do not establish native publishing access, language quality, ten-minute first value or business impact.
