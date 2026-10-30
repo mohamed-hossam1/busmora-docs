@@ -1,6 +1,8 @@
 # Decision Registry
 
-> A chronological record of the product and architecture decisions made during discovery and engineering baselining, with the rationale behind each. This is the authoritative reference for the current design.
+> A chronological record of the product and architecture decisions made during discovery and engineering baselining, with the rationale behind each.
+>
+> **Authority Precedence:** Authoritative current functional requirements and technical contracts are governed by **[core/prd.md](../core/prd.md)** (PRD v2.0) and the canonical specifications in `core/`. Where historical decision entries mention earlier terminology (such as Now/Next/Later or v1.1 outcome review), PRD v2.0 supersedes them.
 
 ---
 

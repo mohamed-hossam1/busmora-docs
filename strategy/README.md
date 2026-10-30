@@ -2,6 +2,8 @@
 
 This directory documents the **business strategy, MVP delivery boundaries, evaluation benchmarks, and historical governance records** for BusMora.
 
+> **Authority Precedence:** Authoritative functional requirements, acceptance criteria, and technical contracts are governed by **[core/prd.md](../core/prd.md)** (PRD v2.0) and the canonical specifications in `core/`. Strategy documents provide business rationale and historical planning context. Under PRD v2.0, adaptive vertical roadmap steps replace Now/Next/Later horizons, recurring outcome review (FR-47) is retired, normal login opens Marketing Director Chat (`/employee`) without last-page restoration, and ScheduledTime is standardized to `{ instant, zone, latenessAllowanceMinutes }`.
+
 ---
 
 ## Strategy Documents

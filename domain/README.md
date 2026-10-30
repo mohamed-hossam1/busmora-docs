@@ -29,7 +29,7 @@ flowchart LR
 * Aggregates, entity lifecycles, and value objects per bounded context:
   * **Post Aggregate:** `Draft` $\rightarrow$ `PendingApproval` $\rightarrow$ `Approved` $\rightarrow$ `Scheduled` $\rightarrow$ `Publishing` $\rightarrow$ `Published` / `Failed` / `Cancelled` / `Expired` / `Held` (context staleness).
   * **Knowledge Aggregate:** Concept nodes, verified relationships, procedural rules, imported context, and pending brain update workflows.
-  * **Task & Roadmap Aggregates:** Long-running conversational intents, Now/Next/Later roadmap tasks, per-task research budgets, and human-in-the-loop approvals.
+  * **Task & Roadmap Aggregates:** Long-running conversational intents, adaptive roadmap steps and dependency DAG (retiring Now/Next/Later), per-task research budgets, and human-in-the-loop approvals.
 
 ### 4. [Domain Events Catalog (`events.md`)](./events.md)
 * Authoritative catalog of immutable domain facts:

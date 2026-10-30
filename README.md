@@ -1,6 +1,6 @@
 # BusMora — Project Documentation & Architecture
 
-> **BusMora** is an autonomous **AI Marketing Director** platform designed for Arabic-first small and medium businesses (5–50 employees, service businesses and SMBs selling via inquiries/bookings) in Egypt and the GCC. It combines a reviewed **Business Brain** (relational concept graph + procedural rules) with an **autonomous execution layer** that diagnoses commercial constraints using the **5 STAR Lenses**, prioritizes an adaptive **Now/Next/Later Roadmap**, writes culturally authentic Arabic content across 4 registers, conducts dynamic research with per-task budgets, and safely publishes to social media under human approval.
+> **BusMora** is an autonomous **AI Marketing Director** platform designed for Arabic-first small and medium businesses (5–50 employees, service businesses and SMBs selling via inquiries/bookings) in Egypt and the GCC. It combines a reviewed **Business Brain** (relational concept graph + procedural rules) with an **autonomous execution layer** that diagnoses commercial constraints using the **5 STAR Lenses**, prioritizes an adaptive **Marketing Roadmap**, writes culturally authentic Arabic content across 4 registers, conducts dynamic research with per-task budgets, and safely publishes to social media under human approval.
 
 ---
 
@@ -9,9 +9,9 @@
 ```
 busmora-docs/
 ├── core/                         # The 5 Canonical Specifications
-│   ├── prd.md                    # Product Requirements Document (PRD v1.1)
+│   ├── prd.md                    # Product Requirements Document (PRD v2.0)
 │   ├── DESIGN-SYSTEM.md          # Design Tokens, Components & RTL Layouts
-│   ├── SYSTEM-ARCHITECTURE.md    # Canonical System Architecture v1.0
+│   ├── SYSTEM-ARCHITECTURE.md    # Canonical System Architecture v2.0
 │   ├── BACKEND-TECHNICAL-DESIGN.md# Backend Monolith & Worker Design
 │   ├── FRONTEND-TECHNICAL-DESIGN.md# Frontend CSR & Event Shell Design
 │   └── README.md
@@ -57,9 +57,9 @@ busmora-docs/
 
 The 5 canonical documents defining the functional and architectural contract are in [**`core/`**](./core/README.md):
 
-* [**Product Requirements Document (`prd.md`)**](./core/prd.md) — PRD v1.1: Authoritative release contract covering FR-01–49, NFR-01–09, and AC-01–30 for the 24-week Phase 2 release.
+* [**Product Requirements Document (`prd.md`)**](./core/prd.md) — PRD v2.0: Authoritative release contract covering FR-01–58, NFR-01–09, and AC-01–58 (with FR-47 and AC-26 retired) for the 24-week Phase 2 release.
 * [**Design System (`DESIGN-SYSTEM.md`)**](./core/DESIGN-SYSTEM.md) — Design tokens, component behaviors, typography scales, and strict RTL-first bidirectional layout rules.
-* [**System Architecture v1.0 (`SYSTEM-ARCHITECTURE.md`)**](./core/SYSTEM-ARCHITECTURE.md) — 4 deployables, 8 process roles, Platform-Centred backend style, Amendment A1 (internal HTTP for quick replies $\le 3\text{s}$ and Brain search), multi-tenant isolation, and KMS envelope encryption.
+* [**System Architecture v2.0 (`SYSTEM-ARCHITECTURE.md`)**](./core/SYSTEM-ARCHITECTURE.md) — 4 deployables, 8 process roles, Platform-Centred backend style, Amendment A1 (internal HTTP for quick replies $\le 3\text{s}$ and Brain search), multi-tenant isolation, and KMS envelope encryption.
 * [**Backend Technical Design (`BACKEND-TECHNICAL-DESIGN.md`)**](./core/BACKEND-TECHNICAL-DESIGN.md) — NestJS modular monolith across 13 business modules, Drizzle ORM (sole writer), ambient Unit of Work, contract system, Temporal workflows, and read-only views with RLS for Python compute.
 * [**Frontend Technical Design (`FRONTEND-TECHNICAL-DESIGN.md`)**](./core/FRONTEND-TECHNICAL-DESIGN.md) — Next.js 14+ client-rendered application (CSR) prepared for Workspace Event Shell (FE-3), feature-by-context boundaries, React Query caching, central security gateways, and RTL-first styling.
 
@@ -69,7 +69,7 @@ The 5 canonical documents defining the functional and architectural contract are
 
 The domain taxonomy and aggregate models are in [**`domain/`**](./domain/README.md):
 
-* [**Ubiquitous Language & Glossary (`GLOSSARY.md`)**](./domain/GLOSSARY.md) — Canonical terminology, forbidden synonyms, and lifecycle statuses (AI Marketing Director, Now/Next/Later, STAR Lenses, Context Staleness Holds, Honest Handoffs).
+* [**Ubiquitous Language & Glossary (`GLOSSARY.md`)**](./domain/GLOSSARY.md) — Canonical terminology, forbidden synonyms, and lifecycle statuses (AI Marketing Director, Adaptive Roadmap, STAR Lenses, Context Staleness Holds, Honest Handoffs, ScheduledTime).
 * [**Bounded Contexts (`contexts.md`)**](./domain/contexts.md) — Clear boundaries and ownership across Core (Business Brain, Marketing Employee, Governed Publishing), Supporting, and Generic contexts.
 * [**Domain Model (`model.md`)**](./domain/model.md) — Aggregates, entity lifecycles, and domain invariants including post `held` states and per-task research budgets.
 * [**Domain Events (`events.md`)**](./domain/events.md) — Immutable domain event catalog, payload schemas, and transactional outbox conventions.

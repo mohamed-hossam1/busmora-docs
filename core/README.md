@@ -8,7 +8,7 @@ This directory houses the **canonical, non-negotiable core specifications** for 
 
 ```mermaid
 flowchart TD
-    PRD["1. Product Requirements (prd.md)<br/><i>v1.1: AI Marketing Director, FR-01–49, AC-01–30</i>"]
+    PRD["1. Product Requirements (prd.md)<br/><i>v2.0: AI Marketing Director, FR-01–58, AC-01–58</i>"]
     DS["2. Design System (DESIGN-SYSTEM.md)<br/><i>Tokens, Components, RTL-First Layouts</i>"]
     SYS["3. System Architecture (SYSTEM-ARCHITECTURE.md)<br/><i>Topology: 4 Deployables, 8 Process Roles, Security & A1</i>"]
     BE["4. Backend Design (BACKEND-TECHNICAL-DESIGN.md)<br/><i>Server: NestJS Modular Monolith, Sole Writer, RLS & Temporal</i>"]
@@ -23,13 +23,13 @@ flowchart TD
 ```
 
 ### 1. [Product Requirements Document (`prd.md`)](./prd.md)
-* **Scope:** Authoritative functional requirements (FR-01 through FR-49), non-functional requirements (NFR-01 through NFR-09), and release acceptance scenarios (AC-01 through AC-30) for the autonomous **AI Marketing Director** across its 24-week Phase 2 release contract.
-* **Key Sections:** Marketing Director persona, 5 STAR diagnostic lenses, Now/Next/Later adaptive roadmap, dynamic multi-source research with per-task budget governance (FR-27), text-first content in 4 registers (Egyptian, Gulf, MSA, English), governed Facebook Page publishing with exact-version binding and delivery lateness allowances (FR-33–36), dual-format performance ingestion (CSV & Excel `.xlsx`) and manual aggregate outcome capture (FR-38, FR-47), context staleness holds (FR-48), and honest unsupported execution handoffs (FR-49).
+* **Scope:** Authoritative functional requirements (FR-01 through FR-58), non-functional requirements (NFR-01 through NFR-09), and release acceptance scenarios (AC-01 through AC-58, with FR-47 and AC-26 retired) for the autonomous **AI Marketing Director** across its 24-week Phase 2 release contract.
+* **Key Sections:** Marketing Director persona (`/employee`), 5 STAR diagnostic lenses, adaptive marketing roadmap with complete vertical steps and dependency DAG (retiring Now/Next/Later), dynamic multi-source research with per-task budget governance (FR-27), text-first content in 4 registers (Egyptian, Gulf, MSA, English), governed Facebook Page publishing with exact-version binding and canonical ScheduledTime (`{ instant, zone, latenessAllowanceMinutes }`, FR-33–36), dual-format performance ingestion (CSV & Excel `.xlsx`) for one-off requested analysis (FR-38–40, retiring FR-47), context staleness holds (FR-48), honest unsupported execution handoffs (FR-49), and explicit absence of daily/performance dashboards (FR-58).
 
 ### 2. [Design System (`DESIGN-SYSTEM.md`)](./DESIGN-SYSTEM.md)
 * **Scope:** Design tokens, UI component specifications, typography scales, color palettes, and strict RTL/LTR bidirectional layout rules for `busmora-frontend`.
 
-### 3. [System Architecture v1.0 (`SYSTEM-ARCHITECTURE.md`)](./SYSTEM-ARCHITECTURE.md)
+### 3. [System Architecture v2.0 (`SYSTEM-ARCHITECTURE.md`)](./SYSTEM-ARCHITECTURE.md)
 * **Scope:** Canonical system-level topology, deployable units, inter-process communication, and security posture for the 24-week Phase 2 release built by 5 students (~2,400 hours).
 * **Key Decisions:**
   * **4 Deployables / 8 Process Roles:** `busmora-web`, `busmora-api` (HTTP + Scheduler), `busmora-workers` (Temporal + Scheduled Publisher + Ingestion Crawler), `busmora-ai` (Temporal Workers + Internal HTTP).
@@ -50,7 +50,7 @@ flowchart TD
 ### 5. [Frontend Technical Design (`FRONTEND-TECHNICAL-DESIGN.md`)](./FRONTEND-TECHNICAL-DESIGN.md)
 * **Scope:** Internal client architecture and state management of `busmora-frontend`.
 * **Key Mechanisms:**
-  * **Client-Side Rendered (CSR):** Next.js 14+ SPA optimized for interactive workspace state, Today view, and continuous SSE streaming.
+  * **Client-Side Rendered (CSR):** Next.js 14+ SPA optimized for interactive workspace state, Marketing Director Chat, and continuous SSE streaming.
   * **Prepared for Workspace Event Shell (FE-3):** Modular context-based directory structure (`features/brain`, `features/publishing`, `features/chat`, `features/roadmap`) ready for event-driven multi-panel canvas.
   * **State & Sync:** Server cache managed via TanStack React Query; interactive UI states managed via Zustand.
   * **Security & Tokens:** Short-lived access tokens (15 min) in memory only; secure refresh token in HttpOnly `SameSite=Strict` cookie with reuse detection.
@@ -58,15 +58,10 @@ flowchart TD
 
 ---
 
-## Product Experience Companion
+## Product Experience Companions (External References)
 
-### [Final Product UI Journey (`FINAL-PRODUCT-UI-JOURNEY.md`)](./FINAL-PRODUCT-UI-JOURNEY.md)
-* **Scope:** A detailed Arabic, screen-by-screen walkthrough of the customer experience from the marketing landing page and onboarding through planning, task execution, governed publishing, recurring review, and long-term retention. It includes textual wireframes, lifecycle diagrams, responsive behavior, system states, and explicit Phase 2 versus future-scope labels.
-* **Authority:** This is an explanatory experience blueprint derived from the five canonical specifications. If it ever conflicts with a canonical requirement, the PRD and its supporting canonical designs remain authoritative.
-
-### [UI Demo Master Prompt (`UI-DEMO-MASTER-PROMPT.md`)](./UI-DEMO-MASTER-PROMPT.md)
-* **Scope:** A copy-ready implementation prompt for AI coding tools to build a complete interactive BusMora UI prototype with coherent Arabic demo data, responsive routes, deterministic state transitions, and PRD-aligned acceptance checks.
-* **Authority:** This is an implementation aid derived from the canonical specifications and the Final Product UI Journey. It does not add or change product requirements.
+* **Final Product UI Journey (`FINAL-PRODUCT-UI-JOURNEY.md`):** An external explanatory companion document containing screen-by-screen Arabic walkthroughs and textual wireframes. If it ever conflicts with a canonical requirement, the PRD and its supporting canonical designs in this directory remain authoritative. (Note: External reference; not a committed file in the core specifications directory).
+* **UI Demo Master Prompt (`UI-DEMO-MASTER-PROMPT.md`):** An external reference implementation prompt for building interactive UI prototypes. It does not supersede canonical contracts. (Note: External reference; not a committed file in the core specifications directory).
 
 ---
 

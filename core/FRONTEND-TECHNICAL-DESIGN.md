@@ -208,31 +208,74 @@ busmora-frontend/
       layout.tsx                         # lang/dir/fonts/global styles
       providers.tsx                      # QueryClient/session/i18n/streams
       (public)/
-        page.tsx                         # landing
-        login/ register/ verify-email/ reset-password/
-        auth/google/return/              # no credentials in URL
+        page.tsx                         # public landing page (owns route /; no duplicate in (app))
+        login/
+          page.tsx                       # email/password and Google login
+        register/
+          page.tsx                       # user registration
+        verify-email/
+          page.tsx                       # email link token verification
+        reset-password/
+          page.tsx                       # password reset form
+        auth/
+          google/
+            return/
+              page.tsx                   # Google OAuth return callback; no credentials in URL
       (app)/
-        layout.tsx                       # session + setup gate; six-area shell + bell
-        onboarding/                      # entry/crawl/shared draft/confirmation
+        layout.tsx                       # session + setup gate; six-area shell + bell (no duplicate / route)
+        onboarding/
+          page.tsx                       # entry/crawl/shared draft/confirmation; setup gate for new users
         employee/
-          [conversationId]/              # stable chat; ?taskId= scoped to this conversation
+          page.tsx                       # Marketing Director chat root (works without existing conversation ID)
+          [conversationId]/
+            page.tsx                     # stable conversation; ?taskId= scoped to this conversation
         roadmap/
-          drafts/[draftId]/questions/[questionId]/
-          plans/[roadmapId]/steps/[stepId]/
-          revisions/[revisionId]/
-          history/[roadmapId]/versions/[version]/
+          page.tsx                       # roadmap root (works when no roadmap exists; shows empty state / active plan)
+          drafts/
+            [draftId]/
+              questions/
+                [questionId]/
+                  page.tsx               # adaptive Discovery question
+          plans/
+            [roadmapId]/
+              steps/
+                [stepId]/
+                  page.tsx               # step execution / details
+          revisions/
+            [revisionId]/
+              page.tsx                   # roadmap revision comparison
+          history/
+            [roadmapId]/
+              versions/
+                [version]/
+                  page.tsx               # historical roadmap version
         brain/
+          page.tsx                       # Business Brain root (graph/list, categories, provenance)
           candidates/
-        deliverables/[id]/
+            page.tsx                     # proposed Brain candidate items review
+        deliverables/
+          page.tsx                       # deliverables index / search / filter
+          [id]/
+            page.tsx                     # non-Post document viewer / analysis attachment
         scheduling/
+          page.tsx                       # calendar root (Month/Week/List/Unscheduled; works when no posts)
           new/
-          posts/[postId]/                 # desktop panel / mobile detail
-          review/                        # Post Batch Review only
+            page.tsx                     # manual post creation
+          posts/
+            [postId]/
+              page.tsx                   # post details / editor panel (desktop panel / mobile sheet)
+          review/
+            page.tsx                     # Post Batch Review only
         settings/
+          page.tsx                       # settings root (account, region, languages, data controls)
           connections/
-      connect/[platform]/return/         # connected-account OAuth return
-      error.tsx
-      not-found.tsx
+            page.tsx                     # connected accounts management
+      connect/
+        [platform]/
+          return/
+            page.tsx                     # connected-account OAuth return (distinct from Google auth return)
+      error.tsx                          # route-level error boundary
+      not-found.tsx                      # 404 handler for deleted/inaccessible resources
     features/
       auth/ onboarding/ roadmap/ employee/ canvas/ brain/
       deliverables/ publishing/ connections/ settings/ notifications/
@@ -247,7 +290,7 @@ busmora-frontend/
   e2e/ scripts/ public/ ci/
 ```
 
-All application routes remain client-rendered composition; no BFF, Server Actions or new platform. Root authenticated navigation restores the last valid accessible work path; fallback `/employee`. Initial verified accounts enter `/onboarding`; after confirmation explicitly choose `/employee` or `/roadmap`. Validate destinations against route allowlist and current resource ownership, never follow arbitrary return URLs. Saved last-page preference must contain path/IDs only, scoped to workspace and revalidated; query cache is cleared on identity/workspace changes.
+All application routes remain client-rendered composition; no BFF, Server Actions or new platform. Successful normal login (email/password or Google) opens Marketing Director Chat at `/employee`. Users with incomplete onboarding are gated to `/onboarding`. First-time confirmed setup explicitly offers Chat (`/employee`) or Create My Roadmap (`/roadmap`). No last-visited-page restoration or last-route persistence occurs across login sessions. Browser refresh and internal navigation within an authenticated session preserve the user's valid active route. Authorized explicit deep links (e.g. notification clicks, specific conversations, roadmap steps/revisions, research returns, deliverables, posts, brain candidates, connection callbacks) are preserved with workspace and resource ownership validation; never follow arbitrary return URLs. Query cache is cleared on identity/workspace changes. Every primary sidebar destination resolves to an actual page. The `/employee` page works without an existing conversation ID. The `/roadmap` page works when no roadmap exists. The `/scheduling` page works when there are no posts. Inaccessible or deleted resources return appropriate not-found or forbidden states. Google authentication callbacks (`auth/google/return`) remain strictly distinct from connected-platform callbacks (`connect/[platform]/return`). There is no duplicate conflicting index route at `/` between public and authenticated route groups (`(public)/page.tsx` owns the public landing at `/`).
 
 Scheduling view uses URL query state `view=month|week|list|unscheduled`, date, displayZone, status, platform and campaignId. Month is desktop default; mobile may start Week/List. No separate global Canvas page or document-backed Post flow. Negative routing tests reject retired daily/performance paths rather than map them to a renamed replacement.
 
@@ -418,7 +461,7 @@ BACKEND §8.2 is canonical. Auth consumes `/auth/*` including Google start/callb
 | **Errors** | `shared/errors` maps codes to i18n messages and actions: `STALE_VERSION` → refetch + "this changed; review again"; `INVALID_TRANSITION` → refetch; `RECONNECT_NEEDED` → show `ConnectPrompt`; `CONTEXT_STALENESS_HOLD` → "pricing/offer changed; review affected post" (FR-48); `BUDGET_CEILING_REACHED` → "budget ceiling reached; extension requested" (FR-27); `ANALYSIS_FILE_UNRECOGNIZED` → show supported mapping/template correction (FR-38); `RATE_LIMITED` → retry later; 5xx → generic message with correlation id. |
 | **Idempotency** | Also required for intake save/confirmation, Discovery/research/step/revision decisions, attestations, export/deletion and mapping confirmation. Required header on: send message / start Task, submit for publishing review, approve, bulk approve / reject, start review session, retry publish, uploads, roadmap revisions, budget extension actions. One key per user intent. |
 | **Concurrency** | Always send the version the user saw (`postVersionId`, `version`). |
-| **Time** | Send `{ instant, zone, latenessAllowanceMinutes }` for Scheduled Times. Show every time in the Business Time Zone, labelled with the zone and delivery allowance. |
+| **Time** | Send `{ instant, zone, latenessAllowanceMinutes }` for Scheduled Times (canonical `ScheduledTimeInput`). Show every time in the Business Time Zone, labelled with the zone and delivery allowance. Unscheduled drafts use `scheduledTime: null`. |
 | **Asynchronous work** | Treat 202 + id as accepted/queued, including requested with waitingReason=capacity, until recorded execution begins; show truthful status via SSE or polling. |
 | **Streams** | Only through `shared/streams`; the stream cookie is sent automatically (native `EventSource` with credentials). |
 | **Uploads** | Chat-requested CSV/supported `.xlsx` through `shared/api` with confirmable mapping/validation preview; owner-supplied single image through `/v1/media` with validation/version. Show supported limits and template/correction fallback (FR-31, FR-38). |
@@ -440,7 +483,7 @@ BACKEND §8.2 is canonical. Auth consumes `/auth/*` including Google start/callb
 - **Authorization:** one role (the User of the workspace). The UI hides nothing for permission reasons; the backend enforces workspace scope. A 403/404 shows not-found.
 - **OAuth connect:** the browser is sent to the api's start URL; the api handles the platform callback and redirects to `/connect/[platform]/return`, which refetches `connections` and returns to the pending Post for review; it never implicitly approves, sends or releases overdue work.
 
-- **Google login/link:** POST start/link through shared/api, then navigate to authorizationUrl. Backend callback performs OIDC/state/PKCE/nonce checks and sets normal sessions; `/auth/google/return` refreshes through shared/session and routes to setup/valid destination. Handle cancellation, expired flow and account collision without disclosing accounts or accepting URL tokens. Linking requires existing-account login and recent reauthentication, separate from Google signup. Narrow Lax flow cookie is backend-managed; existing Strict refresh/stream cookies are unchanged.
+- **Google login/link:** POST start/link through shared/api, then navigate to authorizationUrl. Backend callback performs OIDC/state/PKCE/nonce checks and sets normal sessions; `/auth/google/return` refreshes through shared/session and routes to setup (`/onboarding`) if incomplete, or to Marketing Director Chat (`/employee`) on completion, honoring any authorized explicit deep link (never restoring a last visited page). Handle cancellation, expired flow and account collision without disclosing accounts or accepting URL tokens. Linking requires existing-account login and recent reauthentication, separate from Google signup. Narrow Lax flow cookie is backend-managed; existing Strict refresh/stream cookies are unchanged.
 - **Email verification:** read link token only to submit verify-email; clear sensitive URL state immediately and exclude it from telemetry/referrers. Expired/invalid/replayed links show safe resend flow. Registration has only email/password; Google-only accounts do not display a required local password.
 
 ### 9.2 Configuration
@@ -473,7 +516,7 @@ No secrets exist in the frontend.
 - **Graph canvases** (Canvas, Brain graph) render inside a fixed left-to-right coordinate container so layout math stays stable; labels inside nodes follow the UI language.
 - Text from generated content is shown with its own direction (Arabic or English, including mixed text with product names in English).
 - An Arabic + Latin font pair is loaded through `next/font` (Ubuntu + IBM Plex Sans Arabic per DESIGN-SYSTEM §3.1).
-- **Dates and times:** `shared/time` formats with `Intl.DateTimeFormat` in the **Business Time Zone** and the UI locale. Wall-clock picks are converted to `{ instant, zone }` by a pure helper that handles daylight-saving transitions and is unit-tested.
+- **Dates and times:** `shared/time` formats with `Intl.DateTimeFormat` in the **Business Time Zone** and the UI locale. Wall-clock picks are converted to `ScheduledTimeInput` (`{ instant, zone, latenessAllowanceMinutes }`) by a pure helper that handles daylight-saving transitions and is unit-tested. Ambiguous wall-clock times during DST fallback require explicit user disambiguation; nonexistent wall-clock times during DST spring-forward require correction rather than silent shifting. Changing workspace timezone changes display formatting only, never shifts approved instants.
 
 ### 9.7 Background work
 None in the frontend beyond polling (§7.2) and live streams (§7.3). Long Tasks continue on the server when the browser closes (FR-23; NFR-05); on return, queries show the result.
@@ -492,20 +535,20 @@ Frameworks are still open (OD-12); this strategy is framework-neutral. **The pub
 | Layer / target | What is tested | How |
 |---|---|---|
 | **Feature `model/`** | Pure rules: `applySignal`, `allowedActions(status)`, message-kind mapping, form answer assembly | In-process unit tests, table-driven (every Post status, every signal) |
-| **`shared/time`** | Formatting in a zone; wall-time → instant across daylight-saving changes in Egypt and GCC zones | Pure unit tests |
+| **`shared/time`** | Formatting in a zone; wall-time → instant across daylight-saving changes in Egypt and GCC zones; `ScheduledTimeInput` construction and `latenessAllowanceMinutes` validation; DST fallback disambiguation and nonexistent-time rejection | Pure unit tests |
 | **`shared/session`** | Silent refresh, 401 → single refresh → retry, multi-tab single refresh, logout broadcast | Unit tests with fake channel and lock |
 | **`shared/streams`** | Envelope validation, heartbeat, reset, reconnect with `Last-Event-ID`, 401 → refresh → reopen | Tests with a fake `StreamSource` |
 | **Feature `api/`** | Hooks map responses to view models, send idempotency keys and versions, invalidate the right helpers | Tests against an API mock generated from the pinned contract (tool open) |
 | **Feature public interface** | Each feature's exported components and hooks render and behave as documented, in Arabic (RTL) and English (LTR) | Component tests through `index.ts` only |
 | **Architecture** | Import boundaries (§2.3, §3.3), no `EventSource`/`fetch`/token access outside shared gateways, no physical left/right classes | Static checks in CI (tool open) |
 | **Contract** | Generated types are up to date with the pinned version; the app compiles | CI step |
-| **End-to-end journeys** | Email-link/Google auth; both intake branches → confirmation → Chat/Roadmap; Wizard save/research/exact return; full steps/skip/revisit/attestation/revision; conversation-local Canvas/retry masking; document/Post separation; manual/undated/calendar Posts; exact bulk/reschedule/context/uncertain recovery; scoped CSV/.xlsx analysis; deletion/disconnect and mobile RTL/LTR | Against the backend running in Docker Compose (cross-repo setup open, OD-17) |
+| **End-to-end journeys** | Email-link/Google auth; both intake branches → confirmation → Chat/Roadmap; normal login → `/employee` (no last-page restore); refresh on valid current route preserves view; Wizard save/research/exact return; full steps/skip/revisit/attestation/revision; conversation-local Canvas/retry masking; document/Post separation; manual/undated/calendar Posts; complete `ScheduledTimeInput` reschedule reapproval; exact bulk/reschedule/context/uncertain recovery; scoped CSV/.xlsx analysis; deletion/disconnect and mobile RTL/LTR | Against the backend running in Docker Compose (cross-repo setup open, OD-17) |
 
 ---
 
 ### 10.1 Release-level verification
 
-Verify active AC-01–25 and AC-27–58 against real backend workflows, with the 40 redesign checks mapped in System Appendix A. Include Google takeover/link/replay/cancellation, verification expiry/resend, concurrent intake edits/late crawl, Wizard persistence/exact-question return/stale links, plan activation races, dependency changes after Skip, two conversations with late SSE responses, recoverable versus terminal failure, nullable schedule/range pagination/DST/history, mixed bulk outcomes, reschedule reapproval, targeted holds and unavailable notification subjects. Negative route/model tests ensure removed features cannot reappear.
+Verify active AC-01–25 and AC-27–58 against real backend workflows, with the 40 redesign checks mapped in System Appendix A. Include Google takeover/link/replay/cancellation, verification expiry/resend, login routing to `/employee` without last-page restoration, concurrent intake edits/late crawl, Wizard persistence/exact-question return/stale links, plan activation races, dependency changes after Skip, two conversations with late SSE responses, recoverable versus terminal failure, nullable schedule/range pagination/DST/history, mixed bulk outcomes, reschedule reapproval with complete `ScheduledTimeInput`, targeted holds and unavailable notification subjects. Negative route/model tests ensure removed features cannot reappear.
 
 Retain source-injection, arithmetic unknown/zero/duplicate/currency/formula safety, deletion and restore/cache suppression, budget refusal and parent allowance, actual Page formats/ordinary-owner access, AR/EN mobile/keyboard/reduced motion and four-register human quality checks. Mocks/screenshots are not evidence of native execution or release readiness. PRD §10 gates remain unchanged in rigor; this documentation records no implementation pass.
 
@@ -552,7 +595,7 @@ Retain source-injection, arithmetic unknown/zero/duplicate/currency/formula safe
 | 2 | **Locate the owning feature** | §3.1 | `publishing` |
 | 3 | **Wait for or pull the contract** | `contracts/api` | The backend merges `POST /v1/posts/{id}/reschedule` (signature first). Pull the new version and regenerate `shared/api/generated`. The build must pass unchanged elsewhere, because the change is additive. |
 | 4 | **Model rule** | `publishing/model/allowed-actions` | Allow reschedule for expired/eligible overdue-held posts, with unresolved uncertain sends blocked by the backend. Unit-test the full status table. |
-| 5 | **Mutation** | `publishing/api` | Add `useReschedulePostMutation`. It sends `{version,postVersionId,scheduledTime:{instant,zone,latenessAllowanceMinutes}}`, with the time built by `shared/time` from the user's pick and an idempotency key. On success it invalidates its own Post keys; if the badge depends on it, it calls `invalidateNotifications()`. |
+| 5 | **Mutation** | `publishing/api` | Add `useReschedulePostMutation`. It sends `{version,postVersionId,scheduledTime:{instant,zone,latenessAllowanceMinutes}}` (complete `ScheduledTimeInput`), with the time built by `shared/time` from the user's pick and an idempotency key. On success it invalidates its own Post keys; if the badge depends on it, it calls `invalidateNotifications()`. |
 | 6 | **UI** | `publishing/ui` | Add a "Reschedule" action and a date-time picker in the Business Time Zone (zone labelled). Map errors: `INVALID_TRANSITION` / `STALE_VERSION` → refetch and explain. |
 | 7 | **i18n** | `shared/i18n/messages/publishing` | Add Arabic and English strings; check right-to-left layout. |
 | 8 | **Public interface** | `publishing/index.ts` | Nothing to export (the action is internal to Batch Review), so no other feature changes. |

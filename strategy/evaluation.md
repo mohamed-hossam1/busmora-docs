@@ -1,7 +1,8 @@
 # Evaluation Plan & Acceptance Framework
 
-> **Version:** 2.0 (PRD v1.1 Alignment) · **Date:** 28 October 2026  
-> **Status:** Canonical Quality & Verification Contract — Aligned with [PRD v1.1 (`core/prd.md`)](../core/prd.md) §9–§10.
+> **Version:** 2.0 (Historical Quality Baseline) · **Date:** 28 October 2026 (Updated 30 October 2026)
+> **Status:** Supporting Evaluation Framework.
+> **Supersession Notice:** Authoritative acceptance criteria and release scenarios are governed by **[PRD v2.0 (`core/prd.md`)](../core/prd.md)** (AC-01 through AC-58, with AC-26 retired). Under PRD v2.0: AC-34 verifies normal login to Marketing Director Chat (`/employee`) without last-page restoration; AC-49/AC-52 standardize `ScheduledTime` contracts; and AC-56/AC-57 enforce absence of retired legacy dashboards and planning horizons.
 
 ---
 

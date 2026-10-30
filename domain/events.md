@@ -84,7 +84,7 @@
 | **PostVersionCreated** | User edits, or Employee regenerates with feedback | Post, new Post Version, author | Approval cleared → pending approval; Business Brain (User edit diffs → Procedural Rule Candidates, PRD §10.2); *A* |
 | **PostApproved** | User approves one or many ("approve all remaining") | Post, approved Post Version | *A* |
 | **PostRejected** | User rejects | Post | *A* |
-| **PostScheduled** | Approved Post has its release time | Scheduled Time (instant + zone) | — |
+| **PostScheduled** | Approved Post has its release time registered | ScheduledTime ({ instant, zone, latenessAllowanceMinutes }) | — |
 | **ContextStalenessHoldApplied** | Material change to core facts (pricing, offers) places scheduled post on hold (FR-48) | Post id, conflicting fact id, hold reason | Governed Publishing (enters held state); *N*; *A* |
 | **PostCancelled** | User cancels before publishing (01 PB-6) | Post | *A* |
 | **PostExpired** | Pending when its Scheduled Time passed (01 PB-7) | Post | *N* |
@@ -116,5 +116,5 @@ Live, ephemeral signals produced by the Marketing Employee while a Task runs. Th
 
 1. **Onboarding:** WorkspaceCreated → OnboardingCrawlStarted → OnboardingCrawlCompleted → BrandKitDetected + KnowledgeCandidateProposed ×N → (Review) KnowledgeItemApproved / KnowledgeCandidateRejected.
 2. **Task with clarification:** TaskRequested → TaskStarted → ConstraintDiagnosed → ClarificationRequested → ClarificationAnswered → ResearchCrawlCompleted → TaskCompleted → DeliverableCreated → KnowledgeCandidateProposed.
-3. **Publish:** DeliverableCreated → PostDrafted → PostSubmittedForApproval → (AccountConnected) → PostApproved → PostScheduled → PostPublished **or** PostPublishFailed → (manual retry) → PostPublished.
+3. **Publish:** (TaskCompleted or DirectChat or Manual) → PostDrafted → PostSubmittedForApproval → (AccountConnected) → PostApproved → PostScheduled → PostPublished **or** PostPublishFailed → (manual retry) → PostPublished.
 4. **Learning loop:** PostVersionCreated (User edit) → KnowledgeCandidateProposed (Procedural Rule) → ProceduralRuleApproved → future Post Versions follow it.

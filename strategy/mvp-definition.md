@@ -2,8 +2,9 @@
 
 ## AI Marketing Director — Phase 2 Release Contract (24-Week Scope)
 
-> **Version:** 2.0 (PRD v1.1 Alignment) · **Date:** 28 October 2026  
-> **Status:** Canonical Release Contract — Aligned with [PRD v1.1 (`core/prd.md`)](../core/prd.md) and [decision-registry.md](./decision-registry.md).
+> **Version:** 2.0 (Historical Strategy Alignment) · **Date:** 28 October 2026 (Updated 30 October 2026)
+> **Status:** Supporting Strategy Document.
+> **Supersession Notice:** Authoritative product requirements, release gates, and technical contracts are governed by **[PRD v2.0 (`core/prd.md`)](../core/prd.md)** and the canonical specifications in `core/`. Under PRD v2.0: Now/Next/Later horizons and recurring outcome reviews (FR-47/AC-26) are retired in favor of the adaptive roadmap with vertical steps/dependency DAG and requested one-off analysis; intake requires explicit owner confirmation before Brain activation; login defaults to Marketing Director Chat (`/employee`) without last-page restoration; and publishing contracts standardize on `ScheduledTime` (`{ instant, zone, latenessAllowanceMinutes }`).
 
 ---
 
