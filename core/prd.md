@@ -25,9 +25,8 @@ BUSMORA is a graduation project with four simultaneous goals: a polished and rel
 
 ### 1.2 Revision and source authority
 
-This PRD is the product/release authority. The explicit owner-approved redesign supersedes v1.1 and conflicting supporting documents. Existing engineering choices remain binding where compatible. The repository filename is `prd.md`; the supplied request's `prd(1).md` refers to this same document, so its existing filename and links are preserved.
-
-Stable FR-01–49 and NFR-01–09 identifiers are retained with the dispositions below. FR-47 and AC-26 are retired, never reassigned. FR-50–58 and AC-31–58 add coverage. AC-01–25, AC-27–58 are active. The original external planning/playbook files are historical rationale, not implicit requirements. Five diagnostic lenses remain useful guidance, not validated scores, mandatory worksheets, or an endorsement.
+This PRD is the product/release authority. The explicit owner-approved redesign supersedes v1.1 and conflicting supporting documents. Existing engineering choices remain binding where compatible.
+Version history: v1.0 is the original release PRD (FR-001–FR-103, previously labelled "Version 2.0" on `main`); v1.1 introduced FR-01–49; v2.0 is this approved redesign. Stable FR-01–49 and NFR-01–09 identifiers are retained with the dispositions below. FR-47 and AC-26 are retired, never reassigned. FR-50–58 and AC-31–58 add coverage. AC-01–25, AC-27–58 are active. The original external planning/playbook files are historical rationale, not implicit requirements. Five diagnostic lenses remain useful guidance, not validated scores, mandatory worksheets, or an endorsement.
 
 ### 1.3 Revision ledger and cross-document change map
 
@@ -426,7 +425,6 @@ The following are mandatory product-level release checks. Detailed fixtures and 
 | AC-28 | Timeout, revocation, cancellation race, or overdue publish | Reconcile or hold uncertain outcomes; no blind duplicate, unauthorized late dispatch, or silent send after reconnection; cancellation state and platform acceptance remain honest |
 | AC-29 | Mobile mixed-script review and approval | Text/media, destination, date/time/timezone, status and controls are legible and usable in Arabic RTL and English LTR; keyboard/detail alternatives and independent language settings work |
 | AC-30 | Intended ordinary owner connects and publishes | The production configuration supports the owner's actual access path and genuine publication; developer-role account success alone cannot satisfy the gate |
-
 | AC-31 | Email verification link | Email/password-only signup sends a single-use expiring link; invalid/expired/replayed tokens fail, resend works, verification continues to Onboarding. |
 | AC-32 | Google identity | Signup/login validate state/PKCE/nonce/claims; cancellation is safe, matching email never silently links, explicit reauthenticated link succeeds without takeover. |
 | AC-33 | Optional offering pricing | Multiple offerings accept fixed, starting-from, quote-required and unknown models; optional amounts require currency and missing values never become zero. |
@@ -470,7 +468,7 @@ Use fixed source snapshots for reproducible grounding tests and a small live set
 
 ### 10.2 Release gates and targets
 
-The following gates adopt plan.md's proposals as the revision's evaluation baseline. They are not achieved results. Freeze the case rubric, sampling, critical/high defect definitions, and task-specific runtime/resource limits by the end of the first two project weeks, informed by technical slices. Changes require documented rationale and cannot silently lower the standard to pass a failed release.
+The following gates are this revision's evaluation baseline. They are not achieved results. Freeze the case rubric, sampling, critical/high defect definitions, and task-specific runtime/resource limits by the end of the first two project weeks, informed by technical slices. Changes require documented rationale and cannot silently lower the standard to pass a failed release.
 
 | Area | Gate or target | Required interpretation/evidence |
 |---|---|---|

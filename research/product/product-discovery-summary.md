@@ -4,6 +4,8 @@
 
 > Document produced after structured product discovery.
 > Last updated: October 2026.
+>
+> **Historical record.** This summary captures the discovery-phase thinking (the "Marketing Employee", fixed sub-agents, Reddit/YouTube/Ads Library crawling, content calendars, paid pilot). The current product is the **AI Marketing Director** defined by [PRD v2.0](../../core/prd.md); the decision tables below mark the choices that changed.
 
 ---
 
@@ -132,22 +134,22 @@ BusMora competes as an **Autonomous Execution Layer delivering native Arabic mar
 
 | Decision | Choice |
 |---|---|
-| Target market | Arabic-first SMBs (5–50 employees), e-commerce and local services |
+| Target market | Arabic-first owner-operated service businesses selling through inquiries/bookings (PRD v2.0 §2.1; discovery originally said e-commerce and local services) |
 | First Employee | Marketing Employee (only product in this release) |
 | Strategy | Vertical specialization; focused product with domain-neutral seams |
 | Platforms for posting | Facebook Pages in Phase 2 (Instagram Business and X in Phase 3) |
 | Language | Bilingual (Arabic + English), Arabic-first |
 | Workspace | Single user |
-| Campaign model | Content Calendar |
+| Campaign model | Posts in Scheduling (Month/Week/List/Unscheduled) plus planning documents; the discovery-era Content Calendar deliverable is superseded |
 | Extensibility | Controlled second-Employee release proven by a paper design exercise, not an early implementation |
 
 ### AI Architecture
 
 | Decision | Choice |
 |---|---|
-| Sub-agents | Market Research, Competitor Analysis, Content Writer, Campaign Planner, Social Media Poster |
+| Sub-agents | Discovery roster: Market Research, Competitor Analysis, Content Writer, Campaign Planner, Social Media Poster. Superseded: agent count is now a technical choice and publishing is a deterministic service (FR-21) |
 | Orchestration | Router → Brain lookup → Clarify → Delegate → Collect |
-| Data gathering | Custom crawling (Reddit, YouTube, Facebook Ads Library, Web) |
+| Data gathering | Dynamic research across accessible public sources; no fixed source list or promised coverage (FR-24) |
 | Posting | Via MCP Server pattern → Official Platform APIs |
 | Approval | Human approval before any external write action |
 
@@ -160,8 +162,8 @@ BusMora competes as an **Autonomous Execution Layer delivering native Arabic mar
 | Visualization | Interactive React Flow Canvas (visual graph inspection, editing, and candidate approval) |
 | Entity types | Nine predefined canonical types (Company Profile, Offering, Audience, Brand Rule, Positioning, Strategic Goal, Channel, Competitor, Company Fact) |
 | Population | Gradual: website crawling → conversations → task results → manual |
-| Lifecycle | Candidate → Approved → Rejected (audit-preserving retirement, no hard delete) |
-| First population | Website URL → background crawl → knowledge candidates → categorized review |
+| Lifecycle | Active / Candidate / Rejected / Superseded / Retired, plus real owner deletion (FR-09, FR-13) |
+| First population | Website crawl or manual entry → one editable draft → owner confirms the exact version → Brain activation (FR-04) |
 
 ### UX
 
@@ -170,7 +172,7 @@ BusMora competes as an **Autonomous Execution Layer delivering native Arabic mar
 | Interaction model | Hybrid (chat + background tasks) |
 | Canvas | Full real-time agent workflow visualization with dual-pane (chat + decision canvas) |
 | First contact | Proactive — the Employee suggests what is missing |
-| Clarification | Structured forms in chat + "Search yourself" option, with free-text clarification |
+| Clarification | Choice-first forms (3–4 options + Other, Unknown/Skip/Not Applicable) with an optional "Research this" (FR-18) |
 | Error handling | Silent retry + fallback; transparent notification if all attempts fail |
 | Deliverables | Central folder for all AI-generated outputs |
 | Task history | Stored with knowledge extraction to the Brain |
@@ -183,7 +185,7 @@ BusMora competes as an **Autonomous Execution Layer delivering native Arabic mar
 | Team | 5 students |
 | Timeline | 24 weeks (~2,400 productive hours: 18 weeks feature dev + 6 weeks stabilization), vertical workstream ownership |
 | Scope | Phase 2 first production-ready release contract |
-| Intent | Real product launch (graduation project context) evaluated over 24-case benchmark suite and AC-01–30 |
+| Intent | Real product launch (graduation project context) evaluated over a ~24-case benchmark suite and all active AC-01–25, AC-27–58 |
 
 ---
 
@@ -191,7 +193,7 @@ BusMora competes as an **Autonomous Execution Layer delivering native Arabic mar
 
 | # | Assumption | How We Validate |
 |---|---|---|
-| 1 | SMBs will delegate marketing tasks to an AI employee under approval | Confirm during the paid pilot; instrument usage and acceptance |
+| 1 | Owners will delegate marketing tasks to an AI Director under approval | Real owner sessions (paid pilots optional); instrument usage and acceptance |
 | 2 | Custom crawling reliably extracts useful data from Reddit, YouTube, and the Ads Library | Early technical prototype in the first sprints |
 | 3 | Website crawling produces strong enough knowledge candidates for a good first impression | Test against a set of real business websites |
 | 4 | The reviewed Business Brain reduces rework compared to plain document retrieval | Control-vs-treatment measurement across representative tasks |
@@ -206,5 +208,5 @@ BusMora competes as an **Autonomous Execution Layer delivering native Arabic mar
 | Item | Status |
 |---|---|
 | Provider selections (embedding model, image model, object storage, proxy vendor) | Scoped with named defaults; decided during Sprint 1 bake-off |
-| Pricing tiers | Modeled from measured per-channel API and compute costs; validated during the paid pilot |
+| Pricing | Deferred to Phase 4+; packaging chosen after observed repeat use and measured costs (P4-02) |
 | Second-Employee extensibility | Paper design exercise at architecture freeze |
