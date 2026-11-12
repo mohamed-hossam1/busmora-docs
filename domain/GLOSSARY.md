@@ -18,8 +18,12 @@ _Avoid_: Account, tenant, organization, project
 The primary operator who owns a Workspace, with sole authority over its Brain, integrations, approvals, and data.
 _Avoid_: Client, subscriber, admin, Sarah
 
+**Auth Identity**:
+A way the Owner signs in: email/password (optional local credential) or Google, identified by issuer + subject. Matching email never links accounts (FR-50).
+_Avoid_: Login, social account
+
 **Business Time Zone**:
-The single IANA time zone a Workspace plans, schedules, and publishes in.
+The default IANA time zone a Workspace plans and schedules in, stored explicitly next to country and currency, never inferred from language. Changing it never moves an approved Post (FR-44).
 _Avoid_: Locale, user time zone, browser time
 
 ---
@@ -46,9 +50,9 @@ _Avoid_: Edge, link, connection
 The explicit classification of any knowledge piece: Source Observation, Owner-Provided Claim, AI Hypothesis/Interpretation, or Confirmed Decision.
 _Avoid_: Certainty level, raw fact
 
-**Imported Context**:
-Context extracted from a website URL crawl, active immediately as imported/unverified with provenance, without demanding blocking manual review.
-_Avoid_: Raw crawl, scraped text
+**Onboarding Draft**:
+The single editable essential-intake form (name, description, offerings, country/service area, conversion route state) filled from a website crawl or manually. It becomes active Brain context only when the owner confirms that exact version (FR-04, FR-06).
+_Avoid_: Imported context, raw crawl, scraped text, auto-imported knowledge
 
 **Procedural Rule**:
 A reviewed instruction about *how* the Director should work for this Business, learned from owner edits and feedback.
@@ -67,8 +71,12 @@ A safety hold placed on dependent active tasks and scheduled posts when core bus
 _Avoid_: Broken post, frozen queue
 
 **Retirement**:
-Withdrawing an approved Knowledge Item from active retrieval while keeping its historical provenance.
+Withdrawing a current Knowledge Item from active retrieval while keeping its historical provenance.
 _Avoid_: Deletion, archiving, removal
+
+**Deletion**:
+Owner-requested removal of Brain information or historical work: retrieval is suppressed immediately and derived records are cleaned up under the retention policy (FR-13, NFR-09). Distinct from Retirement.
+_Avoid_: Retire, hide
 
 **Conflict**:
 Two Knowledge Items that contradict each other, surfaced to the owner rather than resolved silently.
@@ -98,9 +106,9 @@ _Avoid_: Brand assets, brand template, style guide
 The AI partner in a Workspace that understands business context, diagnoses commercial constraints, maintains the roadmap, and orchestrates marketing tasks.
 _Avoid_: Agent, bot, copilot, employee (when emphasizing strategic direction)
 
-**STAR Diagnostic Lenses**:
-The 5 commercial perspectives (Situation/Offer, Traffic/Acquisition, Activation/Conversion, Retention/Referrals, Operations/Fulfillment) used to identify primary bottlenecks.
-_Avoid_: Audit framework, marketing scorecard
+**Diagnostic Lenses**:
+The five perspectives used as guidance to find the primary constraint: offer/audience, destination, conversion, acquisition, and existing-customer opportunities, all constrained by capacity/fulfillment (FR-14). Guidance only, never a numeric score or mandatory worksheet.
+_Avoid_: STAR lenses, audit framework, marketing scorecard, health score
 
 **Constraint Hypothesis**:
 The Director's calibrated assessment of which specific commercial bottleneck limits the owner's goal right now.
@@ -111,7 +119,7 @@ The prioritized, capacity-aware plan of vertical marketing steps and dependency 
 _Avoid_: Backlog, task list, project plan, Now/Next/Later board columns
 
 **Curated Task Recipe**:
-A pre-configured, structured template for a common marketing task (e.g. claim review, offer clarification, one-channel campaign, recurring review).
+A pre-configured, structured template for a common marketing task (e.g. goal discovery, claim-proof inspection, offer/message drafting, campaign preparation, governed Facebook publishing, requested file analysis) (PRD §5.13). Not a mandatory step or a new module.
 _Avoid_: Workflow template, agent prompt
 
 **Orchestrator**:
@@ -143,11 +151,19 @@ Clear instructions, copy, and completion checklists provided for unsupported ext
 _Avoid_: Unsupported error, manual fallback
 
 **Clarification**:
-A structured pause where the Director requests essential missing details from the owner.
-_Avoid_: Question, prompt, interruption
+A structured, choice-first pause where the Director requests essential missing details from the owner; a field may offer **Research this** (FR-18).
+_Avoid_: Question, prompt, interruption, "Search yourself"
+
+**Roadmap Discovery**:
+The saved, resumable adaptive questionnaire behind Create My Roadmap; the first question selects the goal (FR-51).
+_Avoid_: Onboarding interview, strategy wizard
+
+**Step Execution / Owner-reported Done**:
+What actually happened to a Roadmap Step. Owner-reported Done is the owner's attestation, never platform verification; Skip is neither completion nor cancellation (FR-53).
+_Avoid_: Verified, finished (for attested work)
 
 **Canvas**:
-The live, authentic picture of a running Task rendering recorded execution events, active specialists, tools, and handoffs.
+The live, authentic picture of the selected conversation's Task, rendering recorded execution events, active specialists, tools, and handoffs; recoverable retries show as Processing (FR-22–23).
 _Avoid_: Decision canvas, workflow visualization, agent graph
 
 **Partial Result**:
@@ -159,7 +175,7 @@ _Avoid_: Degraded result, failure
 ## Market Intelligence
 
 **Onboarding Crawl**:
-The bounded first read of the Business's own website (≤ 10 pages, ≤ 5 min) that extracts business context and brand cues into imported context.
+The bounded first read of the Business's own website (provisional ≤ 10 relevant pages, ≤ 5 min) whose extraction prefills the Onboarding Draft.
 _Avoid_: Site scraper, full crawl
 
 **Research Crawl**:
@@ -184,43 +200,47 @@ _Avoid_: Reference, link, footnote
 
 ---
 
-## Deliverables & Performance
+## Deliverables & Requested Analysis
 
 **Deliverable**:
-A finished, persistent piece of marketing work handed to the owner and saved in the Workspace.
-_Avoid_: Artifact, output, report
+A versioned non-Post document (research, strategy, analysis, brief) saved in the Workspace. Social Posts are never Deliverables (FR-41, FR-57).
+_Avoid_: Artifact, output, report, content calendar
 
 **Research Report**:
 A Deliverable synthesizing competitive findings, customer pain points, and strategic recommendations with inspectable citations.
 _Avoid_: Research brief, market analysis
 
-**Content Package**:
-A Deliverable containing channel-specific copy, visual briefs, CTAs, and hashtags written in the Brand Voice.
-_Avoid_: Copy set, post batch
+**Campaign**:
+A grouping of related planning documents and independent Posts, linked by campaign/task/step references without duplicating Post content.
+_Avoid_: Content package, content calendar, post batch
 
-**Performance Report**:
-A campaign performance file in CSV or Excel (`.xlsx`) format uploaded by the owner, or entered manually as aggregate observations.
-_Avoid_: Analytics export, spreadsheet
+**Analysis Upload**:
+A CSV or Excel (`.xlsx`) file attached to an explicit Chat request, mapped to a documented template before deterministic metrics are computed (FR-38).
+_Avoid_: Performance report, analytics export
 
-**Performance Diagnosis**:
-A Deliverable analyzing uploaded or entered performance against goals using deterministic metrics and proposing prioritized adjustments.
-_Avoid_: Analytics dashboard, BI report
+**Analysis Report**:
+The one-off Deliverable produced by requested file analysis, with limitations and no recurring cadence or automatic roadmap change (FR-39–40).
+_Avoid_: Performance diagnosis, analytics dashboard, BI report, outcome review
 
 ---
 
 ## Governed Publishing
 
 **Post**:
-One piece of social content intended for one Connected Account at one specific time.
-_Avoid_: Publication, update, approval card
+One piece of social content owned by Governed Publishing and shown in Scheduling. It may be an undated, unconnected draft (`scheduledTime: null`, shown under Unscheduled) until it is prepared for approval (FR-55, FR-57).
+_Avoid_: Publication, update, approval card, content calendar entry
+
+**Scheduling**:
+The single home for every Post: Month (desktop default), Week, List and Unscheduled views, plus the editor and Batch Review (FR-55).
+_Avoid_: Content calendar, publishing queue
 
 **Post Version**:
 An immutable snapshot of a Post's text, media, destination, and execution parameters; approval always binds to a specific Post Version.
 _Avoid_: Draft, revision
 
-**Review & Approval**:
-The interface where the owner inspects, edits, approves, or rejects planned Posts.
-_Avoid_: Approval queue, review inbox
+**Batch Review**:
+The Scheduling view where the owner inspects, edits, approves, or rejects the exact displayed Post Versions individually or in bulk (FR-34, AC-51).
+_Avoid_: Approval queue, review inbox, outcome review
 
 **Approval**:
 The owner's explicit consent that an exact Post Version, destination, scheduled time/timezone, and delivery lateness allowance may be published.

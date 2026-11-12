@@ -333,6 +333,9 @@ stateDiagram-v2
   blocked --> ready: real prerequisite resolved
   ready --> not_applicable: explicit applicability decision
   running --> cancelled: separate cancellation confirmed
+  awaiting_input --> cancelled: owner cancel or clarification expiry
+  awaiting_approval --> cancelled: owner cancel
+  awaiting_approval --> failed: decision refused, no bounded result
   failed --> ready: explicit authorized retry eligibility
   planned --> superseded: approved revision
 ```
@@ -357,6 +360,8 @@ stateDiagram-v2
   running --> cancelled
   awaiting_budget_approval --> cancelled
 ```
+Capacity admission is a durable wait, not polling: a Task that cannot get a slot stays `requested` with `waitingReason=capacity`, and its `TaskExecutionWorkflow` waits for an `admit` signal. Whenever a slot is released (terminal state, clarification or budget pause), the same API transaction that frees it picks the oldest `requested` Task of that Workspace (FIFO by `requestedAt`) under the workspace advisory lock, marks it admitted, and signals its workflow after commit with a deterministic signal id. A periodic reconciliation activity re-signals admitted-but-not-running Tasks, so a lost signal cannot strand a Task (BACKEND §6.4.2).
+
 Public Canvas maps requested to recorded planned state, running (including recoverable retries) to active/Processing, clarification/budget waits to awaiting_input, real holds to held, and final logical outcomes to completed/error/cancelled. Partial results explicitly label completed versus failed work; no synthesized attempt graph. Selection is Conversation → related Tasks → selected Task; only actual node/connection records appear. Changing conversation does not cancel other Tasks.
 
 **Documents and Post Versions**
@@ -382,6 +387,7 @@ stateDiagram-v2
   pending_approval --> draft: edit removes required parameters
   pending_approval --> approved: exact version and parameters
   pending_approval --> rejected
+  rejected --> draft: owner edits, new Post Version
   pending_approval --> expired: proposed time passes
   expired --> pending_approval: new time and version
   approved --> scheduled: release registered
@@ -1212,9 +1218,9 @@ Canvas follows selected conversation and related Task, not workspace-global sele
 | OD-21 | Platform lead, initial design by week 4 and tested before release: active cleanup deadlines, audit minimum, provider/trace retention, backup expiry/suppression and restore/rollback evidence; validate recovery objectives rather than promise zero loss |
 | OD-22 | AI/evaluation leads, by week 2: public search/discovery + retrieval provider baseline (regional quality, access, grounding, stopping, cost/latency and bounded reservations); retained Scrapling adapter is not evidence of complete search capability |
 | OD-23 | Integration lead, start week 1 and record by week 2: selected Facebook production access path, review/verification requirements, committed format support and real ordinary-owner evidence; unresolved AC-30 blocks release |
+| OD-24 | Evaluation/UX leads, by week 2: freeze held-out rubrics, severity definitions, release load/task limits and regional reviewers; verify all PRD §10 gates before release |
 | OD-25 | Identity lead: Google OIDC library/consent/JWKS and callback browser tests, verification/reset TTLs and mail delivery policy; safe linking/session contract already decided in §4.7.1 |
 | OD-26 | Platform/UX leads: calendar page/range limits, adaptive-question policy evaluation, current deployment/data inventory before any compatibility migration; no invented legacy evidence |
-| OD-24 | Evaluation/UX leads, by week 2: freeze held-out rubrics, severity definitions, release load/task limits and regional reviewers; verify all PRD §10 gates before release |
 
 ### 9.3 Implementation gaps (requirements remain binding)
 Accessibility and browser design targets are defined in [DESIGN-SYSTEM.md](./DESIGN-SYSTEM.md) §§12–13. Numeric upload/rate limits, retention durations, provider data-handling constraints, support runbooks and operating-load evidence still need implementation decisions. None permits omitting required data controls, languages, native publishing or recovery.
@@ -1226,7 +1232,7 @@ Accessibility and browser design targets are defined in [DESIGN-SYSTEM.md](./DES
 
 ### 9.5 Source reconciliation and authority
 
-Only these five core files are updated in this redesign. Older domain/strategy/research files remain historical rationale where compatible and cannot override the owner-approved PRD v2.0. No missing external plan silently changes scope.
+The five core files, `domain/` and `strategy/` are aligned with PRD v2.0. `research/technical/` (00–04) remains a dated historical benchmark record: its v1-era scope (Instagram/X, brand visuals, performance CSV, paid pilot) is rationale for the retained engineering choices, not current scope, and cannot override PRD v2.0.
 
 | Source conflict | Resolved current contract |
 |---|---|
@@ -1371,10 +1377,10 @@ All 57 active scenarios below require real implementation evidence. AC-26 remain
 | AC-46 — One active Roadmap | FR-16, FR-54 | Concurrent activations cannot create two active plans; drafts survive, archived versions and original execution references remain inspectable. |
 | AC-47 — Document lineage | FR-41, FR-57 | Research saves a non-Post Deliverable; owner/Chat edits create a new immutable version of the same artifact with sources/context and staleness labels. |
 | AC-48 — Manual New Post | FR-55, FR-57 | Create/edit a draft in Scheduling without a connected Page; subsequent publishing requires connection and exact-version approval. |
-| AC-49 — Unscheduled | FR-55, FR-57 | Null publishing date appears only in Unscheduled; no invented calendar date or release workflow dispatch. |
+| AC-49 — Unscheduled drafts | FR-55, FR-57 | Manual draft creation or editing with `scheduledTime: null` appears only in Unscheduled; no invented calendar date or release workflow dispatch. |
 | AC-50 — Calendar views | FR-43, FR-55 | Month/Week/List and range/filter pagination agree; proposed dates are visibly unapproved; mobile and keyboard alternatives work across DST. |
 | AC-51 — Bulk approval | FR-34, FR-55 | Only enumerated displayed versions are decided; stale/missing/ineligible items report per-item failure and retry cannot approve a newer unseen version. |
-| AC-52 — Rescheduling | FR-34, FR-35, FR-44, FR-55 | Drag/form change of an approved Post creates a new version and invalidates approval; timezone default change never moves an approved instant. |
+| AC-52 — Rescheduling | FR-34, FR-35, FR-44, FR-55 | Drag/form rescheduling of an approved Post sends complete `ScheduledTimeInput` (`{ instant, zone, latenessAllowanceMinutes }`), creates a new immutable Post Version, and invalidates approval; timezone default change never moves an approved instant. |
 | AC-53 — Historical publication | FR-36, FR-55 | Confirmed Posts appear at actual publishedAt, not an obsolete proposed date; duplicate creates a new Draft and local deletion claims no platform removal. |
 | AC-54 — Connection recovery | FR-33, FR-35, FR-55, FR-56 | Disconnect blocks sends and advances authorization generation; reconnect does not release overdue/uncertain work without fresh checks/approval as required. |
 | AC-55 — Contextual notifications | FR-56 | Read/unread/count and mark-all-read work; exact form/Post/document/revision/proposal/settings links validate access and deleted subjects show unavailable. |
@@ -1444,7 +1450,7 @@ Remaining decisions are implementation work: Google provider/library/configurati
 
 ### A.5 Documentation validation
 
-Validated 30 October 2026 against these five revised Markdown files. This is documentation evidence only: application code, runtime tests, provider access, measured performance and production readiness are not asserted.
+Validated against the revised Markdown files (re-checked after the domain/strategy alignment). This is documentation evidence only: application code, runtime tests, provider access, measured performance and production readiness are not asserted.
 
 | Consistency check | Result and design evidence |
 |---|---|
@@ -1461,6 +1467,6 @@ Validated 30 October 2026 against these five revised Markdown files. This is doc
 | Phase 5 Meta Ads deferred | Pass: future vision in all five documents; no current Ads execution or spending authority. |
 | Requirements and acceptance synchronized | Pass: 57 active FRs, nine NFRs and 57 active ACs mapped; FR-47/AC-26 explicitly retired; all 40 requested redesign checks resolve to active criteria. |
 
-Automated document checks passed: 18 Mermaid blocks parsed with Mermaid 11.12.2; 130 Markdown tables have consistent cells; code fences balance; 85 relative file/heading links resolve; explicitly named numeric cross-document section references resolve; PRD and Appendix A acceptance titles/pass conditions match exactly; requirement IDs and all 40 case mappings resolve. Both original Design System CSS blocks are unchanged. A contextual legacy-term review found only intentional retirement/negative checks, ordinary language or legitimate publishing review terminology. Scoped `git diff --check` passes for all five files. Existing unrelated workspace changes were left intact; the documentation edits are uncommitted.
+Document checks to keep passing on every change: Mermaid blocks parse; Markdown tables have consistent cells and no blank line inside a table; code fences balance; relative file/heading links resolve; PRD and Appendix A acceptance titles/pass conditions match exactly; requirement IDs and all 40 case mappings resolve; a legacy-term scan finds only intentional retirement/negative checks or the historical `research/technical/` record.
 
 These checks validate the written specification. The release evidence in A.2 must still be produced against implemented software, real external integrations and the stated evaluation/load conditions. See A.4 and §9.2 for unresolved implementation decisions.

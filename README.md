@@ -1,6 +1,6 @@
 # BusMora — Project Documentation & Architecture
 
-> **BusMora** is an autonomous **AI Marketing Director** platform designed for Arabic-first small and medium businesses (5–50 employees, service businesses and SMBs selling via inquiries/bookings) in Egypt and the GCC. It combines a reviewed **Business Brain** (relational concept graph + procedural rules) with an **autonomous execution layer** that diagnoses commercial constraints using the **5 STAR Lenses**, prioritizes an adaptive **Marketing Roadmap**, writes culturally authentic Arabic content across 4 registers, conducts dynamic research with per-task budgets, and safely publishes to social media under human approval.
+> **BusMora** is an autonomous **AI Marketing Director** platform designed for Arabic-first small and medium businesses (5–50 employees, service businesses and SMBs selling via inquiries/bookings) in Egypt and the GCC. After a short owner-confirmed setup, it combines a persistent **Business Brain** (relational concept graph + procedural rules) with independent **Director Chat** and a guided **Roadmap** of executable steps. The Director diagnoses the likely constraint, researches within per-task budgets, writes authentic content across 4 registers, keeps documents in Deliverables and Posts in Scheduling, and publishes to Facebook Pages only with exact owner approval.
 
 ---
 
@@ -22,15 +22,15 @@ busmora-docs/
 │   ├── events.md                 # Domain Events Catalog & Outbox Schemas
 │   └── README.md
 ├── strategy/                     # Product, Business & Governance Strategy
-│   ├── business-model-value-proposition.md # 4-Pillar Moat & Phased Commercialization
+│   ├── business-model-value-proposition.md # Value Proposition & Commercial Hypotheses
 │   ├── mvp-definition.md         # Phase 2 Release Contract (24 Weeks, 5 Students)
-│   ├── evaluation.md             # 24-Case Scenario Library & AC-01–30 Release Gates
-│   ├── decision-registry.md      # Authoritative Decision Registry (D-01 to D-60)
+│   ├── evaluation.md             # ~24-Case Scenario Library & PRD §10.2 Release Gates
+│   ├── decision-registry.md      # Decision Registry (D-01 to D-70)
 │   └── README.md
 ├── research/                     # Discovery, Benchmarks & Deep Analysis
 │   ├── product/                  # Customer & Market Research
 │   │   └── product-discovery-summary.md # Pain points, interviews, competition
-│   ├── technical/                # Architectural Exploration & Trade-off Benchmarks
+│   ├── technical/                # Historical Architecture Benchmarks (v1-era scope)
 │   │   ├── 00-requirements-analysis.md # Historical audit & gap analysis
 │   │   ├── 01-constraints.md     # Binding constraints & hard gates (G1–G5)
 │   │   ├── 02-options.md         # Deep options analysis (B1–B3, FE-1–FE-3)
@@ -69,7 +69,7 @@ The 5 canonical documents defining the functional and architectural contract are
 
 The domain taxonomy and aggregate models are in [**`domain/`**](./domain/README.md):
 
-* [**Ubiquitous Language & Glossary (`GLOSSARY.md`)**](./domain/GLOSSARY.md) — Canonical terminology, forbidden synonyms, and lifecycle statuses (AI Marketing Director, Adaptive Roadmap, STAR Lenses, Context Staleness Holds, Honest Handoffs, ScheduledTime).
+* [**Ubiquitous Language & Glossary (`GLOSSARY.md`)**](./domain/GLOSSARY.md) — Canonical terminology, forbidden synonyms, and lifecycle statuses (AI Marketing Director, Onboarding Draft, Roadmap Discovery, Diagnostic Lenses, Context Staleness Holds, Honest Handoffs, ScheduledTime).
 * [**Bounded Contexts (`contexts.md`)**](./domain/contexts.md) — Clear boundaries and ownership across Core (Business Brain, Marketing Employee, Governed Publishing), Supporting, and Generic contexts.
 * [**Domain Model (`model.md`)**](./domain/model.md) — Aggregates, entity lifecycles, and domain invariants including post `held` states and per-task research budgets.
 * [**Domain Events (`events.md`)**](./domain/events.md) — Immutable domain event catalog, payload schemas, and transactional outbox conventions.
@@ -80,10 +80,10 @@ The domain taxonomy and aggregate models are in [**`domain/`**](./domain/README.
 
 Business models, release boundaries, and decision records are in [**`strategy/`**](./strategy/README.md):
 
-* [**Business Model & Value Proposition**](./strategy/business-model-value-proposition.md) — 4-pillar defensibility moat, competitive positioning, and phased commercialization.
-* [**MVP Definition**](./strategy/mvp-definition.md) — Phase 2 release contract (24 weeks by 5 students across 5 workstreams, ~2,400 hours), 5 STAR diagnostic lenses, and 7 core user journeys.
-* [**Evaluation Plan**](./strategy/evaluation.md) — 24-case scenario library with contrast pairs, 30 release acceptance gates (AC-01 through AC-30), Arabic quality rubrics across 4 registers, and blind Brain benchmark.
-* [**Decision Registry**](./strategy/decision-registry.md) — Authoritative historical record of product and architecture decisions (D-01 to D-60).
+* [**Business Model & Value Proposition**](./strategy/business-model-value-proposition.md) — Value proposition canvas, competitive positioning, defensibility and commercial hypotheses (no price or payment provider selected).
+* [**MVP Definition**](./strategy/mvp-definition.md) — Phase 2 release contract (24 weeks by 5 students, ~2,400 hours), personas, and 7 core user journeys.
+* [**Evaluation Plan**](./strategy/evaluation.md) — ~24-case scenario library with contrast pairs, PRD §10.2 release gates (AC-01–25, AC-27–58), Arabic quality rubrics across 4 registers, and blind Brain benchmark.
+* [**Decision Registry**](./strategy/decision-registry.md) — Product and architecture decisions (D-01 to D-70) with superseded history.
 
 ---
 

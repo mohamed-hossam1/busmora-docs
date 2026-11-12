@@ -1,117 +1,129 @@
 # Evaluation Plan & Acceptance Framework
 
-> **Version:** 2.0 (Historical Quality Baseline) · **Date:** 28 October 2026 (Updated 30 October 2026)
-> **Status:** Supporting Evaluation Framework.
-> **Supersession Notice:** Authoritative acceptance criteria and release scenarios are governed by **[PRD v2.0 (`core/prd.md`)](../core/prd.md)** (AC-01 through AC-58, with AC-26 retired). Under PRD v2.0: AC-34 verifies normal login to Marketing Director Chat (`/employee`) without last-page restoration; AC-49/AC-52 standardize `ScheduledTime` contracts; and AC-56/AC-57 enforce absence of retired legacy dashboards and planning horizons.
+> **Version:** 3.0 (PRD v2.0 alignment) · **Date:** 30 October 2026
+> **Status:** Supporting evaluation framework.
+> **Authority:** Acceptance scenarios and release gates are governed by **[PRD v2.0 (`core/prd.md`)](../core/prd.md)** §§9–10 (AC-01–25 and AC-27–58 active; AC-26 retired). [SYSTEM-ARCHITECTURE.md](../core/SYSTEM-ARCHITECTURE.md) Appendix A maps every requirement and scenario to its design surface.
 
 ---
 
 ## 1. Purpose & Guiding Principles
 
-This document defines how BusMora evaluates whether its core product and architecture claims hold. Every claim is verified with empirical evidence gathered from human reviewers, held-out business cases, and instrumented system data—not from assertions or unverified simulations.
+This document defines how BusMora checks whether its product and architecture claims hold. Every claim is verified with evidence from human reviewers, held-out business cases and instrumented system data, not from assertions or simulations.
 
 ### Core Principles
-1. **Continuous Evaluation:** Evaluation runs throughout the 24-week development lifecycle, combining functional, integration, security, and reliability checks with native human review.
-2. **Graduation & Release Prerequisite:** Acceptance is determined by passing all 30 release scenarios (AC-01 through AC-30) and meeting strict quality/safety gates. Paid pilots and a fixed number of external testers are commercial learning opportunities, **not graduation prerequisites**.
-3. **Truthfulness Over Optimism:** Mocked operations, simulated agent activity, and interface-only demonstrations cannot establish capability completion. Any observed critical violation blocks release until repaired.
+1. **Continuous evaluation:** evaluation runs throughout the 24 weeks, combining functional, integration, security and reliability checks with suitable native human review.
+2. **Release prerequisite:** acceptance means passing every active acceptance scenario (AC-01–25, AC-27–58) and the PRD §10.2 gates. Paid pilots and a fixed number of external testers are commercial learning, **not graduation prerequisites**.
+3. **Truthfulness over optimism:** mocked operations, simulated agent activity and interface-only demos cannot establish completion. Any observed critical violation blocks release until repaired and retested.
+4. **Frozen standards:** rubrics, sampling, critical/high defect definitions and task-specific runtime/resource limits are frozen by the end of week 2. Changes need documented rationale and cannot lower a gate to hide a failure.
 
 ---
 
 ## 2. Methodology & Instrumentation
 
-Evaluation combines four rigorous methodologies:
-* **Human Reviewer Panel:** Native Arabic reviewers score outputs against published rubrics across all supported dialects.
-* **Paired Treatment-vs-Control Runs:** Grounded Business Brain runs are evaluated against a document-only baseline on identical tasks.
-* **24 Authored Business Cases:** A comprehensive test suite spanning sparse/conflicting data, direct requests, owner overrides, capacity limits, different conversion bottlenecks, and all 4 content registers.
-* **Platform Instrumentation & Tracing:** Langfuse captures per-task token usage, model latency, and prompt versions; product databases record approval transitions, staleness holds, and publish attempts.
+* **Human reviewer panel:** suitable reviewers score outputs against frozen rubrics in every content register; Gulf-oriented content needs regional review.
+* **Paired treatment-vs-control runs:** Business Brain runs are compared with a document-only baseline on identical tasks.
+* **~24 authored business cases:** sparse/conflicting evidence, direct requests, owner overrides, capacity and fulfillment limits, different conversion problems, source failures and all four registers.
+* **Fixed and live sources:** fixed source snapshots for reproducible grounding tests, plus a small live set for freshness and access.
+* **Instrumentation:** Langfuse records per-task usage, latency and prompt versions; product records hold approval transitions, holds, publish attempts and resource reservations.
+
+LLM judging may screen outputs; source inspection and native human review decide material factual, cultural and strategic questions.
 
 ---
 
-## 3. The 24-Case Scenario Library
+## 3. The Scenario Library
 
-The evaluation suite includes approximately **24 authored business cases** drawn from Arabic-first SMBs and owner-operated services selling via consultations, bookings, or inquiries in Egypt and the GCC.
+About **24 authored business cases** drawn from Arabic-first owner-operated service businesses selling through consultations, bookings or inquiries in Egypt and named GCC countries.
 
 ### Key Dimensions Covered
-* **Contrast Pairs:** Scenarios designed in pairs where a single material variable changes (e.g. unknown vs measured baseline; zero customers vs repeat customer bottleneck; high inquiry volume vs poor qualification).
-* **Fulfillment & Capacity Constraints:** Tests where owner capacity is strictly bounded (e.g. 2 owner hours/week, no ad budget), verifying that the Director prioritizes feasible actions rather than generic volume.
-* **Dialect & Register Variations:** Distinct cases covering Egyptian Conversational, Gulf-oriented (Saudi/UAE lifestyle), Modern Standard Arabic (MSA), and English.
-* **Uncertainty & Source Gaps:** Scenarios with incomplete websites, unverified claims, or conflicting public sources, testing honest partial results and refusal to hallucinate facts.
-* **Held-Out Test Set:** A dedicated partition of cases remains strictly unused during prompt tuning to prevent overfitting.
+* **Contrast pairs:** one material fact changes (unknown vs. measured baseline; no customers vs. repeat customers; many inquiries vs. poor qualification).
+* **Practical constraints:** limited assets, permissions, business budget or fulfillment capacity, checking that the Director prioritizes feasible work. There is no standard weekly-owner-hours question (AC-20).
+* **Registers:** Egyptian, Gulf-oriented (named country/audience), MSA and English.
+* **Uncertainty and source gaps:** sparse websites, unsupported claims and contradictory or malicious sources.
+* **Held-out partition:** never used for prompt tuning; coverage reported. Synthetic fixtures are labelled and never counted as customer evidence.
+* **Required extra cases:** healthy acquisition but weak repeat demand, and low-volume/long-cycle businesses (PRD §9).
 
 ### Scenario Categories
 | Category | Core Challenge Tested | Example |
 |---|---|---|
-| **Intake & First Direction** | Unverified site crawl; unknown audience/baseline | "Extract company knowledge from URL and recommend initial focus" |
-| **Constraint Diagnosis** | 5 STAR lenses; identifying non-acquisition bottlenecks | "Lots of inquiries on WhatsApp, but almost zero conversions" |
-| **Multi-Source Research** | Grounded retrieval, citations, per-task budget enforcer | "Analyze competitor pricing and customer complaints on Reddit/Web" |
-| **Brand Voice & Copywriting** | Culturally authentic text in 4 registers | "Write 3 Facebook posts targeting Egyptian clinic patients" |
-| **Capacity-Bounded Planning** | Now/Next/Later roadmap fitting 2 hours/week | "Build next week's plan with zero ad spend and limited time" |
-| **Facebook Publishing** | Exact-version approval, timezone scheduling, read-back | "Approve and schedule post for tomorrow 10:00 AM Cairo time" |
-| **Performance Learning** | CSV and Excel (`.xlsx`) validation, deterministic KPIs | "Upload monthly lead sheet and diagnose CAC/conversion drop" |
-| **Context Staleness** | Core offer change triggers post hold | "Change service price from \$50 to \$70; verify scheduled posts hold" |
-| **Unsupported External Handoff** | Offline / live-site work with honest checklists | "Draft WhatsApp response scripts and landing page copy briefs" |
+| **Intake & first choice** | Crawl-prefilled draft, exact-version confirmation, no-website route | "Import my site, fix one offering, confirm, then choose Chat or Roadmap" |
+| **Constraint diagnosis** | Five diagnostic lenses; non-acquisition constraints | "Lots of inquiries on WhatsApp, but almost no bookings" |
+| **Roadmap Discovery** | Adaptive questions, Unknown/Skip, exact-question research return | "Build a plan to get my first ten customers; research the price question for me" |
+| **Step execution** | Dependencies, Skip/Revisit, owner-reported Done, revision diff | "Skip the landing-page step and show what that blocks" |
+| **Multi-source research** | Grounded retrieval, citations, per-task budget | "Analyze competitor pricing and customer complaints" |
+| **Brand voice & copywriting** | Authentic text in 4 registers, claim integrity | "Write 3 Facebook posts for Egyptian clinic patients" |
+| **Scheduling & Facebook publishing** | Exact-version approval, rescheduling, uncertain outcome | "Approve tomorrow 10:00 Cairo time; then drag it to Thursday" |
+| **Requested analysis** | CSV / `.xlsx` mapping, deterministic metrics, unknown ≠ zero | "Here is last month's ad export — what changed?" |
+| **Context staleness** | Price change holds only affected Posts | "Change the service price from EGP 5,000 to EGP 8,000" |
+| **Unsupported handoff** | Honest instructions and checklist | "Draft WhatsApp follow-up scripts and landing-page copy" |
 
 ---
 
 ## 4. Arabic Quality & Dialect Rubric
 
-Reviewers score each deliverable on a **1–5 scale** across five dimensions:
+Reviewers score each output on a **1–5 scale**:
 
 | Dimension | What Reviewers Assess | Acceptance Standard |
 |---|---|---|
-| **Fluency** | Reads as natural, idiomatic Arabic with no translated feel | ≥ 4, none < 3 |
-| **Dialect Fit** | Accurately matches requested register (Egyptian, Gulf, MSA, English) | ≥ 4, none < 3 |
-| **Brand Fit** | Consistently reflects approved brand voice, tone, and positioning | ≥ 4, none < 3 |
-| **Cultural Fit** | Appropriately uses regional idioms, references, and phrasing | ≥ 4, none < 3 |
-| **Factual Grounding** | Claims match Business Brain facts and authentic cited sources | 100% verifiable |
+| **Fluency** | Natural, idiomatic language with no translated feel | ≥ 4, none < 3 |
+| **Dialect fit** | Matches the requested register and named audience | ≥ 4, none < 3 |
+| **Brand fit** | Reflects the confirmed brand voice and positioning | ≥ 4, none < 3 |
+| **Cultural fit** | Appropriate regional references and phrasing | ≥ 4, none < 3 |
+| **Factual grounding** | Claims match current Brain facts and real cited sources | All audited claims supported or labelled |
 
 ### Reviewer Panel Rules
-* **Two independent native Arabic reviewers** score every deliverable in an evaluation round.
-* If reviewers differ by > 1 point on any dimension, a **third reviewer breaks the tie**.
-* Gulf-oriented content must be evaluated by reviewers familiar with GCC vernacular; Egyptian or MSA success cannot be extrapolated to Gulf quality.
+* **Two independent reviewers** score every output; if they differ by more than 1 point on any dimension, **a third breaks the tie**.
+* Gulf-oriented content is reviewed by reviewers familiar with the named GCC audience; Egyptian or MSA success never stands in for Gulf quality.
 
 ---
 
 ## 5. Brain Value Measurement (Treatment vs. Control)
 
-To measure the empirical contribution of the Business Brain, tasks are executed in two blind configurations:
-
-| Configuration | Retrieval & Context Mechanism |
+| Configuration | Retrieval & Context |
 |---|---|
-| **Treatment (Brain)** | Relational concept graph retrieval (vector seed + 1–2 hop expansion) + procedural rules. |
-| **Control (Document-Only)** | Raw source document chunk retrieval without relational graph extraction or rules. |
+| **Treatment (Brain)** | Concept-graph retrieval (vector seed + 1–2 hop expansion) + approved procedural rules |
+| **Control (Document-Only)** | Raw source chunks without graph extraction or rules |
 
-### Evaluation Metrics
-* **Clarification Turns:** Number of informational gaps the system asks the owner to fill.
-* **Factual Corrections:** Number of factual inaccuracies the owner must correct.
-* **Brand Corrections:** Frequency of tone, voice, or dialect corrections required.
-* **Core Hypothesis:** The grounded Business Brain configuration produces **≥ 50% fewer clarification turns and factual/brand corrections** than the document-only control.
+### Metrics
+* **Clarification turns:** informational gaps the system asks the owner to fill.
+* **Factual corrections:** inaccuracies the owner must correct.
+* **Brand corrections:** tone, voice or dialect corrections required.
+* **Hypothesis:** the Brain configuration needs fewer clarifications and corrections than the control. The numeric target is set with the frozen rubric in weeks 1–2 (PRD §10.2), not assumed in advance.
 
 ---
 
-## 6. Binding Phase 2 Release Gates (AC-01 through AC-30)
+## 6. Release Gates (PRD §10.2)
 
-Release acceptance requires passing the complete suite of **30 Acceptance Criteria (AC-01 to AC-30)** under declared release load:
-
-| Area | Release Gate / Acceptance Scenario | Observable Pass Condition |
+| Area | Gate | Evidence |
 |---|---|---|
-| **Onboarding & First Value** | **AC-01, AC-02, AC-21** | Website URL crawl seeds immediately usable imported context; guided setup handles unknown fields; messaging route supported without forcing a site. |
-| **First Value Usability** | **PRD §10 Target** | Median active owner interaction time from signup to first usable artifact is **≤ 10 minutes** for supported cases. |
-| **Brain Governance** | **AC-03, AC-15, AC-23** | Graph exploration, epistemic separation (imported vs confirmed vs hypothesis), deletion/export, and context staleness holds on material changes. |
-| **Diagnosis & Roadmap** | **AC-04, AC-18, AC-19, AC-20** | STAR lenses diagnose primary constraint; Now/Next/Later roadmap reflects real capacity; alternatives explained; direct requests scoped (AC-05). |
-| **Dynamic Orchestration** | **AC-06, AC-07, AC-17** | Fast Router avoids fabricated agent work; Dynamic Orchestrator adapts plans; authentic Canvas displays recorded events; durable task recovery. |
-| **Multi-Source Research** | **AC-08, AC-09, AC-27** | Genuine retrieval across distinct public sources; citations verified; per-task budget strictly enforced; extensions require explicit approval. |
-| **Campaigns & Dialects** | **AC-10, AC-11, AC-22** | Text-first assets and visual briefs across 4 registers; full Arabic RTL / English LTR responsive UI with independent language settings. |
-| **Facebook Publishing** | **AC-12, AC-13, AC-28, AC-30** | Individual and batch approvals bind to exact versions; scheduled dispatch with lateness allowance; idempotent execution; read-back verification; AC-30 ordinary-owner production configuration verified. |
-| **Performance Learning** | **AC-14, AC-25, AC-26** | CSV and Excel (`.xlsx`) validation previews; deterministic calculations; aggregate manual outcome capture; recurring review with honest inconclusive states. |
-| **Truthfulness & Boundaries** | **AC-16, AC-24, AC-27** | Zero critical violations: no hallucinated evidence, no fake progress, no unauthorized actions; Social Profile Import visibly disabled as Coming Soon. |
+| **Required behavior** | All active AC-01–25 and AC-27–58 pass under declared conditions | Native publishing, graph, Canvas, research, imports and data controls use real implementations |
+| **Truthfulness / control** | Zero critical violations in the release suite | Invented evidence, unauthorized action, budget bypass, cross-workspace disclosure or fake execution blocks release |
+| **Usefulness** | ≥ 80% of held-out cases pass without major correction, overall **and within each register** | Counts, denominators, coverage, reviewer basis and small-sample uncertainty reported |
+| **Grounding** | All audited consequential claims supported or labelled | Source existence and actual support checked |
+| **Publication** | Retry, concurrency, cancellation, revocation, version/context change, late-job and uncertain-result scenarios pass | Real platform and production-owner evidence (AC-30) |
+| **Calculations / imports** | Deterministic fixtures match; unknown, zero, duplicate, period, unit/currency and parsing cases pass | Models explain, code calculates |
+| **Recovery / security** | No unresolved critical/high defect | Access, credential, deletion, backup/restore, durable-job and rollback checks |
+| **Usability** | No blocking defect in Arabic/English critical journeys; ten-minute first-value target measured | Median/distribution of active interaction time, background latency separately |
+| **Runtime / resources** | Documented task-specific latency, timeout, concurrency and cost ceilings met | Values set from early slices and verified at a declared release load |
+
+### Acceptance scenario groups
+| Group | Scenarios |
+|---|---|
+| Onboarding, auth and routing | AC-01, AC-02, AC-21, AC-31–34 |
+| Brain governance and context | AC-03, AC-15, AC-23, AC-38 |
+| Diagnosis, Discovery and Roadmap | AC-04, AC-18–20, AC-24, AC-35–40, AC-45–46, AC-57 |
+| Chat, orchestration and Canvas | AC-05–07, AC-17, AC-41–44 |
+| Research | AC-08, AC-09, AC-27 |
+| Content and language | AC-10, AC-11, AC-22, AC-29 |
+| Documents, Scheduling and publishing | AC-12, AC-13, AC-28, AC-30, AC-47–54 |
+| Requested analysis | AC-14, AC-25 |
+| Honest availability and removed surfaces | AC-16, AC-55, AC-56, AC-58 |
 
 ---
 
 ## 7. Product Measures & Commercial Learning
 
-The usage and learning funnel is tracked systematically across cycles:
-$$\text{Setup} \longrightarrow \text{First Direction} \longrightarrow \text{Accepted Task} \longrightarrow \text{Accepted Artifact} \longrightarrow \text{Recorded Outcome} \longrightarrow \text{Completed Review}$$
+$$\text{Confirmed setup} \longrightarrow \text{Chat or Roadmap} \longrightarrow \text{Requested Task} \longrightarrow \text{Accepted output} \longrightarrow \text{Recorded execution or attestation}$$
 
-* **Completed Review Cycle:** An accepted task, recorded completion/attestation, aggregate observations (or explicit no-data state), and an owner-reviewed next decision.
-* **Commercial Hypotheses:** Track whether owners return for subsequent cycles, self-reported time saved (target 5–10 hours/week), and willingness to pay. These observations inform post-graduation commercialization but do not alter the technical release contract.
+* Also measure return use, correction effort, clarification burden, failed intake, uncertain publication and actual cost per accepted output or Task. There is no review-cycle funnel or periodic performance dashboard.
+* Compare equivalent work with owners' existing tools using the same facts, and report denominators, assistance and active time separately from background latency.
+* **Commercial hypotheses** (PRD §12.2): whether owners need direction more than content volume, whether the service cohort shares a useful workflow, and whether repeated value earns willingness to pay. Small samples cannot establish regional demand, retention or causal growth, and none of this changes the technical release contract.
