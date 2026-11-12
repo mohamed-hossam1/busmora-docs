@@ -1,33 +1,41 @@
 # BusMora Glossary
 
-The shared language of BusMora, a product that gives an Arabic-first small business one AI Marketing Employee. The Employee learns the business, researches its market, produces marketing work, and publishes to social platforms only with human approval. Terms are grouped by the bounded context that owns them (see [contexts.md](./contexts.md)).
+The shared ubiquitous language of BusMora, a platform that gives an Arabic-first small business an **AI Marketing Director**. The Director learns the business, diagnoses commercial bottlenecks, prioritizes feasible marketing work on an adaptive roadmap, prepares culturally authentic content, and safely publishes to social platforms under human approval. Terms are grouped by bounded context (see [contexts.md](./contexts.md)).
+
+---
 
 ## Identity & Workspace
 
 **Business**:
-The real-world small or medium company that BusMora works for.
+The real-world small or medium company (service or commercial SMB) that BusMora works for.
 _Avoid_: Client, company, customer, organization
 
 **Workspace**:
-A Business's private, isolated space in BusMora, holding everything known and produced for it.
+A Business's private, isolated space in BusMora, holding everything known and produced for it under single-owner isolation.
 _Avoid_: Account, tenant, organization, project
 
-**User**:
-The one person who operates a Workspace, whether founder or marketing coordinator.
-_Avoid_: Owner, marketing person, member, customer, Sarah
+**Owner** (or **User**):
+The primary operator who owns a Workspace, with sole authority over its Brain, integrations, approvals, and data.
+_Avoid_: Client, subscriber, admin, Sarah
+
+**Auth Identity**:
+A way the Owner signs in: email/password (optional local credential) or Google, identified by issuer + subject. Matching email never links accounts (FR-50).
+_Avoid_: Login, social account
 
 **Business Time Zone**:
-The single time zone a Workspace plans and reads its schedules in.
-_Avoid_: Locale, user time zone
+The default IANA time zone a Workspace plans and schedules in, stored explicitly next to country and currency, never inferred from language. Changing it never moves an approved Post (FR-44).
+_Avoid_: Locale, user time zone, browser time
 
-## Business Brain
+---
+
+## Business Brain & Memory
 
 **Business Brain**:
-The Workspace's permanent, reviewed memory of its Business: what it is, what it sells, who it serves and how it speaks.
+The Workspace's permanent, reviewed memory of its Business: what it is, what it sells, who it serves, how it speaks, and its strategic decisions.
 _Avoid_: Knowledge base, memory, context, company profile
 
 **Knowledge Item**:
-One reviewed or reviewable fact about the Business, belonging to exactly one Knowledge Category.
+One structured fact about the Business, belonging to exactly one of the nine canonical Knowledge Categories.
 _Avoid_: Node, fact, entity, concept, knowledge candidate (when approved)
 
 **Knowledge Category**:
@@ -38,224 +46,258 @@ _Avoid_: Entity type, node type, section
 A named, directed link between two Knowledge Items, such as an Offering that targets an Audience.
 _Avoid_: Edge, link, connection
 
-**Procedural Rule**:
-A reviewed instruction about *how* the Employee should work for this Business, learned from the User's edits and feedback.
-_Avoid_: Style memory, calibration, guideline, procedural memory record
+**Epistemic Status**:
+The explicit classification of any knowledge piece: Source Observation, Owner-Provided Claim, AI Hypothesis/Interpretation, or Confirmed Decision.
+_Avoid_: Certainty level, raw fact
 
-**Candidate**:
-A Knowledge Item or Procedural Rule that has been proposed but not yet reviewed by the User.
+**Onboarding Draft**:
+The single editable essential-intake form (name, description, offerings, country/service area, conversion route state) filled from a website crawl or manually. It becomes active Brain context only when the owner confirms that exact version (FR-04, FR-06).
+_Avoid_: Imported context, raw crawl, scraped text, auto-imported knowledge
+
+**Procedural Rule**:
+A reviewed instruction about *how* the Director should work for this Business, learned from owner edits and feedback.
+_Avoid_: Style memory, calibration, guideline
+
+**Pending Brain Update**:
+An AI-proposed persistent fact, interpretation, or preference awaiting explicit owner approval before becoming persistent knowledge.
 _Avoid_: Suggestion, draft knowledge, pending item
 
 **Review**:
-The User's individual decision to approve, edit-and-approve or reject one Candidate.
+The owner's decision to approve, edit-and-approve, or reject a Candidate or Pending Brain Update.
 _Avoid_: Approval (reserved for Posts), validation, moderation
 
+**Context Staleness Hold**:
+A safety hold placed on dependent active tasks and scheduled posts when core business facts (pricing, offers, claims) are modified (FR-48).
+_Avoid_: Broken post, frozen queue
+
 **Retirement**:
-Withdrawing an approved Knowledge Item from use while keeping its history.
+Withdrawing a current Knowledge Item from active retrieval while keeping its historical provenance.
 _Avoid_: Deletion, archiving, removal
 
+**Deletion**:
+Owner-requested removal of Brain information or historical work: retrieval is suppressed immediately and derived records are cleaned up under the retention policy (FR-13, NFR-09). Distinct from Retirement.
+_Avoid_: Retire, hide
+
 **Conflict**:
-Two Knowledge Items that cannot both be true, surfaced to the User rather than settled automatically.
+Two Knowledge Items that contradict each other, surfaced to the owner rather than resolved silently.
 _Avoid_: Duplicate, inconsistency
 
 **Provenance**:
-The record of where a Knowledge Item came from: a crawled page, a Task, a Conversation or the User directly.
+The inspectable record of where a Knowledge Item came from: website import, task, conversation, or direct owner entry.
 _Avoid_: Source info, origin, lineage
 
 **Brand Voice**:
-The Brand Rules that together define how the Business sounds: tone, style and Dialect.
+The Brand Rules that together define how the Business sounds: tone, style, and Dialect.
 _Avoid_: Tone of voice, brand tone, writing style
 
 **Dialect**:
-The Arabic register content is written in: Egyptian, Gulf or Modern Standard Arabic.
+The Arabic register marketing content is written in: Egyptian Conversational, Gulf-oriented, Modern Standard Arabic (MSA), or English.
 _Avoid_: Language style, accent, locale
 
 **Brand Kit**:
-The logo, colors and typography detected for the Business from its website.
+The logo, colors, and typography detected for the Business from its website.
 _Avoid_: Brand assets, brand template, style guide
 
-## Marketing Employee
+---
 
-**Marketing Employee**:
-The single AI worker a Workspace has, which receives requests, plans work and delivers results.
-_Avoid_: Agent, assistant, bot, AI employee, copilot
+## Marketing Director & Orchestration
 
-**Sub-agent**:
-A specialist part of the Marketing Employee with one job: Market Research, Competitor Analysis, Content Writing, Campaign Planning or Social Posting.
-_Avoid_: Agent, worker, tool, specialist bot
+**Marketing Director**:
+The AI partner in a Workspace that understands business context, diagnoses commercial constraints, maintains the roadmap, and orchestrates marketing tasks.
+_Avoid_: Agent, bot, copilot, employee (when emphasizing strategic direction)
+
+**Diagnostic Lenses**:
+The five perspectives used as guidance to find the primary constraint: offer/audience, destination, conversion, acquisition, and existing-customer opportunities, all constrained by capacity/fulfillment (FR-14). Guidance only, never a numeric score or mandatory worksheet.
+_Avoid_: STAR lenses, audit framework, marketing scorecard, health score
+
+**Constraint Hypothesis**:
+The Director's calibrated assessment of which specific commercial bottleneck limits the owner's goal right now.
+_Avoid_: Bottleneck analysis, strategy guess
+
+**Adaptive Marketing Roadmap**:
+The prioritized, capacity-aware plan of vertical marketing steps and dependency DAG maintained by the Director (FR-16, FR-53–54). *Historical note*: The earlier v1.1 "Now/Next/Later" column/horizon structure is retired in v2.0 (FR-58, AC-57).
+_Avoid_: Backlog, task list, project plan, Now/Next/Later board columns
+
+**Curated Task Recipe**:
+A pre-configured, structured template for a common marketing task (e.g. goal discovery, claim-proof inspection, offer/message drafting, campaign preparation, governed Facebook publishing, requested file analysis) (PRD §5.13). Not a mandatory step or a new module.
+_Avoid_: Workflow template, agent prompt
 
 **Orchestrator**:
-The part of the Marketing Employee that diagnoses a request, plans it and delegates to Sub-agents.
+The dynamic multi-agent coordinator that loads context, selects specialists/tools, plans steps, and recovers from failures.
 _Avoid_: Supervisor, main agent, planner
 
+**Fast Router**:
+The fast, cost-conscious AI routing step that handles simple conversation directly and routes substantive work to the Orchestrator.
+_Avoid_: Intent classifier, triage bot
+
 **Conversation**:
-An ongoing exchange of messages between the User and the Marketing Employee.
+An ongoing exchange of messages between the owner and the Marketing Director.
 _Avoid_: Chat, session, thread
 
 **Quick Reply**:
-An immediate answer to a simple message that does not start a Task.
+An immediate answer to a simple greeting or question that does not start a substantive Task ($\le 3\text{s}$).
 _Avoid_: Simple task, chat response
 
 **Task**:
-One unit of marketing work the User asks the Marketing Employee to carry out, ending in Deliverables or an explanation of why it could not.
-_Avoid_: Job, request, workflow, run, mission
+One unit of marketing work with explicit rationale, effort, dependencies, completion conditions, and review criteria (FR-46).
+_Avoid_: Job, request, workflow, run
 
-**Constraint Diagnosis**:
-The Orchestrator's judgement of which commercial bottleneck a Task should address: discovery, positioning or conversion.
-_Avoid_: Bottleneck analysis, strategy step
+**Per-Task Research Budget**:
+The authorized computational, time, and tool quota for a research task; any increase requires explicit owner approval (FR-27).
+_Avoid_: Tool limit, token pool
+
+**Honest Handoff**:
+Clear instructions, copy, and completion checklists provided for unsupported external work (e.g. WhatsApp follow-up or live website edits), never claimed as executed by BusMora (FR-49).
+_Avoid_: Unsupported error, manual fallback
 
 **Clarification**:
-A pause in a Task where the Employee asks the User for missing information through a structured form.
-_Avoid_: Question, prompt, interruption
+A structured, choice-first pause where the Director requests essential missing details from the owner; a field may offer **Research this** (FR-18).
+_Avoid_: Question, prompt, interruption, "Search yourself"
 
-**Search Yourself**:
-The User's choice, on a Clarification field, to let the Employee research the answer instead.
-_Avoid_: Skip, auto-fill
+**Roadmap Discovery**:
+The saved, resumable adaptive questionnaire behind Create My Roadmap; the first question selects the goal (FR-51).
+_Avoid_: Onboarding interview, strategy wizard
+
+**Step Execution / Owner-reported Done**:
+What actually happened to a Roadmap Step. Owner-reported Done is the owner's attestation, never platform verification; Skip is neither completion nor cancellation (FR-53).
+_Avoid_: Verified, finished (for attested work)
 
 **Canvas**:
-The live picture of a running Task showing which Sub-agents are working and what they are doing.
+The live, authentic picture of the selected conversation's Task, rendering recorded execution events, active specialists, tools, and handoffs; recoverable retries show as Processing (FR-22–23).
 _Avoid_: Decision canvas, workflow visualization, agent graph
 
 **Partial Result**:
-A Task outcome built from whatever was gathered before a time or budget limit was reached, labelled as incomplete.
-_Avoid_: Fallback result, degraded result
+An honest, bounded deliverable produced when retrieval or authorized budget is exhausted, clearly disclosing limitations.
+_Avoid_: Degraded result, failure
+
+---
 
 ## Market Intelligence
 
 **Onboarding Crawl**:
-The bounded first read of the Business's own website that seeds Candidates and the Brand Kit.
-_Avoid_: Website scan, initial import, site crawl
+The bounded first read of the Business's own website (provisional ≤ 10 relevant pages, ≤ 5 min) whose extraction prefills the Onboarding Draft.
+_Avoid_: Site scraper, full crawl
 
 **Research Crawl**:
-Gathering of public material (community discussions, videos, competitor sites and ads) for a Task.
+Dynamic multi-source search and retrieval across public web pages, customer reviews, and community sentiment within an authorized budget.
 _Avoid_: Scraping job, data collection
 
 **Snapshot**:
-The preserved copy of a page as it was when crawled.
+The preserved copy of an external page as it was when crawled, retaining access timestamp.
 _Avoid_: Cache, raw page, dump
 
 **Research Signal**:
-A piece of crawled material judged to show real buyer intent, such as a complaint about a competitor or a price question.
-_Avoid_: Lead, insight, mention
+A piece of crawled material judged to show authentic buyer intent or market sentiment.
+_Avoid_: Lead, mention, insight
 
 **Buyer Vernacular**:
-The actual words and phrases real buyers use about a product or problem, taken from Research Signals.
+The authentic words and phrases real buyers use about a problem or category, captured in Research Reports.
 _Avoid_: Keywords, customer language
 
 **Source Citation**:
-The reference a Deliverable gives for a claim: where it came from, on which platform, and when it was accessed.
+The inspectable reference a Deliverable gives for a claim: origin URL, platform, and access date.
 _Avoid_: Reference, link, footnote
 
-## Deliverables
+---
+
+## Deliverables & Requested Analysis
 
 **Deliverable**:
-A finished piece of work the Employee hands to the User and keeps in the Workspace.
-_Avoid_: Artifact, output, report, result
+A versioned non-Post document (research, strategy, analysis, brief) saved in the Workspace. Social Posts are never Deliverables (FR-41, FR-57).
+_Avoid_: Artifact, output, report, content calendar
 
 **Research Report**:
-A Deliverable describing a market, its audience and its opportunities, with Source Citations.
+A Deliverable synthesizing competitive findings, customer pain points, and strategic recommendations with inspectable citations.
 _Avoid_: Research brief, market analysis
 
-**Competitor Analysis**:
-A Deliverable comparing one competitor with the Business, with Source Citations.
-_Avoid_: Competitor report, competitor brief
+**Campaign**:
+A grouping of related planning documents and independent Posts, linked by campaign/task/step references without duplicating Post content.
+_Avoid_: Content package, content calendar, post batch
 
-**Content Package**:
-A Deliverable of ready-to-use content pieces (posts, articles, ad copy) written in the Brand Voice.
-_Avoid_: Content posts, copy set
+**Analysis Upload**:
+A CSV or Excel (`.xlsx`) file attached to an explicit Chat request, mapped to a documented template before deterministic metrics are computed (FR-38).
+_Avoid_: Performance report, analytics export
 
-**Content Calendar**:
-A Deliverable that lays out Posts across dates and Platforms for a chosen period.
-_Avoid_: Campaign plan, content plan, schedule
+**Analysis Report**:
+The one-off Deliverable produced by requested file analysis, with limitations and no recurring cadence or automatic roadmap change (FR-39–40).
+_Avoid_: Performance diagnosis, analytics dashboard, BI report, outcome review
 
-**Performance Diagnosis**:
-A Deliverable explaining what worked and what didn't in an uploaded Performance Report, with prioritized adjustments.
-_Avoid_: Analytics report, performance analysis
-
-**Performance Report**:
-The marketing results file the User uploads for diagnosis.
-_Avoid_: CSV, metrics export
-
-**Brand Visual**:
-An image for a Post made of generated imagery with the Brand Kit laid over it.
-_Avoid_: Brand-template composite, creative, generated image
+---
 
 ## Governed Publishing
 
 **Post**:
-One piece of social content intended for one Connected Account at one time.
-_Avoid_: Publication, tweet, update, approval action, approval card
+One piece of social content owned by Governed Publishing and shown in Scheduling. It may be an undated, unconnected draft (`scheduledTime: null`, shown under Unscheduled) until it is prepared for approval (FR-55, FR-57).
+_Avoid_: Publication, update, approval card, content calendar entry
+
+**Scheduling**:
+The single home for every Post: Month (desktop default), Week, List and Unscheduled views, plus the editor and Batch Review (FR-55).
+_Avoid_: Content calendar, publishing queue
 
 **Post Version**:
-One unchangeable state of a Post's content; approval always applies to a specific Post Version.
-_Avoid_: Snapshot (reserved for crawled pages), draft, revision
+An immutable snapshot of a Post's text, media, destination, and execution parameters; approval always binds to a specific Post Version.
+_Avoid_: Draft, revision
 
 **Batch Review**:
-The place where the User approves, edits, regenerates, rejects or cancels many Posts in one sitting.
-_Avoid_: Approval queue, review inbox, approval UI
+The Scheduling view where the owner inspects, edits, approves, or rejects the exact displayed Post Versions individually or in bulk (FR-34, AC-51).
+_Avoid_: Approval queue, review inbox, outcome review
 
 **Approval**:
-The User's explicit consent that a specific Post Version may be published as-is.
-_Avoid_: Review (reserved for Candidates), sign-off, confirmation
+The owner's explicit consent that an exact Post Version, destination, scheduled time/timezone, and delivery lateness allowance may be published.
+_Avoid_: Review (reserved for Candidates), sign-off
 
-**Scheduled Time**:
-The moment a Post is planned to go live, fixed in absolute time and read in the Business Time Zone.
-_Avoid_: Publish date, slot
+**Scheduled Time** (`ScheduledTime`):
+The authoritative value object defining when and how a Post is planned to publish: `{ instant, zone, latenessAllowanceMinutes }`. `instant` is an absolute UTC timestamp (ISO 8601 / RFC 3339); `zone` is an explicit valid IANA timezone identifier (e.g. `Africa/Cairo`); and `latenessAllowanceMinutes` is a non-negative integer specifying the maximum permitted delivery window before requiring re-approval. For unscheduled drafts, `scheduledTime` is `null`.
+_Avoid_: Publish slot, post date, raw timestamp without timezone
+
+**Lateness Allowance**:
+The maximum disclosed delivery window after the Scheduled Time during which publishing is still permitted before requiring re-approval.
+_Avoid_: Grace period, timeout
 
 **Publish Attempt**:
-One try at putting an approved Post Version live on its Platform.
+One idempotent try at putting an approved Post Version live on its platform.
 _Avoid_: Dispatch, execution, job
 
-**Read-back Verification**:
-Confirming, after a Publish Attempt, that the Post actually exists on the Platform.
-_Avoid_: Confirmation, check, validation
+**Read-Back Verification**:
+Confirming, after dispatch, that the post actually exists on the external platform before marking it published.
+_Avoid_: Confirmation, check
 
-**Expired Post**:
-A Post that was still awaiting Approval when its Scheduled Time passed.
-_Avoid_: Stale post, missed post
+---
 
 ## Channel Connections
 
 **Platform**:
-An external social network BusMora publishes to: Facebook Pages, Instagram Business or X.
-_Avoid_: Channel (reserved for the Brain category), network, provider, integration
+An external social network BusMora publishes to: **Facebook Pages** in Phase 2; **Instagram Business** and **X** in Phase 3.
+_Avoid_: Channel (reserved for Brain category), network, provider
 
 **Connected Account**:
-A Business's own account on a Platform that the User has authorized BusMora to publish to.
-_Avoid_: Integration, connection, linked account, social account
+A Business's authorized account on a Platform that the owner has connected to BusMora.
+_Avoid_: Social account, integration
 
 **Reconnect Needed**:
-The state of a Connected Account whose authorization can no longer be renewed without the User.
+The state of a Connected Account whose OAuth authorization has expired or been revoked and requires owner reconnection.
 _Avoid_: Expired token, disconnected
 
-## Usage, Audit & Notifications
+---
+
+## Usage, Audit & Evaluation
 
 **Usage Record**:
-A measured amount of a costly resource (model use, crawling, images, X posts) attributed to a Workspace and Task.
-_Avoid_: Billing event, charge, metering record
+A measured amount of costly resources (model tokens, search calls, compute) attributed to a Workspace and Task.
+_Avoid_: Billing event, charge
 
 **Audit Event**:
-A permanent, unalterable record that a governed action happened: a Review, Approval, publish, Retirement or Connected Account change.
-_Avoid_: Log, history entry, activity
-
-**Notification**:
-An in-app message telling the User something needs attention or has finished.
-_Avoid_: Alert, email, toast
-
-## Evaluation
+An append-only record that a governed action occurred: Approval, Review, publish, Retirement, or account connection change.
+_Avoid_: Log, history entry
 
 **Scenario**:
-A fixed, realistic marketing request used to judge the Employee's quality the same way every round.
+One of the 24 authored realistic business cases used to evaluate system quality under fixed rubrics.
 _Avoid_: Test case, benchmark task
 
 **Evaluation Round**:
-One scoring pass of the full Scenario set by human Reviewers.
+A structured scoring pass of the scenario library by native human reviewers across the 4 registers.
 _Avoid_: Test run, eval
 
-**Reviewer**:
-An Arabic-native person who scores Deliverables against the rubric in an Evaluation Round.
-_Avoid_: Annotator, rater, judge
-
 **Treatment and Control**:
-The two ways a Scenario is run to measure the Business Brain's value: with the Brain, or with the Business's raw documents only.
+The two blind configurations used to measure Business Brain value: with the Brain (Treatment), or with raw documents only (Control).
 _Avoid_: A/B test, baseline

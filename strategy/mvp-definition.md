@@ -1,315 +1,210 @@
 # MVP Definition
 
-## AI Marketing Employee — 6-Month Release
+## AI Marketing Director — Phase 2 Release Contract (24-Week Scope)
 
-> Defines what is in scope, how it is delivered, and what success looks like.
+> **Version:** 3.0 (PRD v2.0 alignment) · **Date:** 30 October 2026
+> **Status:** Supporting strategy document.
+> **Authority:** Product requirements, release gates and technical contracts are governed by **[PRD v2.0 (`core/prd.md`)](../core/prd.md)** and the canonical specifications in `core/`. This file summarizes them for planning; where it differs, the PRD wins.
 
 ---
 
-## 1. Release Strategy
+## 1. Release Strategy & Phasing
 
-BusMora ships as **one complete Marketing Employee product** over a single **6-month (24-week) release**, built by a team of **four students** working in parallel with end-to-end vertical-slice ownership.
+BusMora is an **AI Marketing Director** for Arabic-first business owners. After a short confirmed setup, the owner chooses between direct Chat and a guided Roadmap. The Director diagnoses the likely constraint, prepares useful work, and executes supported actions only with explicit approval.
 
-Everything the product promises — research, analysis, content, campaign planning, performance interpretation, and approved social publishing — is delivered in this release. The architecture is designed from day one so that a future controlled Employee (e.g. Sales or Operations) can be added without redesigning the foundational domain model.
+The binding commitment for the **24-week graduation project** is **Phase 2 (First Production-Ready Release)**, delivered by **five students** using AI-assisted engineering with workstream ownership (~2,400 assumed productive hours, PRD §13.1).
 
 ```
-BusMora Marketing Employee — One Release, Full Scope
-   → Onboarding + Business Brain
-   → Research + Competitor Analysis + Content + Performance
-   → Campaign Planning + Batch Approval + Multi-Channel Publishing
+Phase 1: Foundation (isolation, task/deliverable persistence, knowledge and approval states,
+                     events/audit, integration and background-work foundations, evaluation/observability)
+   ↓
+Phase 2: First Production-Ready Release (the 24-week release contract)
+   ├── Email-link verification + Google sign-in (FR-01, FR-50)
+   ├── Website or manual intake into one form, confirmed by the owner before Brain activation (FR-03–07)
+   ├── Business Brain Graph + accessible List, Pending Brain Updates, owner data controls (FR-08–13)
+   ├── Independent Director Chat + Fast Router + Dynamic Orchestrator + conversation-local Canvas (FR-17–23)
+   ├── Saved Roadmap Discovery → complete actionable step plan, Skip/Revisit, approved revisions (FR-14–16, FR-45–46, FR-51–54)
+   ├── Dynamic multi-source research with per-task budget governance (FR-24–28)
+   ├── Text-first campaigns, visual briefs and owner media in 4 registers (FR-29–32)
+   ├── Document Deliverables (FR-41) + Posts in Scheduling: Month/Week/List/Unscheduled (FR-55, FR-57)
+   ├── Governed Facebook Page publishing with exact-version approval and recovery (FR-33–36)
+   ├── Requested one-off CSV / .xlsx analysis (FR-38–40)
+   ├── Context freshness holds (FR-48) + honest handoffs (FR-49)
+   └── Settings, notifications, full Arabic (RTL) / English (LTR) UI (FR-43–44, FR-56)
+   ↓
+Phase 3: Product Expansion
+   ├── Social Profile Link intake (P3-01 — visibly "Coming Soon" in Phase 2)
+   ├── Instagram Business & X publishing (P3-02)
+   └── Connected platform analytics (P3-03)
+   ↓
+Phase 4+: Creation & Commercial Expansion
+   ├── Native AI image generation (P4-01)
+   └── Subscriptions, payments and quota administration (P4-02)
+   ↓
+Phase 5: Meta Ads Management (P5-01 — future vision only, no current tools or spend authority)
 ```
 
----
-
-## 2. What the User Can Do
-
-1. Sign up and enter their website URL.
-2. The system crawls the website in the background while the user explores the platform.
-3. The user reviews extracted knowledge candidates (categorized sections) and approves, edits, or rejects them.
-4. The user opens the Marketing Employee chat.
-5. The Employee proactively suggests missing information.
-6. The user requests marketing tasks:
-   - "Analyze my competitors" → deep competitor analysis from real sources.
-   - "Do market research for product X" → market research from Reddit, YouTube, and the Web.
-   - "Write 5 Instagram posts about the new product" → content written in the brand voice, with a generated brand-aligned image.
-   - "Create a content calendar for next month" → a structured, editable content calendar.
-   - "Here is my monthly performance CSV — what went wrong?" → a structured performance diagnosis.
-7. The user watches agents working in real time on the canvas.
-8. Results are delivered as structured artifacts in the Deliverables folder.
-9. The user reviews planned posts in the Batch Review UI, edits or approves them, and the system publishes to Facebook, Instagram, and/or X.
-10. Published posts are read-back verified, and results are reported per post.
-11. Important knowledge from tasks is extracted to the Brain as candidates for review.
-12. The Brain grows with each task, making future results better.
+Retired and not replaced: Today Dashboard, Outcomes & Reviews, the Now/Next/Later roadmap model, and recurring performance reviews (FR-47 and AC-26 are retired, FR-58).
 
 ---
 
-## 3. Components
+## 2. What the Owner Can Do (Phase 2 Experience)
 
-| Component | Description |
-|---|---|
-| **SaaS Foundation** | Auth (registration/login), Workspace creation, navigation, multi-tenant isolation, 4 deployables (`web`, `api`, `workers`, `ai`) across 2 standalone repos (`busmora-backend`, `busmora-frontend`) |
-| **Website Crawler** | Background job: crawl → extract text → LLM analysis → knowledge candidates (bounded to public pages ≤ 10 pages, ≤ 5 min) |
-| **Business Brain** | Relational Concept Graph (`brain_nodes` + `brain_edges` in Postgres with Qdrant vectors), Vector Seed + 1–2 Hop Expansion retrieval, candidate lifecycle, interactive React Flow graph canvas, provenance, conflict and freshness handling, audit log |
-| **Chat Interface** | Hybrid chat with structured forms, free-text clarification, "Search yourself" option, message history; fast-path quick replies via internal HTTP |
-| **Workflow Visualization** | Full canvas with agent nodes, animated connections, real-time status via SSE from Redis Streams |
-| **Router** | Classifies user input (simple question vs. complex task vs. ambiguous); simple replies answered directly, complex delegated |
-| **Orchestrator** | Brain lookup → missing-info detection → clarification → sub-agent delegation → result collection → knowledge extraction |
-| **Market Research Agent** | Crawlers (Reddit, YouTube, Web) → data collection → LLM analysis → structured research report |
-| **Competitor Analysis Agent** | Crawl competitor websites + Facebook Ads Library → comparison analysis → structured report |
-| **Content Writer Agent** | Generate posts/articles using Brain context (brand voice, audience, products) → drafts with variations |
-| **Image Generation** | Brand-template visuals (generated background/imagery + deterministic brand overlay) for image-required channels |
-| **Campaign Planner Agent** | Generate content calendars based on Brain + research results |
-| **Performance Interpretation** | Validate structured CSV input, compute deterministic KPIs, and produce a diagnosis with recommendations |
-| **Social Media Poster Agent** | Formats posts before approval; deterministic publish workflow executes via MCP Server to Facebook, Instagram (50/24h limit), and X with read-back verification |
-| **OAuth Integration** | Meta (FB + IG) and X — token exchange, encrypted storage via KMS envelope encryption, refresh, and preflight checks (Meta pilot runs in tester mode) |
-| **MCP Server** | `publish_facebook()`, `publish_instagram()`, `publish_x()` tool implementations with idempotency and read-back verification embedded in publish worker |
-| **Batch Approval UI** | Review grid with edit/approve/reject per item, bulk actions, and scheduled publishing bound to immutable Post Versions |
-| **Deliverables System** | Central storage for all AI-generated outputs, browsable by user |
-| **Knowledge Extraction** | Post-task analysis → extract reusable knowledge → create candidates → add to Brain |
-| **Bilingual Foundation** | Arabic + English support in UI (full RTL) and native content generation in Egyptian, Gulf, and MSA |
-| **Evaluation & Observability** | Human-reviewed scenario evaluation; LLM tracing, cost, and latency tracking in Langfuse; per-workspace usage metering from day one |
+1. **Sign up:** register with email/password and verify a single-use link, or use Google. Registration asks for no business details.
+2. **Confirm essential context:** choose Import from Website or Manual Setup (Social Import shows **Coming Soon**). Both fill the same form: name, description, one or more offerings, country/service area and a contact/conversion route (or "not ready yet"). Pricing is optional. Nothing reaches the Brain until the owner confirms the displayed version.
+3. **Choose a path:** after confirmation, **Chat with Marketing Director** or **Create My Roadmap**. Later logins open Chat at `/employee`.
+4. **Chat directly:** ask, discuss or launch supported work without any Roadmap. Clarifications are choice-first, with Unknown / Skip / Not Applicable where legitimate.
+5. **Build a Roadmap:** a saved, adaptive Discovery starts with the goal. "Research this" on a question opens linked research and returns the chosen result to that exact question. Generation produces a complete step plan that the owner approves.
+6. **Execute, skip, revisit, revise:** run eligible steps with the Director (at most two running Tasks per Workspace), mark owner-executed steps as **Owner-reported Done**, Skip or Revisit steps, and approve or reject revision diffs.
+7. **Watch real work:** the Canvas shows the selected conversation's actual Task; recoverable retries stay "Processing", terminal failures are shown honestly.
+8. **Research within a budget:** research explores accessible public sources within an authorized budget; any increase needs explicit approval.
+9. **Create documents and Posts:** research and strategy outputs are versioned documents in Deliverables; social copy becomes Posts in Scheduling, including manual and undated drafts.
+10. **Publish safely to Facebook:** approve exact versions individually or in bulk; dispatch rechecks authority, uncertain outcomes are reconciled, never blindly resent.
+11. **Handle context changes:** editing a price or offer flags only dependent work and holds affected scheduled Posts until the owner resolves them.
+12. **Analyze on request:** attach a CSV or `.xlsx` to an explicit Chat request for a one-off analysis with deterministic calculations; no monitoring cadence or automatic roadmap change.
 
 ---
 
-## 4. Scope Boundaries
+## 3. Component Matrix
 
-| Feature | Reason |
-|---|---|
-| Other AI Employees (Sales, Support, etc.) | Vertical focus — a future controlled release; extensibility proven by paper design |
-| LinkedIn posting | Organization-page API approval is selective and often denied |
-| TikTok posting | Strict UI/UX audit requirements |
-| In-product billing (Stripe checkout) | Pilot charged externally; usage & cost metering ships from day one; Stripe unavailable directly for Egypt/KSA merchants |
-| Paid ad management (Meta Ads, Google Ads) | Spends real money — out of scope for this release |
-| Automatic performance analytics APIs | Requires extensive, permission-heavy integrations; CSV input covers the use case |
-| Multi-user workspaces | Target user is a single person; adds auth complexity |
-| Document upload & extraction | Brain populated via crawling + conversations + tasks instead (CSV only upload) |
-| Advanced Brain governance automation | Conflict auto-resolution deferred; conflicts are surfaced to the human |
-| Native mobile app | Web responsive is sufficient |
-| Instant Brain Audit lead magnet | Out of scope for MVP release |
+| Component | Phase 2 Release Behavior | Boundary |
+|---|---|---|
+| **SaaS Foundation** | Single-owner workspaces, Argon2id + Google OIDC, JWT + Redis refresh rotation, tenant isolation, 4 deployables (`web`, `api`, `workers`, `ai`). | Team roles, invites and enterprise hierarchies excluded. |
+| **Intake & Onboarding** | Bounded website crawl (provisional ≤ 10 relevant pages) prefilling one editable draft, or manual entry into the same form; exact-version owner confirmation activates the Brain. | Social profile import is Phase 3 (P3-01). No strategy questions in onboarding. |
+| **Business Brain** | PostgreSQL concept graph + Qdrant vectors; interactive graph plus accessible list (mobile default); epistemic labels; individual Pending Brain Updates; export and real deletion. | Ontology designer and unrestricted graph workspace excluded. |
+| **Director & Diagnosis** | Five diagnostic lenses as guidance, a primary constraint hypothesis with evidence and alternatives, ~10–12 curated task recipes. | Health scores, multiplicative priority indexes and mandatory worksheets excluded. |
+| **Roadmap** | Saved adaptive Discovery, complete step plan with real dependencies, one active plan with versions/drafts/history, Skip/Revisit, owner attestation, approved revisions. | No Now/Next/Later columns, planning-column limits or periodic review dates. |
+| **Chat & Orchestration** | Fast Router, bounded Dynamic Orchestrator, conversation-local authentic Canvas, durable Tasks with two-slot admission. | Tool invention, recursive spawning and simulated progress prohibited. |
+| **Research Engine** | Dynamic multi-source research across accessible websites, reviews and community material, inspectable grounding, per-task budget (FR-27). | Private/authenticated harvesting and comprehensive ad-library coverage excluded. |
+| **Content** | Text in 4 registers (Egyptian, Gulf-oriented, MSA, English), visual briefs, owner-supplied media. | Native image generation is Phase 4+. |
+| **Deliverables** | Versioned non-Post documents with lineage, search/filter, text/Markdown/CSV export. | No PDF/Word design suite. |
+| **Scheduling & Publishing** | Posts in Month/Week/List/Unscheduled; exact-version approval; scheduled dispatch with lateness allowance; reconciliation and holds; real Facebook Page publishing with ordinary-owner production access (AC-30). | Instagram Business and X are Phase 3. Video, reels, stories and carousels excluded. |
+| **Requested Analysis** | CSV / `.xlsx` with documented templates, mapping preview, deterministic metrics, one-off document. | No recurring capture, dashboard, connected analytics or attribution engine. |
+| **Settings & Notifications** | Providers, region (country, currency, IANA zone), three independent language choices, connections; in-app notifications with exact links. | No transient retry notifications. |
+| **Localization & UX** | Full Arabic RTL / English LTR, mixed-script layouts, keyboard and mobile critical journeys. | Desktop-only workflows prohibited. |
 
 ---
 
-## 5. User Persona
+## 4. Scope Boundaries & Exclusions
 
-### "Sarah" — The Solo Marketer
+| Feature | Phase 2 Status | Alternative |
+|---|---|---|
+| **Instagram Business & X Publishing** | Phase 3 | Phase 2 publishes to Facebook Pages only. |
+| **Social Profile URL Import** | Phase 3 | Shown disabled as **Coming Soon**. |
+| **Connected Platform Analytics** | Phase 3 | Explicitly supplied CSV / `.xlsx` in Chat. |
+| **Native AI Image Generation** | Phase 4+ | Visual briefs and owner media. |
+| **In-Product Billing** | Phase 4+ | Internal usage metering and task allowances from day one. |
+| **Meta Ads Management** | Phase 5 | Ad copy and briefs; the owner runs ads elsewhere. |
+| **Today Dashboard / Outcomes & Reviews / recurring reviews** | Retired | None (FR-58). |
+| **Multi-User / Team Roles** | Out of scope | Single-owner workspace. |
+| **WhatsApp / DM automation** | Out of scope | Response drafts for the owner. |
+| **Website / CMS deployment** | Out of scope | Ready-to-paste copy with an owner checklist. |
 
-**Profile:**
-- 28 years old, Marketing Coordinator or Founder at a 15-person e-commerce company in Egypt or Saudi Arabia.
-- She IS the marketing department. No team, no agency retainer.
-- Uses Canva for visual tweaks, ChatGPT for drafts, and posts manually across social channels.
-- Disillusioned by generic AI copy generators that act as "Manual Work Multipliers"—she spends more time fixing robotic "AI slop" than writing from scratch.
-- Bilingual (Arabic/English), Arabic-first, targets regional consumers who demand culturally authentic Egyptian conversational or Gulf lifestyle copy.
+---
 
-**Pain Points:**
-- **The "Editing Trap" & Babysitting Burden:** AI drafts sound hollow and repetitive; fixing them eats up the time she hoped to save.
-- **The "Amnesia of Tools":** Wastes 30 minutes every morning re-pasting product specs, brand voice guidelines, and target audience data into fresh chat windows.
-- **Tool-Hopping Fragmentation:** Exhausted by juggling separate disconnected tools for research, copywriting, design templates, and social scheduling.
-- **The "Pan-Arabic Trap":** Western tools output stiff Modern Standard Arabic (MSA) that feels like an imported manual rather than an engaging social commerce post.
-- **Manual Execution Grind:** Great strategic ideas stall because executing calendars, formatting captions, and scheduling posts consumes 10+ hours a week.
+## 5. Personas
 
-**What She Wants:**
-- "I don't need another brainstorming chatbot—I need an **Autonomous Execution Layer** that turns my decisions into completed, ready-to-publish campaigns."
-- A dedicated marketing department head with permanent memory (**Business Brain**) that never forgets her brand or products.
-- Deep research pulled from **real customer conversations** (Reddit, YouTube, competitor ad libraries) rather than synthetic AI hallucinations.
-- Culturally authentic Arabic copy that sounds like a native human copywriter, tailored to her specific target dialect.
-- A **15-minute weekly batch review** where she can inspect, approve, and verify published posts with absolute peace of mind.
-- A system that gets better the more she uses it.
+### Primary: Sarah — owner of a service business
+* **Who:** founder or lead operator of an owner-operated service business in Egypt or a named GCC country (e.g. clinic, consultancy, studio, training provider) that gets customers through inquiries, consultations or bookings. A website is optional; WhatsApp, phone or a social page may be her conversion route.
+* **Working style:** Arabic-first, bilingual, handles marketing alongside running the business, no marketing department.
+* **Pain points:** generic translated-sounding Arabic; re-explaining her business to every tool; hopping between tools; not knowing what to work on next with limited time and budget.
+* **What she needs:** a Marketing Director that understands her offer and conversion route, recommends a feasible next action with its evidence, prepares usable work, and publishes to Facebook only with her exact approval.
 
-**Success for Sarah:**
-- Saves 5+ hours/week on marketing tasks.
-- Gets competitor insights she couldn't find manually.
-- Produces consistent, on-brand content she can publish with confidence.
-- Feels like she has a smart marketing partner, not another tool.
+### Secondary: an experienced marketer or owner-marketer
+* Uses direct Chat and Tasks for research, planning, copy and publishing to save time, with the same Brain and controls. Marketing expertise is not required by the product.
+
+The launch cohort is a product hypothesis to evaluate, not a validated market (PRD §2.1).
 
 ---
 
 ## 6. Core User Journeys
 
-### Journey 1: Onboarding (First 10 Minutes)
+### Journey 1: Sign Up & Confirm Essential Context
+* Sarah signs up with Google (or email and a verification link).
+* She enters her website; the crawl prefills the form. She corrects an offering, marks pricing as "quote required", and confirms.
+* She is offered **Chat with Marketing Director** or **Create My Roadmap**.
+* Target: useful first output within ten minutes of active interaction (measured, not claimed).
 
-```
-Sarah signs up
-    → Creates account (email + password)
-    → Enters company website URL
-    → System starts background crawling
-    → Sarah sees "Crawling in progress..." indicator
-    → Sarah can explore the platform while waiting
-    → Notification appears: "12 knowledge items ready for review"
-    → Sarah opens Brain page
-    → Sees categorized sections:
-        📌 Company Info (3 items)
-        📌 Products (4 items)
-        📌 Brand & Messaging (2 items)
-        📌 Contact & Locations (3 items)
-    → Reviews each item: ✅ Approve / ❌ Reject / ✏️ Edit
-    → Approves 10, edits 1, rejects 1
-    → Brain is populated with initial knowledge
-    → Sarah enters Marketing Employee chat
-```
+### Journey 2: Direct Chat
+* Sarah asks for one Arabic Facebook post about a new service.
+* The Director asks one choice-first clarification, then creates a Post in Scheduling, with no forced research, campaign or duplicate Deliverable (AC-22).
 
-### Journey 2: First Conversation
+### Journey 3: Roadmap Discovery & Execution
+* Sarah chooses "get more qualified inquiries" as her goal. Questions adapt; she marks one as Unknown and uses "Research this" on another, then confirms the returned answer.
+* The Director proposes a complete step plan with evidence, uncertainty and dependencies. She approves it.
+* She runs one step with the Director, marks an owner-executed step as Done (owner-reported), and skips another; the dependent step stays blocked and the Director suggests a revision.
 
-```
-Sarah opens Marketing Employee
-    → Employee (proactive):
-        "Hello Sarah! I reviewed your company info.
-         I noticed that Brand Voice and key competitors
-         are not defined yet. Would you like me to help define them
-         first, or do you have a specific task in mind?"
-    → Sarah: "Define Brand Voice"
-    → Employee shows structured form:
-        📋 Tone: [🔘 Formal 🔘 Casual 🔘 Professional 🔘 Friendly]
-        📋 Language style: [🔘 Technical 🔘 Simple 🔘 Storytelling]
-        📋 Dialect: [🔘 Modern Standard Arabic 🔘 Egyptian 🔘 Gulf]
-        📋 Sample text that represents your brand: [____________]
-    → Sarah fills in → Candidate rule created for review in Brain (or approved immediately if manual entry)
-    → Employee: "Great! Now I can write content that matches your brand voice.
-                 What's the next task?"
-```
+### Journey 4: Research Within a Budget
+* Sarah asks for a review of local competitors. The Canvas shows real search and synthesis steps.
+* More queries would exceed the budget, so the Task pauses for her approval. She declines and gets an honest partial report with citations, saved as a Deliverable.
 
-### Journey 3: Market Research Task
+### Journey 5: Campaign, Scheduling & Facebook Publishing
+* She requests a two-week campaign in Egyptian Arabic. Planning goes to Deliverables; the Posts appear in Scheduling.
+* In Batch Review she approves the exact displayed versions. One is rescheduled by drag, which creates a new version and requires fresh approval.
+* At dispatch the worker rechecks authority and publishes; a timeout becomes "uncertain" and is reconciled rather than resent.
 
-```
-Sarah: "Do market research on the skincare products market in Egypt"
-    → Router: classifies as complex task → routes to Orchestrator
-    → Orchestrator: retrieves relevant Brain context
-    → Orchestrator: no existing market research data
-    → Canvas shows: [Orchestrator] → planning
-    → Orchestrator delegates to Market Research Agent
-    → Canvas shows: [Orchestrator] → [Market Research] (active)
-    → Market Research Agent:
-        - Crawls Reddit (r/SkincareAddiction, r/Egypt)
-        - Crawls YouTube (top skincare channels targeting Egypt)
-        - Crawls relevant web sources
-    → Canvas shows tools being used (abstracted)
-    → Results collected → Orchestrator reviews
-    → Orchestrator presents structured report:
-        📊 Market Research Report
-        ├── Market Size & Trends
-        ├── Consumer Preferences (from Reddit/YouTube)
-        ├── Key Players
-        ├── Opportunities
-        └── Recommendations
-    → Report saved to Deliverables
-    → Knowledge extraction: key market facts → Brain candidates
-    → Notification: "3 new knowledge items for review"
-```
+### Journey 6: Context Change
+* Sarah raises a price from EGP 5,000 to EGP 8,000. Only dependent documents are flagged and only the affected scheduled Post is held until she resolves it (FR-48).
 
-### Journey 4: Content Creation with Generated Visual
-
-```
-Sarah: "Write 5 Instagram posts to promote the new face serum product"
-    → Orchestrator: retrieves product info, brand voice, and audience from Brain
-    → All available ✅
-    → Orchestrator delegates to Content Writer Agent and Image Generation
-    → Canvas shows flow
-    → Content Writer produces 5 posts:
-        Each with: caption (Arabic), hashtags, and a suggested visual brief
-    → Image Generation produces a brand-template visual per post
-    → Sarah reviews in chat, edits or approves
-    → Saved to Deliverables
-```
-
-### Journey 5: Competitor Analysis
-
-```
-Sarah: "Analyze competitor X — see what they're posting on social media and what their ads are"
-    → Orchestrator delegates to Competitor Analysis Agent
-    → Agent crawls:
-        - Competitor website (products, pricing, messaging)
-        - Facebook Ads Library (active ads)
-        - Social media presence
-    → Canvas shows agent activity
-    → Delivers structured comparison report
-    → Key competitor insights → Brain candidates
-```
-
-### Journey 6: Campaign Planning, Approval, and Publishing
-
-```
-Sarah: "Create a content calendar for next month across Facebook, Instagram, and X"
-    → Orchestrator delegates to Campaign Planner Agent
-    → Planner uses Brain + prior research to build a structured calendar
-    → Calendar shown in Batch Review UI
-    → Sarah edits individual posts, approves some, rejects others
-    → On publishing, system checks OAuth:
-        - Not connected → shows connect card → Sarah connects → task resumes
-        - Connected → proceeds
-    → Approved posts are published via the MCP Server
-    → Each post is read-back verified
-    → Results (success/failure) shown per post
-```
-
-### Journey 7: Performance Interpretation
-
-```
-Sarah uploads a monthly performance CSV
-    → System validates headers and normalizes the schema
-    → Deterministic KPIs are computed (CTR, conversion rate, CPC changes)
-    → Orchestrator produces a diagnosis:
-        📈 What performed well
-        📉 What underperformed
-        ✅ Three prioritized adjustments for next month
-    → Diagnosis saved to Deliverables; relevant facts become Brain candidates
-```
+### Journey 7: Requested Analysis & Honest Handoff
+* She attaches last month's ad export (`.xlsx`) and asks what happened. After a mapping preview, she gets a one-off analysis with deterministic numbers and stated limitations.
+* For a WhatsApp follow-up sequence, the Director produces ready-to-send drafts and a checklist, never claiming it sent anything (FR-49).
 
 ---
 
-## 7. Success Criteria
+## 7. Success Criteria & Release Gates
 
-| Metric | Target |
+Release acceptance follows PRD §10.2. No paid customer or fixed tester count is required.
+
+| Area | Release Gate |
 |---|---|
-| **Onboarding completion rate** | ≥ 70% of signups complete Brain review |
-| **Website crawl quality** | ≥ 80% of extracted candidates approved (not rejected) |
-| **Task completion rate** | ≥ 85% of user requests produce a usable result |
-| **Time to value** | First useful output within 15 minutes of signup |
-| **Research quality** | Reports contain real, verifiable, sourced data (not hallucinated) |
-| **Content relevance** | ≥ 70% of generated content usable without major edits |
-| **Arabic quality** | Meets the Arabic rubric in `evaluation.md` |
-| **Brain value** | Measurably fewer clarification turns and corrections than a document-retrieval baseline |
-| **Publishing success** | ≥ 95% of approved posts publish successfully and pass read-back verification |
-| **Calendar adoption** | ≥ 50% of active users generate at least one calendar |
-| **Platform connection** | ≥ 60% of active users connect at least one platform |
-| **Brain growth** | ≥ 20 approved items after 5 tasks |
+| **Acceptance scenarios** | All active AC-01–25 and AC-27–58 pass against real implementations (AC-26 retired). |
+| **Truthfulness & control** | Zero critical violations in the release suite: invented evidence, unauthorized action, budget bypass, cross-workspace disclosure or fake execution. |
+| **Usefulness** | ≥ 80% of held-out cases pass the frozen human rubric without major correction, overall and within each content register. |
+| **Grounding** | All audited consequential claims have inspectable support or are labelled owner claims/hypotheses. |
+| **Publication** | Retry, concurrency, cancellation, revocation, version/context change, late-job and uncertain-result scenarios pass with real platform evidence. |
+| **Calculations / imports** | Deterministic fixtures match; unknown, zero, duplicate, period and unit/currency cases pass. |
+| **Recovery / security** | No unresolved critical/high defects in access, credential, deletion, backup/restore, durable-job and rollback checks. |
+| **Usability** | No blocking defect in Arabic/English critical journeys; ten-minute first-value target measured. |
+| **Ordinary owner access** | AC-30: an ordinary owner connects and publishes through the production configuration. |
+| **Runtime / resources** | Task-specific latency, timeout, concurrency and cost ceilings documented and met at a declared release load. |
+
+Product measures (PRD §10.3): confirmed setup → chosen Chat or Roadmap → requested Task → accepted output → recorded execution or attestation, plus return use, correction effort, clarification burden and cost per accepted output. Numeric targets are frozen with the evaluation rubric in weeks 1–2.
 
 ---
 
-## 8. Delivery Timeline (6 Months)
+## 8. Delivery Timeline & Workstream Ownership (24 Weeks)
 
-> Four students working in parallel with vertical end-to-end ownership. Each milestone ends with an end-to-end demonstration.
+Five people over 24 weeks give 120 person-weeks; the initial scenario is 20 productive hours per person per week (2,400 h), to be checked against actual availability. The final six weeks (~600 h) are reserved for stabilization, not new features (PRD §13.1).
 
+```mermaid
+gantt
+    title BusMora Phase 2 Delivery Timeline (24 Weeks)
+    dateFormat  X
+    axisFormat  W%s
+    section Workstreams
+    Platform, Evidence/Brain, Approvals, Data Controls (320h) :active, p1, 0, 18
+    Director, Research, Recipes, Grounding, Resources (400h) :active, p2, 0, 18
+    Bilingual UX, Tasks, Graph, Canvas (380h) :active, p3, 0, 18
+    Facebook Access, Scheduling, Publishing, Recovery (260h) :active, p4, 0, 18
+    Confirmed Intake, Discovery, Requested Analysis (220h) :active, p5, 0, 18
+    Cross-System Integration, Tests, Runbooks (220h) :active, p6, 0, 18
+    Stabilization & Verification (600h) :crit, p7, 18, 24
 ```
-Month 1:    Foundations + Walking Skeleton
-            Docker Compose, PostgreSQL schema, auth, Next.js skeleton,
-            end-to-end prompt → API → Temporal → worker → AI stub → SSE → chat.
-            Discovery interviews with target SMBs.
 
-Month 2:    Business Brain & GraphRAG
-            Brain schema (nodes + edges), Qdrant collection, website crawler,
-            candidate review UI, two-stage retrieval + document control route.
-            Extensibility paper exercise at architecture freeze.
+### Workstream Allocation
+1. **Platform, evidence/Brain, approvals, data controls (320 h — Platform lead):** tenant isolation, concept graph and epistemic states, approval records, export/deletion and restore suppression.
+2. **Director, research, recipes, grounding, resource controls (400 h — AI lead with evaluation partner):** Router/Orchestrator, diagnosis, curated recipes, multi-source research, budget reservations, grounding audit.
+3. **Bilingual responsive UX, tasks, graph, Canvas (380 h — UX lead):** Arabic RTL / English LTR, Chat and Canvas, Roadmap and steps, Brain graph/list, Scheduling views.
+4. **Facebook access, scheduling, publishing, recovery (260 h — Integration lead):** Meta connector, exact-version approval, dispatch worker, reconciliation and holds, AC-30 production access.
+5. **Confirmed intake, Discovery, requested analysis (220 h — Evaluation/data lead):** onboarding draft and confirmation, Discovery persistence and research return, CSV / `.xlsx` mapping and deterministic metrics.
+6. **Cross-system integration, tests, deployment, runbooks (220 h — rotating integration owner).**
+7. **Stabilization (final 6 weeks, 600 h — whole team):** fault injection, security, native-language review, mobile accessibility, load/cost checks, backup restore, release rehearsal.
 
-Month 3:    Marketing Employee Runtime
-            LangGraph engine, Router, Orchestrator, clarification forms,
-            Market Research Agent, Content Writer Agent, image generation,
-            Deliverables storage.
-
-Month 4:    Analysis, Planning & Visualization
-            Competitor Analysis Agent, Campaign Planner, Performance CSV intake,
-            full React Flow canvas + SSE.
-
-Month 5:    Approvals, Publishing & Evaluation
-            Approval lifecycle + Batch Review, OAuth (Meta + X), MCP Server,
-            scheduling, read-back verification, Knowledge Extraction,
-            evaluation harness and human review sessions.
-
-Month 6:    Bilingual Polish, Pilot & Hardening
-            Full RTL polish, Arabic evaluation, paid pilot onboarding (1–3 businesses),
-            observability, stabilization, documentation and graduation preparation.
-```
+Milestones follow PRD §13.2 (weeks 1–2 contracts and spikes; 3–4 foundation; 5–8 first slice; 9–12 research and specialists; 13–16 analysis, Discovery return, revisions, deletion; 17–18 feature freeze; 19–24 hardening and release). If capacity falls short, apply PRD §13.3: simplify within the contract, never cut truthful state, authorization, data controls, recovery, languages or real native workflows.
 
 ---
 
 ## 9. Extensibility
 
-The platform ships one controlled Marketing Employee, but its foundational concepts — Employee Configuration, Capability, Workflow, Integration, Task Record, approval/execution semantics, and the Business Brain — are domain-neutral. A paper design exercise at architecture freeze tests that a future Sales or Operations Employee can be added without redesigning these concepts.
+The domain models (Workspaces, Knowledge Items, Relationships, Tasks, Roadmaps, Deliverables, Posts, Post Versions, Approvals and events) are domain-neutral. Phase 3 (Instagram/X, social link import, connected analytics), Phase 4+ (image generation, billing) and Phase 5 (Meta Ads) plug into these aggregates and the MCP publishing seam without foundational redesign, and each needs its own evaluation before it is labelled available.

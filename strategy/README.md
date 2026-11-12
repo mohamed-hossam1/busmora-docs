@@ -2,16 +2,18 @@
 
 This directory documents the **business strategy, MVP delivery boundaries, evaluation benchmarks, and historical governance records** for BusMora.
 
+> **Authority Precedence:** Authoritative functional requirements, acceptance criteria, and technical contracts are governed by **[core/prd.md](../core/prd.md)** (PRD v2.0) and the canonical specifications in `core/`. All strategy documents are aligned with PRD v2.0 and provide business rationale and planning context; where they differ, the PRD wins.
+
 ---
 
 ## Strategy Documents
 
 ```mermaid
 flowchart TD
-    BM["1. Business Model & Value Prop<br/><i>4-Pillar Moat, Stripe Tiers, Unit Economics</i>"]
-    MVP["2. MVP Definition<br/><i>24-Week Scope, Persona Sarah, 7 Core Journeys</i>"]
-    EVAL["3. Evaluation Plan<br/><i>Arabic Fluency, Brain Treatment vs Control</i>"]
-    DR["4. Decision Registry<br/><i>Historical Product & Tech Decisions (D-01 to D-54)</i>"]
+    BM["1. Business Model & Value Prop<br/><i>Value Canvas, Defensibility & Commercial Hypotheses</i>"]
+    MVP["2. MVP Definition (Phase 2)<br/><i>24-Week Contract, 5 Students, 7 Journeys</i>"]
+    EVAL["3. Evaluation Plan<br/><i>~24 Cases, PRD §10.2 Gates, Arabic Rubrics</i>"]
+    DR["4. Decision Registry<br/><i>Decisions D-01 to D-70 + Superseded History</i>"]
 
     BM --> MVP
     MVP --> EVAL
@@ -19,23 +21,21 @@ flowchart TD
 ```
 
 ### 1. [Business Model & Value Proposition (`business-model-value-proposition.md`)](./business-model-value-proposition.md)
-* **The 4-Pillar Defensibility Moat:**
-  1. *Brain Moat:* Cumulative organizational memory that deepens with every edit.
-  2. *Governed Safe Publishing:* Zero autonomous unapproved posts; deterministic dispatch.
-  3. *MENA Native Fluency:* Localized nuance, cultural relevance, and dialect support (Egyptian, Gulf, Levantine, MSA).
-  4. *Total Cost of Ownership:* Transparent, predictable subscription replacing fragmented agency and SaaS overhead.
-* **Economic Model:** Stripe subscription tiers (Starter, Growth, Scale), usage quotas, unit economics, and customer acquisition strategy.
+* **Value proposition canvas** for the primary service-business owner and the secondary marketer.
+* **Defensibility hypotheses** (context continuity, last-mile execution infrastructure, regional language layer, governed autonomy), to be tested rather than assumed.
+* **Commercial model:** no in-product billing, price or payment provider in Phase 2; per-workspace usage and cost metering from day one; packaging decided later from observed repeat use and real costs (P4-02).
 
 ### 2. [MVP Definition & Release Boundaries (`mvp-definition.md`)](./mvp-definition.md)
-* **Release Boundary:** Strict 24-week timeline for a full-scope single release targeting SMB marketing operations.
-* **Target Beachhead Persona:** Sarah (Boutique owner / Marketing lead in Cairo and Riyadh).
-* **7 Core User Journeys:** Guided Onboarding $\rightarrow$ Social Channel Linking $\rightarrow$ Content Campaign Planning $\rightarrow$ Approval & Canvas Editing $\rightarrow$ Autonomous Publishing $\rightarrow$ Performance Insights $\rightarrow$ Knowledge Refinement.
+* **Release Boundary:** Strict 24-week timeline committed to **Phase 2 (First Production-Ready Release)** delivered by 5 students across 5 workstreams (~2,400 productive hours).
+* **Personas:** Sarah, owner of an Arabic-first service business selling via inquiries or bookings (primary); an experienced marketer (secondary).
+* **Core Product Flow:** sign-up (email link or Google) $\rightarrow$ confirmed essential intake $\rightarrow$ Chat **or** Roadmap Discovery $\rightarrow$ bounded research and Tasks $\rightarrow$ documents in Deliverables and Posts in Scheduling $\rightarrow$ exact-approval Facebook publishing $\rightarrow$ requested one-off analysis, context holds (FR-48) and honest handoffs (FR-49).
 
 ### 3. [Evaluation Framework & Quality Benchmarks (`evaluation.md`)](./evaluation.md)
-* **Arabic Fluency Rubrics:** Strict scoring criteria for MSA and regional dialects, idiom accuracy, and brand voice alignment.
-* **Brain Value Experiment:** Controlled A/B measurement (Brain-grounded generation vs generic document-only retrieval).
-* **Operational Hardening:** Deterministic publishing guarantees, idempotency tests, and MTTR benchmarks.
+* **The 24-Case Scenario Library:** Authored contrast pairs testing sparse context, fulfillment constraints, dialect authenticity, and failure recovery.
+* **Arabic Fluency Rubrics:** Strict scoring across Fluency, Dialect Fit, Brand Fit, Cultural Fit, and Factual Grounding (≥ 80% pass rate on held-out suite without major correction).
+* **Brain Value Experiment:** Blind treatment vs. control; the numeric target is frozen with the rubric in weeks 1–2.
+* **Binding Acceptance Gates:** all active AC-01–25 and AC-27–58 (AC-26 retired), zero critical truthfulness/control violations, and the ten-minute first-value usability target.
 
 ### 4. [Authoritative Decision Registry (`decision-registry.md`)](./decision-registry.md)
-* **Authoritative Governance:** The definitive chronological record of 54 architectural and product decisions (D-01 to D-54).
-* Serves as the primary tie-breaker whenever requirements or designs present conflicting statements.
+* Chronological record of product and architecture decisions (D-01 to D-70), aligned with PRD v2.0, plus a superseded-decisions history.
+* The PRD remains the tie-breaker; the registry explains why each choice was made.

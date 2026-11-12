@@ -2,6 +2,8 @@
 
 This directory houses all **customer discovery research, requirements audits, architectural trade-off benchmarks, and decision records** that underpin the BusMora platform.
 
+> **Historical Context & Authority:** Research files are evidentiary and benchmark records documenting the architectural trade-offs (conducted October 2026). They serve as historical rationale and are intentionally left unchanged: the `technical/` files (00–04) describe the earlier v1 scope (Facebook + Instagram + X publishing, brand-template images, performance CSV diagnosis, paid pilot, 4 students). That scope is **not** current; only the engineering choices they justified (B1 + A1, FE-1) remain in force. Current binding product requirements, API contracts, and release gates are governed authoritatively by **[core/prd.md](../core/prd.md)** (PRD v2.0) and the canonical specifications in `core/`.
+
 ---
 
 ## Directory Structure
