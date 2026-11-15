@@ -1,13 +1,13 @@
 # F. Dependency Map
 
 > Part of the [BUSMORA 16-week implementation plan](./README.md). Task IDs are shortened; the full ID adds the Phase and Epic prefix.
-> Rule checked here: a task may depend only on work completed in an earlier week or on approved documents. It may not depend on a task in its own week.
+> Rule: task startup uses earlier-week work or approved documents. Weekly integration and final certification have explicit same-week completion handoffs under [file 11](./11-execution-contract.md#gates-and-coordination).
 
 ## F.1 Dependencies on earlier work
 
-"Week gap" is the number of weeks between the latest prerequisite and the task. A gap of 1 means an overrun in the prerequisite delays this task directly.
+"Week gap" is the number of weeks between the latest prerequisite and the task. A gap of 1 identifies an integration boundary monitored during weekly checks; the allocated repair allowance supports corrective work within the schedule.
 
-| Task | Week | Depends on (all in earlier weeks) | Latest prerequisite week | Week gap |
+| Task | Week | Startup dependencies; explicit completion exceptions | Latest prerequisite week | Week gap |
 |---|---:|---|---:|---:|
 | T01 | 1 | — | — | — |
 | T02 | 1 | — | — | — |
@@ -51,27 +51,27 @@
 | T40 | 10 | T10, T22, T25, T33 | 9 | 1 |
 | T41 | 11 | T37 | 10 | 1 |
 | T42 | 11 | T14, T36, T40 | 10 | 1 |
-| T43 | 11 | T19, T35, T39 | 10 | 1 |
+| T43 | 11 | T19, T35, T38, T39 | 10 | 1 |
 | T44 | 11 | T36 | 9 | 2 |
 | T45 | 12 | T22, T25, T41 | 11 | 1 |
 | T46 | 12 | T17, T24, T29 | 8 | 4 |
-| T47 | 12 | T21, T31, T35 | 9 | 3 |
+| T47 | 12 | T21, T31, T35, T38, T39, T43 | 11 | 1 |
 | T48 | 12 | T25, T29, T36 | 9 | 3 |
 | T49 | 13 | T41, T45 | 12 | 1 |
-| T50 | 13 | T17, T24, T26, T46, T65, T66 | 12 | 1 |
+| T50 | 13 | T17, T24, T26, T46, T65, T66, T77 | 12 | 1 |
 | T51 | 13 | T14, T22, T29, T31, T35, T36, T37, T39, T40, T43, T46 | 12 | 1 |
 | T52 | 13 | T20, T29, T65, T66 | 10 | 3 |
 | T53 | 14 | All built work T09–T52, T65–T69 | 13 | 1 |
 | T54 | 14 | All owner-facing work T09–T52, T65–T68 | 13 | 1 |
-| T55 | 14 | T31, T35, T39, T43, T47, T68 | 12 | 2 |
-| T56 | 14 | T07, T23, T29, T36, T37, T48; external reviewers | 12 | 2 |
+| T55 | 14 | T31, T35, T38, T39, T43, T47, T68 | 12 | 2 |
+| T56 | 14 | T07, T23, T29, T36, T37, T48; weekly internal evaluation records | 12 | 2 |
 | T57 | 15 | T22, T25, T28, T36, T40, T42, T45 | 12 | 3 |
 | T58 | 15 | T07, T12, T14, built workflows T18–T48 | 12 | 3 |
 | T59 | 15 | All work T01–T56, T65–T69 | 14 | 1 |
 | T60 | 15 | T12, T16, T19, T43, T69; the built product as frozen in Week 13 | 13 | 2 |
 | T61 | 16 | Findings of T53, T54, T56, T57, T59 | 15 | 1 |
 | T62 | 16 | Findings of T53, T54, T55, T57, T59 | 15 | 1 |
-| T63 | 16 | T03, T38, T60; Meta's approval and an intended owner (external) | 15 | 1 |
+| T63 | 16 | T03, T38, T43, T47, T55, T60; client-authorized browser session | 15 | 1 |
 | T64 | 16 | T11, T16, T55, T57, T59, T60 | 15 | 1 |
 | **T65** (additional) | 9 | T14, T15, T16, T17, T20, T21, T24, T28, T29 | 8 | 1 |
 | **T66** (additional) | 10 | T17, T24, T25, T26, T29, T31 | 8 | 2 |
@@ -103,22 +103,22 @@
 | **T92** (additional) | 14 | All owner-facing work T65–T91 | 13 | 1 |
 | **T93** (additional) | 14 | T24, T25, T71, T91 | 13 | 1 |
 | **T94** (additional) | 14 | All work T65–T91 | 13 | 1 |
-| **T95** (additional) | 15 | T56, T71; external reviewers | 14 | 1 |
+| **T95** (additional) | 15 | T56, T71; weekly internal evaluation records | 14 | 1 |
 | **T96** (additional) | 15 | All work T65–T94 | 14 | 1 |
 | **T97** (additional) | 15 | T65, T67, T72, T75, T79, T82, T89 | 13 | 2 |
-| **T98** (additional) | 16 | T59, T60, T96, T97 | 15 | 1 |
+| **T98** (additional) | 16 | Startup: T59, T60, T96, T97; completion: T61, T62, T99 repairs and T63 final-build evidence | 16 (completion) | 0 (completion) |
 | **T99** (additional) | 16 | Findings of T92, T94, T96, T97 | 15 | 1 |
 
 **Standing prerequisites not repeated in every row.** From Week 3 on, every task uses the release ledger and defect register created in T07. T36, T37, T44, T48 and T56 take their demonstration cases and fixed source snapshots from T07 and T23. T53 uses the severity definitions from T07.
 
-**Reading the table.** 69 of the 94 tasks with prerequisites have a week gap of 1. The plan has almost no float: a one-week overrun in a prerequisite usually delays its dependants by one week and pushes later work into overflow.
+**Reading the table.** Startup dependencies identify work available before each week. T98 additionally has same-week completion inputs. Weekly integration, repair and certification are owned within the AI-assisted effort allowance; all tasks remain inside 16 weeks.
 
 ### Longest chains
 
 | Chain | Tasks in order | Weeks |
 |---|---|---|
 | Publishing | T01 → T06 → T12 → T19 → T31 → T35 → T39 → T43 → T55 → T62 | 1 → 16 |
-| Facebook access | T03 → T19 → T35 → T38 → (Meta's decision, external) → T63; T60 must also be complete before T63 | 1 → 16 |
+| Browser-session publishing readiness | T03 → T19 → T35 → T38 → T43 → T47 → T55 → T63; T39 supplies reconciliation, T60 production and T98 final certification | 1 → 16 |
 | Director work | T01 → T05 → T09 → T14 → T18 → T22 → T25 → T29 → T36 → T42 → T57 | 1 → 15 |
 | Roadmap | T17 → T26 → T30 → T34 → T37 → T41 → T45 → T49 | 5 → 13 |
 | Intake | T26, T28 → T32 | 7 → 8 |
@@ -129,23 +129,23 @@ For each week: what exists at the start, why all four tasks can start on day one
 
 ### Week 1 — T01, T02, T03, T04
 
-**Available at start.** Approved documentation only. No repository, environment, account or provider access.
-**Why all four can start.** T01 and T02 each create their own repository from nothing. T03 works in the platform's developer tools and with people. T04 runs standalone experiments.
+**Available at start.** Approved documentation and confirmed delivery controls. Repositories do not yet exist; internal ops supplies the week's bootstrap runtime and experiment access progressively as normal task inputs. No later milestone's account, LLM key or production infrastructure is a kickoff prerequisite.
+**Why all four can start.** T01 creates `busmora-api` and `busmora-ai`; T02 independently creates `busmora-web`. The existing `busmora-docs` holds documentation and experiment evidence. T03 runs an owner-authorized standalone browser experiment and records operational ownership. T04 runs standalone experiments.
 
 | Pair | Dependency? | Reason |
 |---|---|---|
 | T01–T02 | None | Separate repositories; the shell shows no backend data |
-| T01–T03 | None | T03 needs no code |
+| T01–T03 | None | T03 uses a standalone Scrapling/Playwright experiment, not product code from T01 |
 | T01–T04 | None | T04's experiments live outside the product repository |
 | T02–T03 | None | — |
 | T02–T04 | None | — |
-| T03–T04 | None | T04 uses trial access it obtains itself; it does not wait for T03's budget finding |
+| T03–T04 | None | T04 uses provider access supplied by internal ops in parallel; it does not wait for T03's ownership record |
 
 **Shared changes.** None. If the team wants one source-hosting organization, whoever starts first creates it; that takes minutes and is not a deliverable of either task.
 
 ### Week 2 — T05, T06, T07, T08
 
-**Available at start.** Runnable backend with checks (T01); bilingual shell (T02); Facebook record and dependency register (T03); research baseline (T04).
+**Available at start.** Runnable backend with checks (T01); bilingual shell (T02); browser-session baseline and operational ownership (T03); research baseline (T04).
 **Why all four can start.** Each builds on Week 1 outputs or on none.
 
 | Pair | Dependency? | Reason |
@@ -168,12 +168,12 @@ For each week: what exists at the start, why all four tasks can start on day one
 |---|---|---|
 | T09–T10 | None | T09's screens use the Week 1 base components |
 | T09–T11 | None | — |
-| T09–T12 | None | T09 is verified locally; it reaches staging later through the pipeline |
+| T09–T12 | None | T09 starts on bootstrap staging and joins the hardened weekly increment through the integration handoff |
 | T10–T11 | None | — |
 | T10–T12 | None | — |
-| T11–T12 | None | T11 is verified locally; enabling it on staging is in T16's scope |
+| T11–T12 | None | T11 starts on bootstrap staging; same-week integration enables tracing on the hardened build |
 
-**Shared changes.** T09 and T12 both add configuration for secrets. Under the shared Definition of Done, each task puts its own feature on staging with its own secrets once staging exists. T09 finishes before staging may exist, so T13, the next account task, confirms accounts and email on staging in Week 4. No task waits.
+**Shared changes.** T09 and T12 both add secret configuration. Bootstrap staging already exists; T09/T10/T11 join T12's hardened weekly build through an owned integration handoff. T13 repeats account/email checks in Week 4. Startup is independent; weekly completion includes staging verification.
 
 ### Week 4 — T13, T14, T15, T16
 
@@ -266,7 +266,7 @@ For each week: what exists at the start, why all four tasks can start on day one
 | T33–T35 | None | — |
 | T33–T36 | None | Both use the event contract approved in SYS §6.4 and in place since T06 and T22. T33 is accepted on drafting Tasks; research events need no Canvas change |
 | T34–T35 | None | — |
-| T34–T36 | None | Question-linked research is overflow (T79, T83) |
+| T34–T36 | None | Question-linked research is scheduled later in T79/T83 |
 | T35–T36 | None | — |
 | T65–T33 | None | Additional task. Clean-up acts on stores; the Canvas is not involved |
 | T65–T34 | None | Same carrier (B). Discovery answers are not removed by T65 this week |
@@ -277,7 +277,7 @@ For each week: what exists at the start, why all four tasks can start on day one
 
 ### Week 10 — T37, T38, T39, T40 and additional T66
 
-**Available at start.** P2-E04 exit met: real tester-mode publication, research, Canvas, adaptive Discovery.
+**Available at start.** P2-E04 exit met: real authorized browser publication, research, Canvas, adaptive Discovery.
 **Why all four can start.** T37 needs adaptive Discovery; T38 the working flow; T39 the publish path; T40 Tasks and the Canvas.
 
 | Pair | Dependency? | Reason |
@@ -285,7 +285,7 @@ For each week: what exists at the start, why all four tasks can start on day one
 | T37–T38 | None | — |
 | T37–T39 | None | — |
 | T37–T40 | None | With missing information T37 produces a preliminary plan; it does not raise clarification forms |
-| T38–T39 | None | The submission shows the flow as it worked at the end of Week 9 |
+| T38–T39 | None | Session hardening uses the Week-9 browser contract; reconciliation arrives through the weekly integration handoff |
 | T38–T40 | None | — |
 | T39–T40 | None | — |
 | T66–T37 | None | Additional task. A proposed Roadmap is not marked by T66 this week; T66 is accepted on documents and Posts from Week 8 |
@@ -297,7 +297,7 @@ For each week: what exists at the start, why all four tasks can start on day one
 
 ### Week 11 — T41, T42, T43, T44 and additional T67
 
-**Available at start.** Proposed plan (T37), submission filed or blocker recorded (T38), reconciliation (T39), clarifications (T40).
+**Available at start.** Proposed plan (T37), browser-session runtime hardened (T38), reconciliation (T39), clarifications (T40).
 **Why all four can start.** Each extends one Week 9 or Week 10 output.
 
 | Pair | Dependency? | Reason |
@@ -353,7 +353,7 @@ For each week: what exists at the start, why all four tasks can start on day one
 | T69–T51 | None | — |
 | T69–T52 | None | Same carrier (D). As T69–T50 |
 
-**Shared environment.** T69's restore drill takes staging away from the other four tasks for its duration. The window is agreed on day one; the other tasks demonstrate before or after it.
+**Shared environment.** T69's restore drill takes staging away from the other seven tasks for its duration. The window is agreed on day one; the other tasks demonstrate before or after it.
 
 **Shared changes.** T51 displays notification records that each earlier feature task wrote under the Definition of Done. If T51 finds a kind that is not being written, it records a defect against that feature; it does not build the missing behaviour. **Review finding accepted:** the first draft hid this as retrofit work inside T51.
 
@@ -387,27 +387,28 @@ For each week: what exists at the start, why all four tasks can start on day one
 | T58–T60 | None | Load runs on staging, not production |
 | T59–T60 | None | Acceptance runs on staging |
 
-**Shared changes.** The ledger is one document edited by several tasks. Its structure was fixed in T07. T59 audits it; T57, T58 and T60 own the rows for their own results. Three tasks share staging this week: the time windows are agreed on day one inside the coordination allowance. This is the tightest week for shared resources in the plan.
+**Shared changes.** The ledger is one document edited by several tasks. Its structure was fixed in T07. T59 audits it; T57, T58 and T60 own the rows for their own results. Seven tasks share staging this week, including the additional tasks; the integration lead reserves destructive-test and load windows on day one.
 
 ### Week 16 — T61, T62, T63, T64
 
-**Available at start.** Ledger with all findings to the end of Week 15; production environment rehearsed; Meta's decision if it has arrived.
-**Why all four can start.** T61 and T62 work fixed, non-overlapping areas of the defect list; T63 uses production; T64 documents behaviour as of Week 15.
+**Available at start.** Weekly regression and defect records through Week 15; rehearsed production; a hardened client-session publishing adapter.
 
-| Pair | Dependency? | Reason |
+All tasks can start. Completion follows the controlled handoffs below.
+
+| Pair | Startup dependency? | Completion coordination |
 |---|---|---|
-| T61–T62 | None | Area lists do not overlap |
-| T61–T63 | None | — |
-| T61–T64 | None | T64 writes runbooks for behaviour as of Week 15. A repair records any operator-facing change in its own record; T64 folds those notes in as its last step and does not wait for a repair to finish |
-| T62–T63 | None | T62 works defects recorded by the end of Week 15; a defect found by T63 is recorded as a blocker, not added to T62 |
-| T62–T64 | None | As T61–T64 |
-| T63–T64 | None | — |
+| T61–T62 | None | Separate repair areas; serialized merges into one candidate |
+| T61–T63 | None | Relevant changes invalidate production evidence and require reruns |
+| T61–T64 | None | T64 incorporates final operator-facing repair notes |
+| T62–T63 | None | T63 findings enter T62; final owner validation follows repairs |
+| T62–T64 | None | T64 incorporates final publishing/session recovery behavior |
+| T63–T64 | None | Client-session findings update operator help before certification |
 
-**Shared changes.** The ledger and runbooks, handled by row and entry ownership as in Week 15.
+**Release order.** T61/T62/T99 repair and merge → final candidate cut → T63 production evidence plus T98 full regression → T64 final notes and release statement. A newly discovered defect repeats the repair/rerun cycle. Assignee C schedules T63 and T98 sequentially.
 
 ## F.2b Same-week checks for the additional tasks T70–T99
 
-These tasks were added on 2026-11-14. Each row checks one additional task against **every** other task in its week (primary and additional) as a group; the pairs are not listed one by one. Every prerequisite of every task below is in an earlier week (see F.1).
+These tasks were added on 2026-11-14. Each row checks one additional task against **every** other task in its week (primary and additional) as a group; the pairs are not listed one by one. Startup prerequisites are in earlier weeks; the T98 completion exception is explicit in F.1.
 
 | Week | Tasks in the week | Additional task | Depends on a same-week task? | Reason |
 |---|---|---|---|---|
@@ -439,24 +440,24 @@ These tasks were added on 2026-11-14. Each row checks one additional task agains
 | 15 | T57–T60, T95–T97 | T95 | No | Builds on T56's findings (Week 14) |
 | 15 | | T96 | No | Fills its own ledger rows; T59 audits other rows |
 | 15 | | T97 | No | Different workflows and test workspaces from T57 |
-| 16 | T61–T64, T98, T99 | T98 | No | Runs on the candidate as of the end of Week 15; repairs rerun the scenarios they touch |
-| 16 | | T99 | No | Its defect area does not overlap T61 or T62 |
+| 16 | T61–T64, T98, T99 | T98 | Yes, for completion | Runs the full suite after final T61/T62/T99 merges and includes T63 evidence for the same build |
+| 16 | | T99 | No startup wait | Owns added-feature repairs, including T98 discoveries; final merges precede T98 certification |
 
-**Pairs among additional tasks in the same week** were also checked: no additional task needs another additional task from its own week. T76 uses T74, T81 uses T78, T83 uses T79, T89 uses T88, T93 uses T91, and each of those is one week earlier.
+**Pairs among additional tasks in the same week** were also checked: their startup prerequisites remain earlier-week work; T98 final certification consumes T99's same-week repair output. T76 uses T74, T81 uses T78, T83 uses T79, T89 uses T88, T93 uses T91, and each of those is one week earlier.
 
-**Shared areas that need coordination, not sequencing.**
+**Shared areas with owned integration and sequencing.**
 - Week 10: six tasks touch Posts, Tasks or the Brain. Changes are to different behaviours; merges will be frequent.
 - Week 11: ten tasks run. T81 and T82 both change Scheduling; T83 and T84 both change Discovery.
 - Week 13: T50 and T90 both change relationships in the Brain; T89 writes a notice kind the same week the Bell is built.
 - Weeks 14 and 15: seven tasks share staging each week. Time windows are agreed on day one.
-- Week 16: three repair tasks and a regression run share the candidate. T98 runs on the Week 15 candidate so that it does not wait for repairs.
+- Week 16: the integration owner serializes repair merges, freezes the final candidate and schedules T63/T98 evidence after those merges.
 
 ## F.3 Result of the check
 
-- 96 pairs among the primary tasks and 20 pairs involving T65–T69 were checked one by one. The 30 additional tasks T70–T99 were each checked against all other tasks of their week as a group (F.2b). With 99 tasks the weeks hold 4, 4, 4, 4, 4, 4, 7, 5, 7, 9, 10, 9, 8, 7, 7 and 6 tasks, which is 290 same-week pairs in all. No task depends on a same-week output.
+- 96 pairs among the primary tasks and 20 pairs involving T65–T69 were checked one by one. The 30 additional tasks T70–T99 were each checked against all other tasks of their week as a group (F.2b). With 99 tasks the weeks hold 4, 4, 4, 4, 4, 4, 7, 5, 7, 9, 10, 9, 8, 7, 7 and 6 tasks, which is 290 same-week pairs in all. Task startup is independent; weekly integration and the final repair → certification sequence are documented completion dependencies.
 - Two weeks needed reshaping to reach that result: Week 7 (onboarding entry versus website import) and Week 11 (budget stopping versus evidence stopping). Both are noted above.
-- Same-week interactions that remain and are not deliverable dependencies: T57, T58 and T59 share the staging environment in Week 15; T61, T62 and T64 touch the same runbooks in Week 16.
-- Weeks 7 to 16 hold more than four tasks, and each person carries two or three tasks in most of those weeks. A person's tasks in a week are independent of each other, so they may be worked in any order.
+- Same-week integration and completion handoffs: T57, T58 and T59 share the staging environment in Week 15; T61, T62 and T64 touch the same runbooks in Week 16.
+- Weeks 7 to 16 hold more than four tasks, and each person carries two or three tasks in most of those weeks. A person's tasks in a week are independent of each other, so implementation can proceed in parallel; integration, evidence and certification follow the recorded handoffs.
 - Same-week interactions added by the additional tasks: three tasks touch the Post or Task modules in Week 10; one person changes the publishing path twice in Week 12; T69's restore drill takes staging in Week 13.
-- No integration task exists outside the 64 primary and 35 additional tasks. Where two earlier outputs must be joined, a named later task does it: T05 (repositories), T16 (tracing on staging), T29 (Tasks with documents and Posts), T32 (crawl with the form). Cross-cutting joins (staging deployment, notification, audit and usage records, isolation checks, ledger rows) belong to each task through the shared Definition of Done.
-- **Limit of this check.** It shows that no task needs a same-week output. It does not show that the rule is cheap: reviewers pointed out that it forces splits (T28/T32, T42/T44) and one dependency hop per week, which is why the Roadmap chain takes seven weeks. Relaxing the rule is your decision (DR-10).
+- No integration task exists outside the 64 primary and 35 additional tasks. Where two earlier outputs must be joined, a named later task does it: T05 (repositories), T12/T11 (weekly staging integration), T16 (trace verification in recovery drills), T29 (Tasks with documents and Posts), T32 (crawl with the form). Cross-cutting joins (staging deployment, notification, audit and usage records, isolation checks, ledger rows) belong to each task through the shared Definition of Done.
+- **Execution control.** A dependency table alone is not a completion test. The integration lead assigns merge owners, schema order, staging windows and reviewers at the start of each week. Each weekly increment is deployed, dogfooded and regressed, with defects repaired using the allocated capacity.

@@ -12,7 +12,7 @@
 |---|---|
 | **Backend** | **B1 Platform-Centred**, with one amendment. **A1:** `busmora-api` may call `busmora-ai` over **internal HTTP** for exactly two things: **quick replies** and **Brain retrieval**. This borrows from B3. |
 | **Frontend** | **FE-1 Client-Rendered** for this release. **FE-3 Workspace Event Shell** is the planned evolution in a later version. |
-| **Repositories** | Two standalone repositories: `busmora-backend` and `busmora-frontend` (01 R-5, unchanged). |
+| **Repositories** | Four repositories: `busmora-web`, `busmora-api`, `busmora-ai` (including Python workers), and `busmora-docs` (01 R-5; repository decision updated 2026-11-15). |
 
 ### 1.1 How A1 is interpreted
 **Interpretation applied:** B1's data ownership is kept. `busmora-api` remains the **only writer** of domain data, including the Business Brain.
@@ -249,17 +249,17 @@ These resolve the blocking gaps from [02-options.md §D](./02-options.md). Where
 - Streams are read-only GETs, so request forgery does not apply. The cookie is useless outside `/v1/streams`.
 
 ### 9.5 R-5: Python ↔ TypeScript payloads and validation (resolves G-T8)
-- **Canonical source:** Pydantic models in `busmora-backend`. They define every Temporal payload exchanged between Python and TypeScript, including the `platform` activities hosted in `api-activities`. JSON Schema is exported from them.
+- **Canonical source:** Pydantic models in `busmora-ai/packages/contracts-py`. They define every Temporal payload exchanged between Python and TypeScript, including the `platform` activities hosted in `api-activities`. JSON Schema is exported from them and published as a versioned artifact consumed by `busmora-api`.
 - **TypeScript side:**
   - **Plain TypeScript types** are generated from that JSON Schema. The generator tool is a remaining detail (§9.8).
   - Payloads are **validated at runtime with Ajv** against the same schema. Zod is **not** added; class-validator stays for HTTP DTOs only.
 - **CI checks:**
   1. The generated types are up to date (no drift).
   2. **Schema evolution is additive and backward-compatible**: new fields optional, nothing removed or retyped, for any schema an in-flight workflow may still replay. Workflows live up to a month (01 PB-12).
-- **Same mechanism for A1:** FastAPI's OpenAPI spec for `ai-http` generates the **typed TypeScript client** that `busmora-api` uses for quick replies and Brain retrieval.
+- **Same mechanism for A1:** FastAPI's OpenAPI spec for `ai-http` is published from `busmora-ai` as a versioned artifact. `busmora-api` pins it and generates the **typed TypeScript client** used for quick replies and Brain retrieval. Consumers do not import source files from another repository.
 
 ### 9.6 R-6: Contract between the repositories (resolves 02 C.3)
-- **Code-first:** `@nestjs/swagger` in `busmora-api` generates `openapi.json` in CI, published as a versioned artifact of `busmora-backend`.
+- **Code-first:** `@nestjs/swagger` in `busmora-api` generates `openapi.json` in CI, published as a versioned artifact of `busmora-api`.
 - **Frontend consumption:**
   - `openapi-typescript` generates types.
   - `openapi-fetch` is the typed client.
@@ -274,9 +274,9 @@ These resolve the blocking gaps from [02-options.md §D](./02-options.md). Where
 | Tool | Fills | Where |
 |---|---|---|
 | Ajv | Runtime JSON Schema validation (G-T8) | `busmora-api` |
-| openapi-typescript, openapi-fetch | OpenAPI → TypeScript types and client (G-T7) | `busmora-frontend`; `busmora-api` for the `ai-http` client |
-| oasdiff | Contract breaking-change check (G-T7) | CI of `busmora-backend` |
-| React Query | Data fetching (G-T2) | `busmora-frontend` |
+| openapi-typescript, openapi-fetch | OpenAPI → TypeScript types and client (G-T7) | `busmora-web`; `busmora-api` for the `ai-http` client |
+| oasdiff | Contract breaking-change check (G-T7) | CI of `busmora-api` for public OpenAPI and `busmora-ai` for internal OpenAPI |
+| React Query | Data fetching (G-T2) | `busmora-web` |
 | `BroadcastChannel` / Web Locks | Multi-tab refresh coordination | Browser built-ins, not dependencies |
 | Native `EventSource` | SSE client (G-T3) | Browser built-in |
 

@@ -56,7 +56,7 @@
 
 | # | Decision | Rationale |
 |---|---|---|
-| D-26 | **Four deployables** (`busmora-web`, `busmora-api`, `busmora-workers`, `busmora-ai`) running several process roles across **two standalone repositories** (`busmora-backend`, `busmora-frontend`) | Clean separation of user-facing API, worker scheduling, and AI workloads with clear repository ownership. |
+| D-26 | **Four deployables** (`busmora-web`, `busmora-api`, `busmora-workers`, `busmora-ai`) running several process roles from **three code repositories** (`busmora-web`, `busmora-api`, `busmora-ai`), with `busmora-docs` as the fourth repository; workers are built from `busmora-ai` | Clean separation of user-facing API, worker scheduling, and AI workloads with clear repository ownership. |
 | D-27 | **Temporal Cloud** for durable workflows | Managed reliability for long-running, human-in-the-loop tasks and month-long scheduled Posts. |
 | D-28 | **Single region, Frankfurt (provisional)** | Managed hosting (Temporal Cloud, Langfuse Cloud) lacks MENA regions; initial owners do not require in-country residency (ADR-016). |
 | D-29 | **Custom Argon2id auth** with JWT access tokens and Redis refresh rotation; **Google OIDC** added on the same session architecture | Full control over tenancy and session security (FR-50). |
@@ -92,7 +92,7 @@
 | D-48 | **Internal HTTP for Quick Replies and Brain Retrieval (Amendment A1)** | Two synchronous internal endpoints (quick reply ≤ 3s and Brain search) bypass Temporal latency while keeping data ownership in api (ADR-004). |
 | D-49 | **Deterministic Publishing Without LLM After Approval** | Agents only draft; publishing is deterministic execution via MCP tools in `workers-publish` (ADR-005). |
 | D-50 | **Approval Lifecycle Bound to Post Versions & Execution Details** | Approval binds to an immutable `PostVersion`, destination, `ScheduledTime` and authorization generation; any critical change creates a new version and needs fresh approval (ADR-006, FR-34). |
-| D-51 | **Two Standalone Repositories (`busmora-backend` & `busmora-frontend`)** | Clarifies ownership, separates frontend dependencies, enforces API contract boundaries via OpenAPI and `oasdiff` (ADR-002). |
+| D-51 | **Four Repositories (`busmora-web`, `busmora-api`, `busmora-ai`, `busmora-docs`), updated by the project owner on 2026-11-15** | Separates web, NestJS and Python ownership while retaining documentation independently. Workers live in `busmora-ai`; versioned OpenAPI and activity contracts cross repository boundaries (ADR-002). |
 | D-52 | **Single Migration Toolchain (Drizzle ORM)** | `busmora-api` manages all PostgreSQL tables; Python reads eligible context via read-only views with RLS (ADR-008). |
 | D-53 | **Client-Rendered Application (FE-1) Prepared for Workspace Event Shell (FE-3)** | Next.js App Router for routing/layout only; data via React Query and feature modules with public `index.ts` interfaces (ADR-009). |
 | D-54 | **Meta Tester Mode for development & AC-30 Production Gate** | Development uses Meta Tester Mode; the Phase 2 release requires an ordinary owner to connect and publish through the production configuration (ADR-018, AC-30). |

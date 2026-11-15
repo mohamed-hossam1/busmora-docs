@@ -2,8 +2,8 @@
 
 > **What this is:** the backend options B1–B3 and frontend options FE-1–FE-3 from [02-options.md](./02-options.md), scored against the gates and weights in [01-constraints.md §4](./01-constraints.md).
 > **What this is not:** an adoption decision. That comes next, from the results and trade-offs laid out here.
-> **Inputs:** 01 (including R-5 two repositories and §4.3 step 6 G5 handling, both settled 2026-10-18) and 02. `project-docs/` and the domain files are unchanged since the full read on 2026-10-17 (git clean; timestamps match).
-> **Settled before scoring:** the two standalone repositories (01 R-5) apply to every option, so they are not counted against any of them.
+> **Inputs:** [01-constraints.md](./01-constraints.md) and [02-options.md](./02-options.md), including R-5 repository ownership and §4.3 step 6 G5 handling. Repository references follow the project owner's 2026-11-15 decision; the recorded architecture scores below have not been rerun.
+> **Repository constraint:** `busmora-web`, `busmora-api`, `busmora-ai` (including Python workers), and `busmora-docs` (01 R-5). Repository ownership is common to the architecture options; deployment and runtime boundaries are evaluated separately.
 
 ---
 

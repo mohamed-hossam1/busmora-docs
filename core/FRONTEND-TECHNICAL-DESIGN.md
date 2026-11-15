@@ -1,7 +1,7 @@
 # BusMora — Frontend Technical Design
 
 > **Version:** 2.0 · **Status:** Aligned design; implementation dependencies remain open · **Date:** 2026-10-30
-> **Scope:** the internal software architecture of the `busmora-frontend` repository (`busmora-web`, Next.js).
+> **Scope:** the internal software architecture of the `busmora-web` repository (Next.js).
 > **Builds on:** [SYSTEM-ARCHITECTURE.md](./SYSTEM-ARCHITECTURE.md) (FE-1 now, FE-3 later; contract; auth), [BACKEND-TECHNICAL-DESIGN.md](./BACKEND-TECHNICAL-DESIGN.md) (API conventions), [domain/](../domain/), [strategy/](../strategy/), and [prd.md](./prd.md).
 > **Design only:** no code. Folder structures are trees.
 > **Rule kept:** no technology beyond those named in the source documents. Anything else needed is listed as a gap (Appendix A) and not chosen.
@@ -41,7 +41,7 @@
 | F-6 | **Canvas:** one stream for the selected conversation’s Task (≤ 2 per workspace); Canvas signals `agent_started`, `agent_tool_used`, `agent_completed`, `agent_error`, `flow_connection`, plus `execution_event` for actual tool/service/workflow/input activity; bounded live replay; whole-message replies, no token streaming (SYS ADR-020). | The Canvas is a pure reducer over signals, plus a reset path. |
 | F-7 | **Screens:** auth, confirmed essential Onboarding, Marketing Director and contextual Canvas, Roadmap Discovery/steps/history, Business Brain, document Deliverables, Scheduling Month/Week/List/Unscheduled/Batch Review, Settings and top-bar notifications. | Feature boundaries follow domain ownership; no daily/performance dashboard. |
 | F-8 | **i18n:** Arabic RTL and English LTR UI; dates per locale; scheduling in the **Business Time Zone**. | Direction at the document root; logical (start/end) styling; time helpers built on the browser's `Intl`. |
-| F-9 | **Two standalone repositories.** The frontend depends on the backend only through the published contract. | No shared code with the backend except generated types. |
+| F-9 | **Four repositories:** `busmora-web`, `busmora-api`, `busmora-ai`, `busmora-docs`. The web app depends on the API only through its published contract. | No shared code with the backend except generated types. |
 
 **Stack used in this design:**
 - **Framework and UI:** Next.js 14+ (App Router), TypeScript, React Flow, Tailwind CSS / shadcn/ui.
@@ -202,7 +202,7 @@ Roadmap links to stable Chat/Task routes using server-returned IDs; it does not 
 ## 4. Folder structure and router
 
 ```text
-busmora-frontend/
+busmora-web/
   src/
     app/
       layout.tsx                         # lang/dir/fonts/global styles

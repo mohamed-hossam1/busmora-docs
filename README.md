@@ -107,7 +107,7 @@ The team uses the **Obsidian Vault** as an interactive knowledge and execution t
 
 ## Key Architecture Highlights
 
-1. **Two Standalone Repositories:** `busmora-backend` (NestJS, Temporal Python workers, FastAPI AI service) and `busmora-frontend` (Next.js web application), communicating strictly through versioned OpenAPI contracts.
+1. **Four Repositories:** `busmora-web` (Next.js), `busmora-api` (NestJS), `busmora-ai` (FastAPI, AI activities and Temporal Python workers), and `busmora-docs` (requirements, architecture, planning and evidence). Code repositories exchange versioned HTTP/activity contracts; the workers remain a separate deployable built from `busmora-ai`.
 2. **Platform-Centred with Sole Domain Writer:** `busmora-api` (NestJS) is the single owner and only writer of all PostgreSQL domain tables. Python services are stateless compute behind Temporal and never write domain tables.
 3. **Dual-Memory Business Brain:** Semantic memory (PostgreSQL concept graph + Qdrant vectors) grounds factual knowledge; procedural memory grounds formatting and dialect style rules learned from human edits.
 4. **Governed Safe Publishing:** The Social Poster agent acts only before approval; publishing is deterministic, byte-for-byte, idempotent dispatch through MCP tools in the worker tier, verified by reading the post back from the platform.

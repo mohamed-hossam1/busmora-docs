@@ -1,7 +1,7 @@
 # BusMora — Design System
 
 > **Version:** 2.0 · **Status:** PRD-aligned design; implementation verification pending · **Date:** 2026-10-30
-> **Applies to:** `busmora-frontend` (Next.js 14+ App Router, TypeScript, Tailwind CSS, shadcn/ui owned in `shared/ui`, React Flow).
+> **Applies to:** `busmora-web` (Next.js 14+ App Router, TypeScript, Tailwind CSS, shadcn/ui owned in `shared/ui`, React Flow).
 > **Builds on:** [FRONTEND-TECHNICAL-DESIGN.md](./FRONTEND-TECHNICAL-DESIGN.md) (structure, RTL rules, `next/font`, graphs in LTR containers), [SYSTEM-ARCHITECTURE.md](./SYSTEM-ARCHITECTURE.md) §5.3 (screens), [prd.md](./prd.md) §5 (screen requirements), [domain/GLOSSARY.md](../domain/GLOSSARY.md) (names and statuses).
 > **Resolves:** FTD gap **FG-8** (Arabic + Latin font choice) and the design part of **FG-11** (accessibility target and supported browsers).
 > **Visual references (measured from their production CSS on 2026-10-26):**

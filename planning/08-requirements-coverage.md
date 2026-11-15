@@ -1,7 +1,7 @@
 # G. Requirements Coverage Matrix
 
 > Part of the [BUSMORA 16-week implementation plan](./README.md). Requirement text: [PRD v2.0](../core/prd.md) §§5, 8, 9. The former overflow items (OV-nn) and the tasks that replaced them: [H](./09-risks-overflow-decisions.md).
-> This maps planned work, not executed tests. Nothing here has been built or passed.
+> Full-scope planning coverage under [file 11](./11-execution-contract.md). Actual results are recorded during weekly execution; planning status does not certify unrun tests.
 
 ## G.1 Status definitions
 
@@ -10,19 +10,19 @@
 | **Full** | Every part of the requirement is covered by scheduled tasks (the 64 primary tasks and the additional tasks T65–T99). It can pass by Week 16 if those tasks meet their acceptance criteria. |
 | **Partial** | Some parts are scheduled and named parts are not. **No row has this status since 2026-11-14.** |
 | **Unplanned** | No scheduled task. **No row has this status since 2026-11-14.** |
-| **Full — externally gated** | All engineering is scheduled, but passing needs an approval the team does not control. |
+| **Executed result** | Recorded separately as passed, failed or not run, with build-specific evidence; never inferred from Full planning coverage. |
 
 ## G.2 Summary
 
 | Set | Active | Full | Partial | Unplanned | Externally gated |
 |---|---:|---:|---:|---:|---:|
-| Functional requirements (FR-01–58, FR-47 retired) | 57 | 56 | 0 | 0 | 1 |
+| Functional requirements (FR-01–58, FR-47 retired) | 57 | 57 | 0 | 0 | 0 |
 | Non-functional requirements (NFR-01–09) | 9 | 9 | 0 | 0 | 0 |
-| Acceptance scenarios (AC-01–25, AC-27–58; AC-26 retired) | 57 | 56 | 0 | 0 | 1 |
+| Acceptance scenarios (AC-01–25, AC-27–58; AC-26 retired) | 57 | 57 | 0 | 0 | 0 |
 
-PRD §10.2 requires **all** active acceptance scenarios to pass. **All 57 are now fully planned**: 56 by scheduled tasks alone, and AC-30 by scheduled tasks plus Meta's approval, which the team does not control. The plan therefore targets a release-ready Phase 2 at the end of Week 16, with Meta's review as the one external dependency. "Fully planned" means every part has a task with acceptance criteria; it is not a record that anything has been built or has passed.
+All 57 active scenarios are fully committed, including AC-30 through client-authorized Scrapling/Playwright browser automation. No scenario is externally gated on API approval. Weekly suites validate implemented behavior and T98 certifies the final repaired build. Adaptive matching, dashboard reauthentication, durable no-resend controls and immutable media are testable refinements of existing requirements under [file 11](./11-execution-contract.md#runtime-boundaries-and-durable-handoffs), not new scope or new task IDs.
 
-**Change on 2026-11-14.** By the plan owner's instruction, every item of the former overflow register was moved into the schedule as additional tasks T65–T99, with hours treated as unlimited. The last column of each table below shows which former overflow item a row depended on. The ratings rest on 1,950 scheduled hours (about 30.5 per person per week on average, up to 45 in Week 11).
+All T65–T99 work remains scheduled. The 1,950-hour traditional baseline is compressed by the approved 3×–5× AI model with explicit allowances in [file 01](./01-assumptions-and-feasibility.md).
 
 ## G.3 Functional requirements
 
@@ -59,8 +59,8 @@ PRD §10.2 requires **all** active acceptance scenarios to pass. **All 57 are no
 | FR-29 | Flexible output size | Full | T29, T74, T76 | Single post without forced campaign; documents | — (was OV-10) |
 | FR-30 | Brand understanding and claim integrity | Full | T32, T29, T74, T76 | Brand cues from website; candidates for interpretations | — (was OV-10) |
 | FR-31 | Text-first assets | Full | T21, T29, T47 | Visual briefs as documents; invalid media blocks readiness | — |
-| FR-32 | Language and audience fit | Full | T08, T29, T56, T95 | Per-request register; one review round | — (was OV-11) |
-| FR-33 | Connected Facebook Page | Full — externally gated | T03, T19, T35, T38, T47, T63 | Tester-mode publication (T35, T47); ordinary-owner evidence (T63) | Needs Meta's approval |
+| FR-32 | Language and audience fit | Full | T08, T29, T56, T95 | Per-request register; weekly feedback and held-out confirmation | — (was OV-11) |
+| FR-33 | Connected Facebook Page | Full | T03, T19, T35, T38, T43, T47, T63 | Scrapling/Playwright publication, isolated encrypted sessions, dashboard reauthentication and production read-back | — |
 | FR-34 | Review and approval | Full | T31, T47, T82 | Exact-version individual approval; invalidation | — (was OV-14) |
 | FR-35 | Scheduled execution | Full | T35, T43, T68, T55 | Recheck of version, destination, authorization, cancellation, window and context-review hold before dispatch; late posts held | — |
 | FR-36 | Verification and recovery | Full | T39, T43, T55 | Induced faults on a real Page | — |
@@ -97,7 +97,7 @@ PRD §10.2 requires **all** active acceptance scenarios to pass. **All 57 are no
 | NFR-04 | Untrusted input handling | Full | T20, T25, T28, T32, T44, T53, T72, T75 | Hostile sources; internal-fetch refusal; safe document display; formula-safe export (T67) | — (was OV-19) |
 | NFR-05 | Durable execution and recovery | Full | T06, T16, T22, T39, T43, T55, T57, T60, T69 | Interruption, publishing faults, restore and rollback rehearsed; restore respects removals | — |
 | NFR-06 | Resource accountability | Full | T14, T18, T42, T58 | Usage per task and workspace; ceilings measured at declared load | — |
-| NFR-07 | Accessible bilingual operation | Full | T02, T10, T31, T54, T56, T92, T95 | Built journeys; one review round across registers | — (was OV-21, OV-11) |
+| NFR-07 | Accessible bilingual operation | Full | T02, T10, T31, T54, T56, T92, T95 | Built journeys; weekly register checks plus expanded checkpoints | — (was OV-21, OV-11) |
 | NFR-08 | Observability | Full | T11, T14, T64 | Request traced; runbooks tested by a second person | — |
 | NFR-09 | Data control | Full | T16, T50, T52, T60, T64, T65, T67, T69 | Policy; removal with derived clean-up; export; restore suppression; disconnection | — |
 
@@ -116,7 +116,7 @@ PRD §10.2 requires **all** active acceptance scenarios to pass. **All 57 are no
 | AC-09 | Research budget | Full | T42 | Concurrent child work; declined extension | — |
 | AC-10 | Campaign creation | Full | T29, T74, T76 | Single item with register and visual brief | — (was OV-10) |
 | AC-11 | Language experience | Full | T02, T29, T54, T56, T92, T73 | Built journeys in both languages; per-request register | — (was OV-21, OV-20) |
-| AC-12 | Facebook publishing | Full | T31, T35, T39, T47, T55, T82 | Both formats after individual approval; no duplicate | — (was OV-14) |
+| AC-12 | Facebook publishing | Full | T31, T35, T38, T39, T43, T47, T55, T82 | Both formats; durable version key, no retry on uncertainty, attributable read-back and immutable media | — (was OV-14) |
 | AC-13 | Approval invalidation | Full | T31, T55 | Each approval-critical field | — |
 | AC-14 | Requested file analysis | Full | T72, T75 | Demonstrated by the named tasks; evidence run in T96 and T98 | — (was OV-19) |
 | AC-15 | History and control | Full | T19, T52, T65, T67, T86 | Retrieve, remove, export, disconnect | — (was OV-12) |
@@ -127,14 +127,14 @@ PRD §10.2 requires **all** active acceptance scenarios to pass. **All 57 are no
 | AC-20 | Material practical constraints | Full | T30, T34, T37 | Constraints respected; no weekly-hours question | — |
 | AC-21 | No website, working messaging route | Full | T26, T37 | Route informs the plan; no site required | — |
 | AC-22 | One scoped Arabic Post | Full | T29 | One Post in Scheduling, no duplicate document | — |
-| AC-23 | Offer/price changes after approval | Full | T66, T68, T55 | Price change after approval holds the Post on a tester-mode Page | — |
+| AC-23 | Offer/price changes after approval | Full | T66, T68, T55 | Price change after approval holds the Post on a client-authorized browser Page | — |
 | AC-24 | Best task needs an unsupported connector | Full | T37, T45, T49, T85 | Owner-execution step with instructions and checklist | — (was OV-09) |
 | AC-25 | Unknown outcomes, zero denominator | Full | T72, T75 | Demonstrated by the named tasks; evidence run in T96 and T98 | — (was OV-19) |
 | AC-26 | Retired | — | — | Not a release test | — |
 | AC-27 | Contradictory or malicious source | Full | T28, T32, T44, T53 | Hostile source set; internal-fetch refusal | — |
 | AC-28 | Timeout, revocation, cancel race, overdue | Full | T39, T43, T55 | Induced faults on a real Page | — |
 | AC-29 | Mobile mixed-script review and approval | Full | T31, T54, T73 | Approval preview on a phone in both languages | — (was OV-20) |
-| AC-30 | Intended ordinary owner connects and publishes | Full — externally gated | T03, T38, T60, T63 | Ordinary-owner publication on production, or blocked record | Needs Meta's approval and a real owner |
+| AC-30 | Intended client connects and publishes through their own session | Full | T03, T19, T35, T38, T43, T47, T55, T60, T63, T98 | Both formats through the pinned browser worker; dashboard recovery and attributable read-back on the final production candidate | — |
 | AC-31 | Email verification link | Full | T09 | Replayed and expired link | — |
 | AC-32 | Google identity | Full | T70 | Demonstrated by the named tasks; evidence run in T96 and T98 | — (was OV-01) |
 | AC-33 | Optional offering pricing | Full | T26 | Four pricing models; missing is not zero | — |
@@ -170,13 +170,13 @@ PRD §10.2 requires **all** active acceptance scenarios to pass. **All 57 are no
 |---|---|---|---|---|
 | About 24 authored cases with held-out set | PRD §10.1 | Full | T07 (4), T23 (10), T71, T93 | — (was OV-22) |
 | Rubric, severity, limits frozen by Week 2 | PRD §10.2 | Full | T07 | — |
-| ≥80% held-out pass, overall and per register | PRD §10.2 | Full | T56 (one round, 14 cases), T95, T71, T93 | — (was OV-11, OV-22) |
+| ≥80% held-out pass, overall and per register; score provenance recorded | PRD §10.2 under file 11 evaluation policy | Full | T08 and weekly checks; T56, T95, T71, T93 | — (was OV-11, OV-22) |
 | Zero critical truthfulness/control violations | PRD §10.2 | Full | T53, T55, T57, T61, T62, T94, T96, T97, T98, T99 | — (was OV-23) |
-| Brain versus document-only comparison | D-23, D-38 | Full | T71, T93 | — (was OV-22) |
+| Brain versus document-only comparison | D-23, D-38 | Full | T08 early experiments; T24/T25 weekly comparisons; T71, T93 consolidation | — (was OV-22) |
 | Ten to twelve curated recipes | PRD §5.13 | Full | T48 (about six, simplification authorized by §13.3), T91 | — (was OV-08) |
-| Runtime and cost ceilings at declared load | PRD §10.2 | Full | T07, T58 | — |
+| Runtime and cost ceilings at declared load | PRD §10.2 | Full | T07 limits, weekly measurements, T58 confirmation | — |
 | Backup/restore and rollback exercised | NFR-05 | Full | T16, T60 | — |
-| Release ledger for every FR/NFR/AC | PRD §13.3 | Full | T59 | — |
+| Release ledger for every FR/NFR/AC | PRD §13.3 | Full | T07 creation, each task's weekly maintenance, T59 audit, T98 certification | — |
 | Data governance design by Week 4 | PRD §11.1 | Full | T16 | — |
 | Facebook path recorded by Week 2 | PRD §11.1 | Full | T03 | — |
 | Research provider baseline by Week 2 | PRD §11.1 | Full | T04 | — |
@@ -185,4 +185,4 @@ PRD §10.2 requires **all** active acceptance scenarios to pass. **All 57 are no
 
 ## G.7 What "Full" does and does not mean
 
-"Full" means the work is planned at an honest size. It does not mean the requirement will pass. Fourteen baseline tasks are low confidence ([A.6](./01-assumptions-and-feasibility.md)); a requirement that depends on one of them is exposed to its overrun. Requirements whose quality depends on model behaviour (FR-14, FR-24–26, FR-32) can be fully planned and still fail human review in T56.
+"Full" means every active requirement has committed implementation and verification work inside 16 weeks. Product acceptance still requires real results. The approved AI-assisted capacity model supports delivery; weekly dogfooding, register tuning and regression produce the evidence. Missing optional independent dialect scores stay labelled unmeasured and are not a core-engine delivery dependency.

@@ -1,6 +1,7 @@
 # D. Epic Descriptions
 
 > Part of the [BUSMORA 16-week implementation plan](./README.md). Planning IDs are stable identifiers for import into Jira; they are not Jira issue keys.
+> Execution authority: [file 11](./11-execution-contract.md). Every Epic includes weekly staging, dogfooding, regression and AI-assisted delivery within the complete 99-task commitment.
 > Sources: PRD = [core/prd.md](../core/prd.md), SYS = [core/SYSTEM-ARCHITECTURE.md](../core/SYSTEM-ARCHITECTURE.md), BTD = Backend Technical Design, FTD = Frontend Technical Design, DS = Design System.
 
 ---
@@ -14,21 +15,21 @@
 | **Scheduled weeks** | 1–2 |
 | **Blocked by** | None (first Epic) |
 
-**Intended outcome and value.** Both codebases exist and start on any team member's machine, the riskiest technical path (durable work across two languages) has run once from request to live event, and the three unknowns that could invalidate the plan are measured or named: Facebook production access, research source coverage and Arabic model quality. The evaluation standard is frozen so later work is judged against a fixed bar.
+**Intended outcome and value.** All three code repositories exist and start on any team member's machine, the riskiest technical path (durable work across two languages) has run once from request to live event, and early experiments measure browser-session behavior, research source coverage and Arabic model quality. The evaluation standard is frozen so later work is judged against a fixed bar.
 
-**Entry criteria.** Approved documentation in `core/`, `domain/` and `strategy/`. Four people available. Nothing else is assumed: no repository, environment, account or provider access.
+**Entry criteria.** Approved documentation in `core/`, `domain/` and `strategy/`, subject to file 11's current execution/publishing overrides. Four people available under the settled AI-assisted delivery model. Internal ops provisions only the accounts/keys/runtime needed each week; engineering creates the repositories and bootstrap staging under the Week-1 completion contract.
 
-**Scope.** Backend and frontend repositories with local run and automated checks; the published API contract with typed frontend access; the walking skeleton (SYS §9.4 spike 1); Facebook access-path investigation and the external dependency register; research provider baseline (OD-22); Arabic model baseline (OD-4, D-31); evaluation standard (PRD §10.2, OD-24).
+**Scope.** `busmora-api`, `busmora-ai` and `busmora-web` repositories with local run and automated checks; the published API contract with typed frontend access; the walking skeleton (SYS §9.4 spike 1); authorized browser-session experiment and operational ownership record; research provider baseline (OD-22); Arabic model baseline (OD-4, D-31); evaluation standard (PRD §10.2, OD-24).
 
-**Boundaries.** No owner-facing feature. No staging environment. No account system. Spikes produce recorded decisions and measurements, not product features.
+**Boundaries.** No complete owner workflow or account system yet. Bootstrap staging and experiments support weekly dogfooding of the available increment.
 
 **Exit criteria.**
 1. A person who did not write it starts the backend and the frontend from the written instructions and sees every health check pass.
-2. Automated checks run on each proposed change in both repositories and block a failing change.
+2. Automated checks run on each proposed change in all three code repositories and block a failing change.
 3. One request travels through the public interface, the durable workflow, both language runtimes and back to a live event stream, and the stream resumes after a dropped connection without losing events.
 4. The frontend reads a live backend value through the generated typed client, and an incompatible contract change is rejected automatically.
-5. A written Facebook record states the selected app configuration, required access, verification and review steps, supported formats and blockers; it states whether a tester-mode post was publicly visible.
-6. The dependency register lists owner, legal entity, budget, payer, reviewers and availability, each as confirmed, unconfirmed or blocked.
+5. A written Scrapling/Playwright publishing record states adaptive-match safety, session ownership, selected Page, supported formats, encrypted-state requirements, dashboard recovery contract and verified publication evidence from an authorized experiment.
+6. The operational record assigns session setup, integration, internal ops and weekly quality ownership; administrative activities are not technical exit gates.
 7. Research and model baselines report measured quality, regional coverage, latency and cost for each candidate, with a recorded selection.
 8. Rubrics, severity definitions, sampling, held-out rule, release load and task limits are frozen and dated.
 
@@ -88,7 +89,7 @@
 
 **Entry criteria.** P1-E02 exit criteria met.
 
-**Scope.** Knowledge records with epistemic status, lifecycle and history; conversations with routed quick replies; Facebook Page connection in tester mode with protected credentials; versioned document records; owner file storage; durable Task lifecycle with two-slot admission; 10 more authored evaluation cases; retrieval of eligible context only.
+**Scope.** Knowledge records with epistemic status, lifecycle and history; conversations with routed quick replies; Facebook Page connection through an encrypted client-authorized browser session; versioned document records; owner file storage; durable Task lifecycle with two-slot admission; 10 more authored evaluation cases; retrieval of eligible context only.
 
 **Boundaries.** No orchestration, research, onboarding, Posts or Roadmap. The Task performs one real bounded step only. The Brain has a minimal list, not governance or graph. No publishing.
 
@@ -114,19 +115,19 @@
 | **Scheduled weeks** | 7–9 |
 | **Blocked by** | P1-E03 and Gate G1 |
 
-**Intended outcome and value.** For the first time an owner completes the core experience on real records: confirm essential context, ask the Director for work, inspect what actually ran, and see an approved Post published to a real Page at its scheduled time. This is the earliest point at which the product can be shown to an owner and the earliest point at which a production-access submission to Meta can be prepared.
+**Intended outcome and value.** For the first time an owner completes the core experience on real records: confirm essential context, ask the Director for work, inspect what actually ran, and see an approved Post published to a real Page at its scheduled time. This completes a broader integrated journey after weekly staging dogfooding has already validated each earlier increment.
 
 **Entry criteria.** Gate G1 passed.
 
 **Scope.** Manual setup and website import into one confirmed draft; Brain activation; orchestrated work from Chat; typed results as documents and Posts; manual Post drafts; exact-version approval; scheduled real publishing of text and link posts; research report with citations; the Canvas; Discovery draft and adaptive questions. Added by the plan owner's decision on DR-2: clean-up of removed data from every derived copy (T65).
 
-**Boundaries.** Tester-mode Page only; no claim about ordinary-owner access. No image posts, no recovery from uncertain outcomes, no budget extensions, no Roadmap generation yet. Calendar Month and Week views come in the next Epic (T78, T81). Added on 2026-11-14 from the former overflow register: Google sign-in (T70), completion of the evaluation library (T71), spreadsheet intake and requested analysis (T72, T75), Settings (T73) and campaign packages (T74).
+**Boundaries.** Client-authorized browser Page; production hardening follows in T38. No image posts, no recovery from uncertain outcomes, no budget extensions, no Roadmap generation yet. Calendar Month and Week views come in the next Epic (T78, T81). Added on 2026-11-14 from the former overflow register: Google sign-in (T70), completion of the evaluation library (T71), spreadsheet intake and requested analysis (T72, T75), Settings (T73) and campaign packages (T74).
 
 **Exit criteria.**
 1. On staging, an owner confirms a draft from manual entry and another from a website; nothing reaches the Brain before confirmation of the exact displayed version.
 2. A substantive Chat request runs as a Task that uses confirmed Brain context and saves a document; a one-post request creates a Post in Scheduling and no duplicate document.
 3. The Canvas shows only events recorded for the selected conversation's Task.
-4. An approved text post is published on a tester-mode Page within its allowed window, with the platform's post identity and read-back stored; editing an approved detail blocks dispatch until re-approval.
+4. An approved text post is published through a client-authorized browser session within its allowed window, with the platform's post identity and read-back stored; editing an approved detail blocks dispatch until re-approval.
 5. A research request returns a report whose material claims each link to an inspectable source.
 6. A Discovery draft with adaptive questions survives closing and reopening the browser.
 7. Every screen in the slice works in Arabic right-to-left and English left-to-right.
@@ -150,18 +151,18 @@
 | **Scheduled weeks** | 10–11 |
 | **Blocked by** | P2-E04 |
 
-**Intended outcome and value.** The three places where the product could mislead or harm an owner are made safe: a publication whose outcome is unknown, research that spends past its allowance or cites weakly, and a plan that changes what the owner does. The production-access request goes to Meta at the earliest point the working flow can be shown.
+**Intended outcome and value.** The three places where the product could mislead or harm an owner are made safe: a publication whose outcome is unknown, research that spends past its allowance or cites weakly, and a plan that changes what the owner does. Production browser-session restoration, isolation and reauthentication are hardened in T38.
 
-**Entry criteria.** P2-E04 exit criteria met, including a real tester-mode publication.
+**Entry criteria.** P2-E04 exit criteria met, including a real authorized browser publication.
 
-**Scope.** Reconciliation of uncertain publication; overdue, held, cancelled and disconnected states; the Meta submission package; clarification forms that pause and resume a Task; research budget with approved extensions; research evidence quality, stopping and untrusted-source handling; Roadmap generation, approval, single active plan and step view. Added by the plan owner's decision on DR-2: marking of work affected by a context change (T66) and owner export of the Brain and history (T67).
+**Scope.** Reconciliation of uncertain publication; overdue, held, cancelled and disconnected states; production browser-session hardening; clarification forms that pause and resume a Task; research budget with approved extensions; research evidence quality, stopping and untrusted-source handling; Roadmap generation, approval, single active plan and step view. Added by the plan owner's decision on DR-2: marking of work affected by a context change (T66) and owner export of the Brain and history (T67).
 
-**Boundaries.** Meta's approval is not in scope and not scheduled. No step execution yet. No strategic revisions (T88, T89, next Epic). Added on 2026-11-14 from the former overflow register: brand profile and claim checks (T76), the Brain graph (T77), calendar views and drag rescheduling (T78, T81), question research and its return (T79, T83), Canvas depth (T80), bulk approval (T82) and reuse of earlier Discovery answers (T84). Holding a scheduled Post after a context change comes in the next Epic (T68).
+**Boundaries.** Publishing authorization comes from the client's session. No step execution yet. No strategic revisions (T88, T89, next Epic). Added on 2026-11-14 from the former overflow register: brand profile and claim checks (T76), the Brain graph (T77), calendar views and drag rescheduling (T78, T81), question research and its return (T79, T83), Canvas depth (T80), bulk approval (T82) and reuse of earlier Discovery answers (T84). Holding a scheduled Post after a context change comes in the next Epic (T68).
 
 **Exit criteria.**
 1. A publish attempt whose acceptance is unknown is reconciled against the platform or held; it is never sent twice.
 2. An approved post past its lateness allowance is held for a new time and approval; disconnecting blocks sends and reconnecting releases nothing by itself.
-3. The submission to Meta is filed, or the exact missing prerequisite is recorded with its owner.
+3. Scrapling/Playwright runtime, adaptive fixtures, protected persistence, isolation and dashboard reconnect behavior pass T38's recorded checks, including safe holds rather than guessed actions.
 4. A Task that needs an answer shows the exact form in Chat, releases its running slot and resumes when answered.
 5. Research stays inside its allowance across child, concurrent and retried work; a requested increase pauses for the owner; a refusal returns the strongest partial result.
 6. A source that contains instructions cannot trigger a tool, raise a budget or cause an internal fetch.
@@ -169,7 +170,7 @@
 8. Changing a confirmed fact marks the documents and unpublished Posts that used it, and only those.
 9. An owner export contains the workspace's Brain, conversations, documents and Posts, and nothing from another workspace.
 
-**Requirement references.** FR-10, FR-13 (export), FR-42, FR-48, NFR-09, AC-47, FR-14 (plan evidence), FR-16, FR-18, FR-24–28, FR-33, FR-35–36, FR-46, FR-54 (activation), FR-56 (connection states); NFR-02, NFR-04, NFR-05, NFR-06; AC-04 (activation), AC-08, AC-09, AC-20, AC-27, AC-28, AC-30 (submission), AC-35, AC-46, AC-54; ADR-018, ADR-022.
+**Requirement references.** FR-10, FR-13 (export), FR-42, FR-48, NFR-09, AC-47, FR-14 (plan evidence), FR-16, FR-18, FR-24–28, FR-33, FR-35–36, FR-46, FR-54 (activation), FR-56 (connection states); NFR-02, NFR-04, NFR-05, NFR-06; AC-04 (activation), AC-08, AC-09, AC-20, AC-27, AC-28, AC-30 (browser-session hardening), AC-35, AC-46, AC-54; ADR-018, ADR-022.
 
 **Tasks.**
 - Week 10: P2-E05-T37, P2-E05-T38, P2-E05-T39, P2-E05-T40, and additional task P2-E05-T66, P2-E05-T76, P2-E05-T77, P2-E05-T78, P2-E05-T79
@@ -222,23 +223,23 @@
 | **Scheduled weeks** | 14–16 |
 | **Blocked by** | P2-E06 |
 
-**Intended outcome and value.** Everything built is tested the way the PRD's release gates require, the worst defects are repaired, a production environment exists and has been rehearsed, and a ledger states for every requirement what is implemented and evidenced. Since 2026-11-14 the Epic also verifies the added features, so that all 57 active scenarios are run on the release candidate and the team and its supervisors can make the Phase 2 release decision on facts, with Meta's approval as the one external dependency.
+**Intended outcome and value.** Everything built is tested the way the PRD's release gates require, the worst defects are repaired, a production environment exists and has been rehearsed, and a ledger states for every requirement what is implemented and evidenced. Since 2026-11-14 the Epic also verifies the added features, so that all 57 active scenarios are run on the release candidate and the team and its supervisors can make the Phase 2 release decision on facts, using client-session publishing and the final repaired build.
 
 **Entry criteria.** P2-E06 exit criteria met. No new feature starts in this Epic.
 
-**Scope.** Security and isolation verification; Arabic and English critical journeys on mobile and keyboard; publishing fault injection on a real Page; first human quality review across four registers; durable-work recovery verification; runtime and cost at declared load; acceptance evidence run and release ledger; production environment and rehearsal; two defect-repair tasks for the core areas and one for the added features; verification of the added features for language and access, security and recovery; the Brain value comparison; register tuning with a second review round; acceptance evidence for the added scenarios; a full regression of all 57 scenarios; intended-owner Facebook validation; operator runbooks and owner help.
+**Scope.** Security and isolation verification; Arabic and English critical journeys on mobile and keyboard; publishing fault injection on a real Page; expanded quality review across four registers; durable-work recovery verification; runtime and cost at declared load; acceptance evidence run and release ledger; production environment and rehearsal; two defect-repair tasks for the core areas and one for the added features; verification of the added features for language and access, security and recovery; the Brain value comparison; register tuning with held-out confirmation; acceptance evidence for the added scenarios; a full regression of all 57 scenarios; client-session production publishing validation; operator runbooks and owner help.
 
-**Boundaries.** No new feature. It verifies every built workflow, including the added features (T65–T91), completes the evaluation evidence (T93), runs the second review round (T95) and repairs defects until critical and high ones are closed. It cannot produce Meta's approval, which is the only release gate outside the team's control.
+**Boundaries.** No new feature. It verifies every built workflow, including the added features (T65–T91), completes the evaluation evidence (T93), consolidates weekly quality results (T95) and repairs defects until critical and high ones are closed. Session publishing has no API-approval gate; internal operations and optional dialect reviewers run in parallel.
 
 **Exit criteria.**
 1. Every active FR, NFR and AC has a ledger row with status, evidence reference and owner; rows for unbuilt work say "not built".
-2. No critical truthfulness or control violation is open in the built workflows, or each one is listed as a release blocker with reproduction steps.
+2. No critical truthfulness/control violation or high technical defect remains open; discovered violations are repaired and rerun before this exit gate can pass.
 3. Fault scenarios for publishing (retry, concurrency, cancellation race, revocation, version change, late job, uncertain result) each have a recorded real-platform result.
-4. Review scores exist per register with counts and denominators; a register with no reviewer is recorded as an unresolved gap.
+4. Weekly and expanded quality results identify counts, denominators and scorer provenance; missing optional independent scores stay unmeasured without delaying the core engine.
 5. Production deploy, rollback and restore have each been rehearsed once.
-6. AC-30 is recorded as passed with ordinary-owner evidence, or as blocked with the reason and the external party.
+6. AC-30 has production evidence from a client's authorized browser session for both formats on the final build.
 7. An operator who did not write the runbook resolves a stuck job and an uncertain publication using it alone.
-8. All 57 active acceptance scenarios have a result on the release candidate (T98). A written release statement says each PRD §10.2 gate is met, or names the gate that is not met and why; AC-30 may be stated as waiting on Meta.
+8. All 57 active acceptance scenarios pass on the final repaired release candidate (T98), with T63's production evidence on the same build. The full suite is rerun after the final repair merge; no API-approval wait is part of this gate. An unmet technical gate remains visibly pending until repaired and retested, not an alternative successful exit.
 
 **Requirement references.** PRD §3.1, §10.2, §13.3; NFR-01–09; AC-11, AC-12, AC-13, AC-16, AC-17, AC-27, AC-28, AC-29, AC-30, AC-41, AC-43, AC-44, AC-56, AC-57, AC-58.
 

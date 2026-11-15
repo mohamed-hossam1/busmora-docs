@@ -26,7 +26,7 @@ The options combine these technologies differently. They add none. Some options 
 ### 0.2 Inputs that bind every option
 
 - **Four deployables** (D-26): `busmora-web`, `busmora-api`, `busmora-workers`, `busmora-ai`. An option may run one deployable as several **process roles**: the same codebase and image, started with a different entrypoint and scaled separately. A process role is not a new service.
-- **Two standalone repositories, settled and final** (your decision of 2026-10-18; 01 R-5): `busmora-backend` (api + workers + ai) and `busmora-frontend` (web). This supersedes the single monorepo in TA §12.3; TA itself is not edited (01 R-4). Because it is settled, it is **not** counted as a deviation against any option.
+- **Four repositories** (project owner, 2026-11-15; 01 R-5): `busmora-web` (Next.js), `busmora-api` (NestJS), `busmora-ai` (Python AI and workers), and `busmora-docs` (documentation). Workers and AI remain separate deployables from the same repository. This common repository constraint is **not** counted as a deviation against an architecture option.
 - **Gates** G1, G2, G3 and G5 (G4 withheld), plus every Settled or Doc-derived item in 01.
 - **Domain:** the 11 bounded contexts in [contexts.md](../../domain/contexts.md) and the events in [events.md](../../domain/events.md).
 
@@ -50,7 +50,7 @@ TA does not say **which process writes workflow results to PostgreSQL**. TA §11
 
 ---
 
-## A. Backend architectures (repository `busmora-backend`)
+## A. Backend architectures (repositories `busmora-api` and `busmora-ai`)
 
 ### A.0 How the options were derived
 
@@ -544,7 +544,7 @@ Same placement as B1. Internal HTTP is the only new channel, and it stays inside
 
 ---
 
-## B. Frontend architectures (repository `busmora-frontend`)
+## B. Frontend architectures (repository `busmora-web`)
 
 Every frontend option works with every backend option. The frontend only ever talks to `busmora-api`.
 
@@ -753,7 +753,7 @@ Needs discipline around a typed event contract and cache-patching rules. It is m
 
 ---
 
-## C. Contract strategy between the two repositories
+## C. Contract strategy across the three code repositories
 
 ### C.1 Contract surfaces
 
@@ -765,7 +765,7 @@ Needs discipline around a typed event contract and cache-patching rules. It is m
 | S4 | Platform connection redirects | browser ↔ api ↔ Meta / X | Documented start URL, callback handled by api, return route into the web app |
 | S5 | Uploads | web → api | Performance Report (CSV) upload |
 | S6 | BFF surface (FE-2 only) | browser → Next.js server | Internal to the frontend repository; not a cross-repo contract |
-| — | Backend-internal | Temporal payloads (Pydantic ↔ TypeScript in B1 and B3); events and internal HTTP (B3) | Inside `busmora-backend`; not part of the cross-repo contract |
+| S7 | Internal runtime contracts | `busmora-api` ↔ `busmora-ai`: Temporal payloads and internal HTTP | Versioned JSON Schema/OpenAPI artifacts cross repositories; Pydantic models are owned by `busmora-ai`, and `busmora-api` pins versions and generates types/clients |
 
 ### C.2 What the docs already fix
 - "API contracts defined first (OpenAPI spec + TypeScript interfaces)" (TA §12.1).
@@ -777,14 +777,14 @@ Needs discipline around a typed event contract and cache-patching rules. It is m
 
 | | Variant 1: Spec-first | Variant 2: Code-first |
 |---|---|---|
-| Source of truth | An OpenAPI document authored in `busmora-backend/contracts/` | NestJS controllers and DTOs (class-validator + Swagger decorators); the spec is generated at build |
+| Source of truth | An OpenAPI document authored in `busmora-api/contracts/api/` | NestJS controllers and DTOs (class-validator + Swagger decorators); the spec is generated at build |
 | How "defined first" (TA §12.1) is met | The spec change merges before implementation | DTOs and controller signatures (stubs) merge before implementation |
 | Drift control | CI compares the spec generated from code with the authored spec (tool gap G-T7) | None needed; the spec is always generated |
 | SSE schemas | Authored as component schemas, with an event-type enum | Event DTO classes decorated so they appear in the generated spec |
 | Frontend consumption | Pinned spec version → TypeScript interfaces (generated: tool gap G-T7; or hand-written as TA says) | Same |
-| Trade-off | The contract is reviewed independently of code, and both repos can start in parallel. Costs: a drift check and duplication. | Single source and less duplication. Cost: the frontend waits for the backend's DTO pull request. |
+| Trade-off | The contract is reviewed independently of code, and web and API implementation can start in parallel. Costs: a drift check and duplication. | Single source and less duplication. Cost: the frontend waits for the backend's DTO pull request. |
 
-In both variants, the backend's CI publishes a versioned `openapi.json` as a release artifact (CI tooling is gap G-T17). The frontend pins a version and upgrades deliberately.
+In both variants, `busmora-api` CI publishes a versioned public `openapi.json` as a release artifact (CI tooling is gap G-T17). `busmora-web` pins a version and upgrades deliberately. `busmora-ai` separately publishes Temporal JSON Schema and internal FastAPI OpenAPI artifacts for `busmora-api`; consumers pin versions rather than importing sibling source trees. `busmora-docs` holds specifications and evidence and is not a runtime contract provider.
 
 ### C.4 Conventions, independent of the variant
 
@@ -815,7 +815,7 @@ These follow common API-design principles and tie directly to the requirements:
 12. **Uploads** are multipart CSV with documented limits. The limit values are an open requirement (01 §2.15).
 
 ### C.5 Change process
-- Contract changes are pull requests in `busmora-backend` that need a frontend reviewer, and come with a changelog entry.
+- Public HTTP contract changes are pull requests in `busmora-api` reviewed by a `busmora-web` consumer owner. Python payload/internal HTTP contract changes originate in `busmora-ai` and are reviewed by a `busmora-api` consumer owner. Both publish versioned artifacts with a changelog entry.
 - The frontend CI checks the pinned version against the current one for breaking changes. A mock server (or running the backend via Docker Compose) unblocks frontend work. Tooling for both is gap G-T7.
 
 ### C.6 How each option shows up in the contract
@@ -878,9 +878,9 @@ Accessibility. Supported browsers. Upload size limits. Per-user API rate limits.
 
 | # | Gap | Notes |
 |---|---|---|
-| G-R1 | Full-stack local development and end-to-end testing across the two repositories | The two-repository split itself is settled (01 R-5). Still undefined: how frontend developers run the backend locally, and how end-to-end tests span both repositories. |
+| G-R1 | Full-stack local development and end-to-end testing across the three code repositories | The four-repository layout is settled (01 R-5). T01/T02 establish local startup and CI; T05 documents integrated startup and T06 verifies API/AI contracts. `busmora-docs` holds the instructions and evidence. |
 | G-R2 | Where the contract lives and who approves changes | C.5 proposes a process, not an owner |
-| G-R3 | Vertical-slice ownership (TA §12.1) across two repositories | Each feature becomes two pull requests; the merge-order rule is not defined |
+| G-R3 | Vertical-slice ownership (TA §12.1) across three code repositories | A feature may need changes in web, API and AI plus documentation. The integration owner assigns reviewers and merge order; publish compatible contract versions before upgrading consumers |
 
 ---
 

@@ -1,14 +1,16 @@
 # E. Task Descriptions — Phase 1 (Weeks 1–6, T01–T24)
 
 > Part of the [BUSMORA 16-week implementation plan](./README.md). Epics: [D](./03-epics.md). Dependencies and weekly independence checks: [F](./07-dependency-map.md).
-> Each estimate includes research, decisions inside approved constraints, implementation, tests, peer review, integration with earlier work, expected fixes and the acceptance demonstration. Implementation choices belong to the assignee.
-> These are proposed backlog items for review. Nothing here has been started.
+> Estimate and Range columns are traditional manual-equivalent hours. Apply 3×–5× AI compression and the separate DoD/human-review allowances in [file 01](./01-assumptions-and-feasibility.md); [file 11](./11-execution-contract.md) governs publishing and weekly validation.
+> These are committed backlog tasks under the approved execution strategy; completion requires recorded implementation evidence.
 > Every task also meets the shared Definition of Done in the [README](./README.md#definition-of-done-for-every-task).
 > Difficulty is rated on five factors: **V**olume, **U**ncertainty, **I**ntegration, **S**ecurity/data risk, **T** verification difficulty — each Low, Med or High.
 
 ---
 
 ## Week 1 — P1-E01
+
+All four tasks follow the [Week-1 completion contract](./11-execution-contract.md#week-1-completion-contract): independent starts, milestone-by-milestone provisioning, bootstrap staging for T01/T02 and redacted experiment evidence for T03/T04. T07 imports these records in Week 2; later product features are not prerequisites for Week-1 completion.
 
 ### P1-E01-T01 — Backend runs locally with automated checks
 
@@ -18,23 +20,25 @@
 
 **User story.** As a developer on the team, I want to start every backend service and data store on my own machine with one documented procedure, so that I can build and verify features without waiting for anyone else's environment.
 
-**Problem and outcome.** No repository or environment exists. After this task the backend repository holds the three approved backend deployables in runnable skeleton form with their local stores, and every proposed change is checked automatically.
+**Problem and outcome.** The API and AI code repositories and their environment are not yet created; `busmora-docs` already exists. After this task `busmora-api` holds NestJS and `busmora-ai` holds Python workers and AI, supplying the three approved backend deployables in runnable skeleton form with their local stores, and every proposed change is checked automatically.
 
-**Scope.** The backend repository; skeleton services for the API, workers and AI deployables that start and report health; local instances of each approved store and of the durable workflow service; automated checks on proposed changes; written start-up instructions; test tooling selected (OD-12).
-**Excludes.** Any domain feature, staging, the frontend, the cross-language work path (T06).
+**Scope.** Create `busmora-api` and `busmora-ai` with independent CI and locked dependencies; skeleton services for the API, workers and AI deployables that start and report health; local instances of each approved store and of the durable workflow service; automated checks on proposed changes; access-controlled bootstrap staging for the backend skeleton with secret injection; written start-up instructions; test tooling selected (OD-12).
+**Excludes.** Any domain feature, managed staging hardening (T12), the frontend, the cross-language work path (T06).
 
 **Acceptance criteria.**
 1. A team member who did not write the instructions starts all backend process roles and stores on a clean machine by following them, without help.
 2. Every process role answers a health check and reports that it can reach the stores it is allowed to use.
-3. A proposed change that fails a check cannot be merged; a passing change can.
+3. In each of `busmora-api` and `busmora-ai`, a proposed change that fails a check cannot be merged; a passing change can.
 4. One example test runs in each language runtime as part of the automated checks.
 5. No secret is stored in the repository; the instructions say how a developer supplies local secrets.
+6. The backend skeleton is deployed to access-controlled bootstrap staging and its real health/store checks enter the Week-1 record.
+7. Dependency versions are locked, the seven backend roles have documented readiness probes, and CI runs lint, type checks, tests and builds with named module/schema ownership. Worker readiness does not require an HTTP endpoint on every worker.
 
 **Requirement references.** SYS §2.4, §4.3, §4.9; ADR-002, ADR-003, ADR-008; OD-12, OD-15, OD-17; K-02, K-03.
 **Prerequisites.** None.
-**Independence this week.** Creates its own repository. T02 builds a separate repository and shows no backend data. T03 and T04 work outside both repositories.
+**Independence this week.** Creates `busmora-api` and `busmora-ai`. T02 independently creates `busmora-web` and shows no backend data. T03 and T04 run standalone experiments without requiring these repositories.
 **Estimate and difficulty.** 22 h. V High (three services, several stores, two languages), U Med, I Med, S Low, T Low.
-**Completion evidence.** A second team member records a clean-machine start and a blocked failing change.
+**Completion evidence.** A second team member records a clean-machine start, blocked failing change and Week-1 staging health/dogfooding results.
 **Risks and assumptions.** A machine with too little memory for all stores slows every later task; record the minimum specification.
 
 ### P1-E01-T02 — Bilingual app shell in its own repository
@@ -45,9 +49,9 @@
 
 **User story.** As a developer building owner screens, I want an application shell that already handles Arabic right-to-left and English left-to-right with the approved visual tokens, so that every screen I add is bilingual and consistent from its first version.
 
-**Problem and outcome.** No frontend exists. After this task the frontend repository serves a shell with the six primary areas as empty destinations, a language switch and the design tokens, with automated checks.
+**Problem and outcome.** No frontend exists. After this task `busmora-web` serves a shell with the six primary areas as empty destinations, a language switch and the design tokens, with automated checks.
 
-**Scope.** Frontend repository and checks; approved design tokens; shell and navigation for Marketing Director, Roadmap, Business Brain, Deliverables, Scheduling and Settings; top bar; language switch; direction handling; base text, button and input components; translation mechanism selected (OD-7).
+**Scope.** Create `busmora-web`, checks and access-controlled bootstrap staging deployment; approved design tokens; shell and navigation for Marketing Director, Roadmap, Business Brain, Deliverables, Scheduling and Settings; top bar; language switch; direction handling; base text, button and input components; translation mechanism selected (OD-7).
 **Excludes.** Any data from the backend, authentication, the full component kit (T10), the landing page.
 
 **Acceptance criteria.**
@@ -57,43 +61,46 @@
 4. The shell is usable at phone width and by keyboard alone; focus is visible.
 5. Mixed Arabic and English text, numbers and a link display in a readable order in both directions.
 6. A failing check blocks a proposed change.
+7. The shell is deployed to bootstrap staging and its Week-1 dogfooding record covers language, phone-width and keyboard behavior.
+8. Dependency versions are locked; lint, type checks, tests and the production build run in CI. Bootstrap staging access is restricted independently of the later product login feature.
 
 **Requirement references.** FR-02, FR-43, FR-44, FR-58; NFR-07; AC-56; DS §§2–4, §10.1, §11, §14.2; FTD §2.3, FTD-ADR-07, FTD-ADR-12; OD-7.
 **Prerequisites.** None.
 **Independence this week.** Separate repository; consumes no backend output.
 **Estimate and difficulty.** 20 h. V Med, U Low, I Low, S Low, T Med (two directions, phone width).
-**Completion evidence.** Screen recording of the shell in both languages on a phone-width and a desktop window, operated by keyboard.
+**Completion evidence.** Week-1 staging dogfooding record of the shell in both languages on phone-width and desktop screens, operated by keyboard.
 **Risks and assumptions.** The translation mechanism chosen here binds all later screens; the choice and reason are recorded.
 
-### P1-E01-T03 — Facebook access path, owner eligibility and dependency register
+### P1-E01-T03 — Browser-session publishing baseline and operational ownership
 
 | Epic | Week | Assignee | Estimate | Range | Confidence |
 |---|---|---|---|---|---|
 | P1-E01 | 1 | C | 18 h | 14–26 h | Low |
 
-**User story.** As the team's integration lead, I want written evidence of what Meta requires before an ordinary owner can connect a Page and publish, and of whether we can meet it, so that the release gate AC-30 is planned on facts instead of hope.
+**User story.** As the integration lead, I want an authorized browser-session publishing experiment and named operational owners, so that production publishing follows a tested technical path.
 
-**Problem and outcome.** Production access, the intended owner, the legal entity, budget, payer, reviewers and real availability are all unconfirmed. After this task each is recorded as confirmed, unconfirmed or blocked, with the next action and its owner.
+**Problem and outcome.** The browser adapter needs an access and evidence contract. This task records how a client authorizes a session, selects their Page, publishes and observes the result.
 
-**Scope.** Investigation of the selected Meta app configuration, required permissions and access levels, business verification, review steps and committed formats; a first real test post from a tester role with a public-visibility check; a dependency register covering the intended owner, legal entity, existing Meta app, service budget and payer, language reviewers, team availability and calendar constraints; a list of every account the project needs (source hosting, Meta app with tester roles and a test Page, model and search providers, email delivery, cloud, durable workflow service, tracing, product domain) with a named person responsible for opening each and the week it is needed; filing business verification with Meta in this week if a legal entity exists, because it needs no working product; a named person responsible for finding the intended owner and the language reviewers.
-**Excludes.** Product code, the in-product connection (T19), the submission itself (T38). This task does not obtain any approval and does not itself pay for or open the accounts.
+**Scope.** Owner-controlled browser login and Page selection; a permitted real text/link experiment using the selected Scrapling adaptive parser and Playwright; session expiry/challenge and dashboard recovery contract; encrypted browser-state inventory; compatible runtime version manifest and sanitized DOM fixtures; operational ownership for progressive infrastructure, weekly dogfooding and client validation.
+**Excludes.** Product connection code (T19), scheduled dispatch (T35), production hardening (T38).
 
 **Acceptance criteria.**
-1. The record names each permission and access level needed for text/link and single-image posts, and the review and verification steps for each, with a link to the platform's own statement.
-2. The record states whether a post published by a tester role was visible to a person with no role on the app, with a screenshot.
-3. Every dependency in the register has a status, an owner and a date by which it must be resolved to avoid delaying a named task.
-4. Items nobody could confirm are marked unconfirmed; none is filled with a guess.
-5. The record lists what blocks submission today and which planned task removes each blocker.
-6. Team availability for Weeks 1–16 is collected from all four people and compared with the 20-hour assumption.
-7. Every needed account has a named responsible person and a needed-by week; the record states plainly whether a payer is confirmed. If none is confirmed by the end of Week 1, this is escalated to the plan owner as a stop condition for Weeks 2–3.
-8. Business verification is filed, or the record says why it could not be (for example no legal entity) and who was told.
+1. The record specifies the client-authorized session flow for text/link and single-image publishing, without a developer application or API publishing token.
+2. An authorized test publication records destination, post identity or permalink and visible read-back; credentials and session cookies are absent from evidence.
+3. Session expiry, login challenge, selector mismatch and ambiguous publication each have a defined safe response.
+4. The browser publishing worker alone may decrypt session state; workspace isolation and disconnect invalidation are specified.
+5. Operational activities have named owners; company setup, payment administration and optional dialect feedback proceed in parallel.
+6. The four people's skills and weekly assignments are mapped against the AI-assisted human-effort envelope.
+7. Findings enter the Week-1 dogfooding record and T07 imports them into the ledger.
+8. Changed-DOM and look-alike action fixtures demonstrate correct relocation or a safe stop; similarity alone never authorizes publication. Record the live Page/account/content checks and isolation of adaptive fingerprint storage required by [file 11](./11-execution-contract.md#adaptive-dom-safety).
+9. The record distinguishes a definite pre-submit failure from an unknown result and defines the no-resend, cancellation and dashboard reauthentication contracts. Cookies, local storage and any additional required state are inventoried; package/browser versions are reproducible.
 
-**Requirement references.** FR-33; AC-30; PRD §3.1, §11.1 (Facebook, capacity, launch cohort); SYS ADR-018, R-01, R-02, OD-23; D-54.
+**Requirement references.** FR-33; AC-30 as defined in [execution contract](./11-execution-contract.md#publishing-through-authenticated-browser-sessions); NFR-03, NFR-05.
 **Prerequisites.** None.
-**Independence this week.** Works in the platform's developer tools and with people. Needs no repository.
-**Estimate and difficulty.** 18 h. V Low, U High (external rules, unknown eligibility), I Low, S Med, T Med.
-**Completion evidence.** The access record and the dependency register, reviewed by the team at the end of Week 1.
-**Risks and assumptions.** If no legal entity can pass verification, AC-30 cannot pass and Phase 2 cannot be declared complete; this is escalated to you the same week. Developer-account access proves nothing about ordinary owners.
+**Independence this week.** Uses an authorized standalone browser experiment; does not require any new code repository.
+**Estimate and difficulty.** 18 manual-equivalent hours. V Low, U High (session/UI behavior), I Low, S High, T Med.
+**Completion evidence.** Redacted session-flow record, publication evidence and operational ownership table.
+**Risks and assumptions.** A login challenge requires the owner to reauthenticate. Unknown outcomes are held; no blind resend or authentication bypass.
 
 ### P1-E01-T04 — Research source and provider baseline
 
@@ -114,13 +121,14 @@
 3. The record states whether each provider's usage can be capped before a call; a provider that cannot be capped is marked unsuitable for autonomous use.
 4. Source types that could not be reached (for example private groups) are listed as gaps.
 5. One provider path and one fallback are selected with the reason; unpaid trial limits that affected the result are stated.
+6. Versioned questions, provider configuration, actual usage and results enter the Week-1 evidence pack with a named reviewer; keys and private credentials are redacted. Internal ops provisions this week's experiment access, not every later service account.
 
 **Requirement references.** FR-24, FR-27, FR-28; NFR-06; PRD §11.1 (research); OD-22; D-32.
 **Prerequisites.** None.
 **Independence this week.** Standalone experiments with their own notes; no repository needed.
 **Estimate and difficulty.** 20 h. V Med, U High, I Low, S Low, T Med.
 **Completion evidence.** The baseline record with raw results for every question and candidate.
-**Risks and assumptions.** Assumes trial or paid access can be obtained in Week 1 (unconfirmed budget). If not, the record states which candidates could not be tested.
+**Risks and assumptions.** Internal ops supplies provider access in parallel. Record actual provider behavior and measured limits; administrative budget processing is not a technical milestone.
 
 ---
 
@@ -134,16 +142,16 @@
 
 **User story.** As a developer working on either side of the public interface, I want the backend's published contract to generate the types the frontend uses and to reject incompatible changes, so that a change on one side cannot silently break the other.
 
-**Problem and outcome.** Two repositories need one agreed contract (ADR-015). After this task the frontend reads a live backend value through generated access, and an incompatible change fails a check.
+**Problem and outcome.** `busmora-web` and `busmora-api` need one agreed public HTTP contract (ADR-015); `busmora-ai` exposes separate internal HTTP/activity contracts checked by T06. After this task the frontend reads a live backend value through generated access, and an incompatible change fails a check.
 
-**Scope.** Publication of the contract from the backend; generated typed access in the frontend; an automated incompatibility check; the documented way a developer runs both repositories together.
+**Scope.** Publication of the versioned public contract from `busmora-api`; generated typed access in `busmora-web`; an automated incompatibility check; the documented way a developer runs all three code repositories together.
 **Excludes.** Contracts between the language runtimes inside the backend (T06). Any business endpoint.
 
 **Acceptance criteria.**
 1. The shell displays a value fetched from the running backend using only generated types.
 2. Removing or renaming a published field causes the check to fail with a message naming the field.
 3. Adding an optional field passes.
-4. A developer runs both repositories together locally by following the written procedure.
+4. A developer runs all three code repositories together locally by following the written procedure.
 
 **Requirement references.** SYS §6.1–6.3; ADR-015; OD-17; D-51.
 **Prerequisites.** P1-E01-T01, P1-E01-T02.
@@ -162,22 +170,24 @@
 
 **Problem and outcome.** The polyglot design is the largest technical risk (SYS R-11, §9.4 spike 1). After this task a stub piece of work runs through every hop, survives a worker restart, and its events reach a client that reconnects.
 
-**Scope.** A request that starts durable work; a workflow in one runtime calling an activity in the other; a stub AI step that emits progress events; delivery of those events to a client with resume after disconnection; validated payloads between runtimes with a drift check.
+**Scope.** A request that starts durable work; a workflow in one runtime calling an activity in the other; a stub AI step that emits progress events; delivery of those events to a client with resume after disconnection; validated payloads between `busmora-api` and `busmora-ai` with a drift check; versioned JSON Schema and internal OpenAPI artifacts published from `busmora-ai` and pinned by `busmora-api`; deployment to the existing bootstrap staging environment for the Week-2 dogfooding cycle.
 **Excludes.** Real model calls, Tasks as a domain concept (T22), the Canvas interface (T33), authentication.
 
 **Acceptance criteria.**
 1. Starting the stub work returns an acknowledgement within the provisional two-second target on a developer machine.
 2. Stopping and restarting a worker mid-run does not lose the work; it completes.
-3. A client that disconnects and reconnects receives the events it missed, in order, with none repeated.
+3. A client that disconnects and reconnects renders missed events in order without duplicate effects. Stable event IDs allow replay deduplication; an expired cursor returns an explicit reset and authoritative snapshot instead of silently losing state.
 4. A payload that does not match the agreed shape is rejected at the boundary, and a mismatch between the two runtimes' definitions fails an automated check.
 5. The record states measured acknowledgement and event-delivery times.
+6. A process killed after committing a command but before starting/signalling its workflow is recovered by the existing reconciliation mechanism using the same deterministic identity. Repeated delivery creates no duplicate domain work.
+7. Cross-language payloads are versioned and validated; status/error envelopes distinguish retryable internal failures from unknown external outcomes. No browser state or plaintext secrets enter Temporal history or SSE payloads.
 
 **Requirement references.** FR-23; NFR-05; SYS §4.6, §6.4, §9.4 (spike 1), R-04, R-11; ADR-003, ADR-014; D-27, D-34.
 **Prerequisites.** P1-E01-T01.
 **Independence this week.** Adds its own entry point; does not need T05's generated client. Uses a stub, so does not need T08's model choice.
 **Estimate and difficulty.** 24 h. V Med, U High (first use of the durable workflow service across languages), I High, S Low, T Med.
-**Completion evidence.** A recorded run with a worker killed mid-way and a client reconnecting.
-**Risks and assumptions.** If the path cannot be made to work in the week, the architecture risk is confirmed and DR-4 becomes urgent.
+**Completion evidence.** Week-2 staging evidence with a worker killed mid-way, a client reconnecting and measured timings.
+**Risks and assumptions.** Any workflow mismatch is assigned immediately for AI-assisted repair and contract-test reruns inside the week's integration allowance.
 
 ### P1-E01-T07 — Evaluation standard frozen
 
@@ -189,8 +199,8 @@
 
 **Problem and outcome.** PRD §10.2 requires the rubric, sampling, severity definitions and runtime limits frozen by the end of Week 2. After this task they exist, with four exemplar cases and one supported owner scenario.
 
-**Scope.** Human rubric for decision and content usefulness and for the four registers; critical and high defect definitions; sampling and held-out rule; declared release load; provisional task-specific latency, timeout, usage and concurrency limits; the change rule; one launch-cohort owner scenario; four authored exemplar cases, one per register; reviewer needs per register; the release ledger created with one empty row per active FR, NFR and AC, and a defect register with the severity scale, both to be filled by each later task as it finishes (PRD §13.3 says "maintain a ledger").
-**Excludes.** The remaining cases (T23, T71, T93), running any evaluation, recruiting reviewers (tracked in the dependency register).
+**Scope.** Human rubric for decision and content usefulness and for the four registers; critical and high defect definitions; sampling and held-out rule; declared release load; provisional task-specific latency, timeout, usage and concurrency limits; the change rule; one launch-cohort owner scenario; four authored exemplar cases, one per register; reviewer needs per register; weekly dogfooding/Brain-comparison records with build and fixture identifiers; the release ledger created with one row per active FR, NFR and AC, importing Week-1 evidence, and a defect register with the severity scale, both to be filled by each later task as it finishes (PRD §13.3 says "maintain a ledger").
+**Excludes.** The remaining cases (T23, T71, T93), the expanded checkpoint evaluations; weekly dogfooding and rubric calibration are included, with optional reviewer coordination handled internally.
 
 **Acceptance criteria.**
 1. Each rubric dimension has a scale, a pass threshold and a worked example of a pass and a fail.
@@ -204,7 +214,7 @@
 **Prerequisites.** P1-E01-T04 (measurements, already available). Approved documents.
 **Independence this week.** Limits use T04 results and approved provisional targets, so it does not wait for T08's model measurements.
 **Estimate and difficulty.** 20 h. V Med, U Med, I Low, S Low, T Med.
-**Completion evidence.** The dated standard and four cases, with the second-person severity check.
+**Completion evidence.** The dated standard, four cases, imported weekly records and second-person severity check.
 **Risks and assumptions.** Limits set before real slices exist may need a documented revision at Gate G1.
 
 ### P1-E01-T08 — Arabic model baseline across four registers
@@ -217,22 +227,22 @@
 
 **Problem and outcome.** Model providers are open (OD-4, D-31). After this task a light model for routing and a heavier model for planning and writing are selected, each with a fallback and measured cost.
 
-**Scope.** A fixed prompt set covering routing, short replies, a diagnosis and one post per register; trials of candidate models through the approved gateway approach; measurement of quality, latency and cost; a selection record with cost ceilings.
-**Excludes.** Product integration (T18), embedding choice (T24), human native review (T56).
+**Scope.** A fixed prompt set covering routing, short replies, a diagnosis and one post per register; trials of candidate models through the approved gateway approach; measurement of quality, latency and cost; a selection record with cost ceilings; early fixed-context versus document-only comparisons and weekly register feedback.
+**Excludes.** Product integration (T18), embedding choice (T24), the expanded quality checkpoint (T56); weekly team register review is included.
 
 **Acceptance criteria.**
 1. Every candidate is run on every prompt; outputs are kept for inspection.
 2. Latency and cost per call are measured for each candidate.
 3. Quality notes are recorded per register; a register nobody on the team can judge is marked "not judged", not scored.
 4. The selection names a light and a heavy model with fallbacks and states the expected cost of a quick reply and of a typical task.
-5. The record states that the selection is provisional until native reviewers score outputs in T56.
+5. The record includes weekly team feedback and comparative results; T56 expands the evidence rather than starting validation.
 
 **Requirement references.** FR-19, FR-32; NFR-06, NFR-07; PRD §11.2; SYS §4.8, OD-4; D-31.
 **Prerequisites.** None.
 **Independence this week.** Standalone; uses its own prompt set and does not need T07's rubric.
-**Estimate and difficulty.** 20 h. V Med, U High, I Low, S Low, T High (quality judgement without native reviewers).
+**Estimate and difficulty.** 20 h. V Med, U High, I Low, S Low, T High (register quality and model variance).
 **Completion evidence.** The selection record with all outputs and measurements.
-**Risks and assumptions.** Needs provider accounts and a payer (unconfirmed). Gulf quality cannot be judged without a suitable reviewer.
+**Risks and assumptions.** Internal ops supplies accounts. Weekly team evaluation tunes all registers; optional independent feedback supplements it and is labelled separately.
 
 ---
 
@@ -261,10 +271,10 @@
 
 **Requirement references.** FR-01, FR-50 (email link); NFR-03; AC-31; SYS §4.7, §4.7.1; ADR-012; D-29, D-61; OD-10.
 **Prerequisites.** P1-E01-T01, T02, T05.
-**Independence this week.** Uses the Week 1 base components, not T10's kit. Demonstrated locally, so it does not need T12's staging.
+**Independence this week.** Uses the Week 1 base components, not T10's kit. Developed against bootstrap staging; joins the same-week hardened build without waiting to start on T12.
 **Estimate and difficulty.** 22 h. V Med, U Med, I Med, S High, T Med.
 **Completion evidence.** Demonstration of AC-31 including a replayed and an expired link.
-**Risks and assumptions.** Email delivery needs a provider account (unconfirmed payer).
+**Risks and assumptions.** Internal ops provisions email delivery in parallel; task acceptance verifies real delivery and session behavior.
 
 ### P1-E02-T10 — Shared bilingual components and structured forms
 
@@ -305,7 +315,7 @@
 **Problem and outcome.** Logs, metrics and error tracking beyond model tracing are undecided (OD-13, OD-9). After this task one identifier links a request across all process roles and errors are collected centrally with redaction.
 
 **Scope.** Structured logs with a shared identifier across roles and through the durable workflow; central error collection; the model-call tracing service set up and shown on a test call (real model calls start in T18); redaction of secrets and private content; a short operator guide.
-**Excludes.** Dashboards, alerts, the runbooks (T64), enabling it on staging (done in T16).
+**Excludes.** Dashboards, alerts, the runbooks (T64), expanded restore/rollback trace verification (T16).
 
 **Acceptance criteria.**
 1. Given one identifier, an operator finds the matching records in every process role the request touched.
@@ -315,10 +325,10 @@
 
 **Requirement references.** NFR-08; SYS §7.4, OD-9, OD-13; D-33.
 **Prerequisites.** P1-E01-T06.
-**Independence this week.** Verified in the local environment; does not need T12's staging or T09's accounts.
+**Independence this week.** Starts against the Week-2 bootstrap environment; the weekly integration handoff enables tracing on the hardened staging build.
 **Estimate and difficulty.** 18 h. V Med, U Med, I Med, S Med, T Low.
 **Completion evidence.** A second person traces a request and confirms the redaction test.
-**Risks and assumptions.** Tool choice may add cost (unconfirmed budget).
+**Risks and assumptions.** Tool usage and cost are recorded; internal purchasing proceeds in parallel.
 
 ### P1-E02-T12 — Staging environment with automated deployment
 
@@ -328,9 +338,9 @@
 
 **User story.** As the team, we want every merged change deployed to a shared environment automatically, so that we verify features where they will really run and external platforms can reach us.
 
-**Problem and outcome.** The cloud provider, secrets store and deployment path are open (OD-2, OD-5, OD-16). After this task a staging environment runs all process roles on managed stores, updated by the pipeline, reachable securely.
+**Problem and outcome.** The cloud provider, secrets store and deployment path are open (OD-2, OD-5, OD-16). After this task the existing bootstrap staging environment is hardened to run all process roles on managed stores, updated by the pipeline, reachable securely.
 
-**Scope.** Provider selection inside the approved single-region decision; managed stores including object storage (vendor chosen here, D-41) and the key-management service later used to protect Page credentials; all eight process roles deployed; the product domain with the hostnames staging uses now and production will use later; secure public access to the web and API only; secrets store; automated deployment on merge; a one-step rollback to the previous version.
+**Scope.** Hardening the Week-1/2 bootstrap staging environment; provider selection inside the approved single-region decision; managed stores including object storage (vendor chosen here, D-41) and the key-management service later used to protect Page credentials; all eight process roles deployed; the product domain with the hostnames staging uses now and production will use later; secure public access to the web and API only; secrets store; automated deployment on merge; a one-step rollback to the previous version.
 **Excludes.** Production (T60), backup drill (T16), load testing.
 
 **Acceptance criteria.**
@@ -343,10 +353,10 @@
 
 **Requirement references.** NFR-03, NFR-05; SYS §4.9, OD-2, OD-5, OD-16; ADR-011, ADR-016; K-11.
 **Prerequisites.** P1-E01-T01, T02, T06.
-**Independence this week.** Deploys what existed at the end of Week 2. T09 and T11 are verified locally and arrive on staging through the pipeline afterwards.
+**Independence this week.** Deploys what existed at the end of Week 2. T09 and T11 start from the bootstrap environment and join the same week's staging build through the shared integration handoff.
 **Estimate and difficulty.** 22 h. V Med, U High (provider choice, eight roles), I Med, S High, T Med.
 **Completion evidence.** A merge observed arriving on staging, and an outside request to an internal role refused.
-**Risks and assumptions.** Needs a paying account in Week 3 (unconfirmed). Without it the task cannot complete and Gate G1 slips. Reviewers judged this task larger than one person-week; if it overruns, T16 and T19 slip and the overrun is recorded against DR-8.
+**Risks and assumptions.** Internal ops provisions managed services in parallel. Automation, peer review and the reserved integration allowance cover deployment hardening; actual failures are repaired and retested.
 
 ---
 
@@ -390,7 +400,7 @@
 
 **Problem and outcome.** Later features must write audit, usage and notification records in the same transaction as the change they describe. After this task the mechanism exists and is shown on the account events that already happen.
 
-**Scope.** Append-only audit records with minimal metadata; usage records by resource kind, quantity, estimated cost, workspace and task; notification records with kind, exact subject reference and read state; the internal event mechanism features use to write them; an operator query.
+**Scope.** Append-only audit records with minimal metadata; usage records by resource kind, quantity, estimated cost, workspace and task; notification records with kind, exact subject reference and read state; the internal event mechanism features use to write them; an operator query; integrating earlier account actions with the shared audit/usage mechanism in this task.
 **Excludes.** The Notification Bell interface (T51), budgets (T42), any dashboard.
 
 **Acceptance criteria.**
@@ -445,7 +455,7 @@
 
 **Problem and outcome.** PRD §11.1 requires the data governance design by Week 4 (OD-21). After this task the policy exists and staging has been restored and rolled back once.
 
-**Scope.** Policy for active-data deletion, derived records, backup expiry, export, logs and traces, token lifecycle and the minimum audit data kept; a staging restore from backup; a staging rollback; enabling request tracing and error collection on staging; the public privacy, data-deletion and terms pages that state the policy, which Meta's review also requires.
+**Scope.** Policy for active-data deletion, derived records, backup expiry, export, logs and traces, browser-session lifecycle and the minimum audit data kept; a staging restore from backup; a staging rollback; enabling request tracing and error collection on staging; public privacy, data-deletion and terms pages describing the product's actual handling of client sessions and data.
 **Excludes.** Building deletion across derived stores (T65), restore suppression (T69) or export (T67). Production rehearsal (T60).
 
 **Acceptance criteria.**
@@ -525,33 +535,37 @@
 **Completion evidence.** The latency measurement and a transcript showing a direct reply and an honest handling of a substantive request.
 **Risks and assumptions.** If the three-second target is missed, the result is recorded for T58 and the limit is reviewed under the change rule.
 
-### P1-E03-T19 — Facebook Page connection with protected credentials
+### P1-E03-T19 — Facebook Page connection with protected browser sessions
 
 | Epic | Week | Assignee | Estimate | Range | Confidence |
 |---|---|---|---|---|---|
 | P1-E03 | 5 | C | 20 h | 16–30 h | Low |
 
-**User story.** As a business owner, I want to connect my Facebook Page when I choose to, see its connection status, and disconnect it, so that the product can act for my Page only with my authorization.
+**User story.** As a business owner, I want to authorize my own browser session, select my Page and disconnect it when I choose, so that publishing can act only with my permission.
 
-**Problem and outcome.** Publishing needs an authorized Page and safely stored credentials. After this task a Page can be connected in tester mode, credentials are encrypted and usable only by the publishing role, and status is truthful.
+**Problem and outcome.** The product needs isolated authenticated sessions. After this task a connection has encrypted session state, verified Page identity and truthful connected/reconnect-needed/disconnected status.
 
-**Scope.** Owner-initiated connection and Page selection; encrypted credential storage with decryption limited to the publishing role; status connected, reconnect needed and disconnected; disconnect with consequences explained first; authorization generation advancing on disconnect; audit records.
-**Excludes.** Any publishing (T35), production access (T38), other platforms.
+**Scope.** Owner-controlled Scrapling/Playwright session login and Page selection; encrypted persistent authentication state; separate browser contexts and fingerprint storage by workspace/account; publishing-worker-only decryption; expiry/challenge detection with automatic dashboard Re-authenticate action; single-use scoped login operations; disconnect, authorization-generation advancement and audit records. Follow the [dashboard/session contract](./11-execution-contract.md#dashboard-reauthentication-and-session-persistence).
+**Excludes.** Publishing (T35), production browser hardening (T38), other platforms.
 
 **Acceptance criteria.**
-1. An owner with a tester role connects a Page from staging and sees it as connected with its name.
-2. Cancelling or failing the platform's consent leaves no partial connection.
-3. Stored credentials are unreadable in the database and never appear in logs; the AI runtime cannot obtain them.
-4. Disconnecting shows what will stop, then removes usable credentials and advances the authorization generation.
-5. A credential the platform has revoked shows as reconnect needed after the next check, not as connected.
-6. Connecting a Page creates no Post, approval or publication.
+1. An owner authenticates through their own account and selects a Page they control from staging.
+2. Cancelled or failed login leaves no usable partial connection; a challenge requests owner action.
+3. Cookies, credentials and session storage are encrypted and absent from model input, application responses, logs and diagnostics.
+4. Cross-workspace attempts cannot use or inspect another connection or browser context.
+5. Disconnect destroys usable session material and advances authorization generation; revoked/expired sessions require reconnection.
+6. Connecting or reconnecting creates no Post, approval or publication.
+7. Before marking connected, the worker verifies both the authenticated account and selected Page.
+8. Expiry/challenge records `reconnect_needed` and a deduplicated notification through platform activities; the dashboard exposes recovery immediately without waiting for T51. It refreshes authoritative connection state and ignores older revisions.
+9. Wrong-workspace, expired, replayed and post-disconnect login completions are rejected. Concurrent login attempts cannot overwrite the newer credential generation. Credentials are entered only through the owner's isolated, access-controlled browser channel, never an application log or model prompt.
+10. A worker restart restores the required authentication state from ciphertext, or safely requests reauthentication. Temporary profiles are cleaned and never shared; incomplete storage restoration cannot report connected.
 
-**Requirement references.** FR-33, FR-56; NFR-03; AC-54 (connection states); SYS §4.6 (flow 6), §4.7; ADR-018; D-30, D-54.
+**Requirement references.** FR-33, FR-56; NFR-03; AC-54; [browser-session contract](./11-execution-contract.md#publishing-through-authenticated-browser-sessions) supersedes earlier API transport references.
 **Prerequisites.** P1-E01-T03; P1-E02-T09, T12, T14.
-**Independence this week.** Its own module; no other Week 5 task uses a connection.
-**Estimate and difficulty.** 20 h. V Med, U High (platform consent and token behaviour), I High, S High, T Med.
-**Completion evidence.** Connection, revocation and disconnection demonstrated on staging with a tester Page.
-**Risks and assumptions.** Works only for app-role users until Meta grants production access. Platform rules may change during the project.
+**Independence this week.** Connection module; no other Week-5 task consumes a connection.
+**Estimate and difficulty.** 20 manual-equivalent hours. V Med, U High, I High, S High, T Med.
+**Completion evidence.** Authorized connection, isolation, expiry and disconnect checks on staging with redacted records.
+**Risks and assumptions.** Changed UI or login challenges pause the affected session and require repair or owner reauthentication.
 
 ### P1-E03-T20 — Versioned document records
 
@@ -649,7 +663,7 @@
 
 **Problem and outcome.** The PRD asks for about 24 cases. T07 wrote four. After this task ten more exist, giving 14, with contrast pairs and a held-out subset.
 
-**Scope.** Ten authored cases across sparse and conflicting evidence, a direct request, a capacity limit, a no-website business, a many-inquiries-few-bookings business and a weak-repeat-demand business; at least two contrast pairs; fixed source snapshots; held-out marking; a coverage table by register and category; a reviewer list naming, for each of the four registers, the confirmed reviewers or stating that none is confirmed.
+**Scope.** Ten authored cases across sparse and conflicting evidence, a direct request, a capacity limit, a no-website business, a many-inquiries-few-bookings business and a weak-repeat-demand business; at least two contrast pairs; fixed source snapshots; held-out marking; a coverage table by register and category; a reviewer list naming, for each of the four registers, the internal evaluation owner and any optional independent reviewers.
 **Excludes.** The remaining cases and any automated runner (T71, T93). Running the cases (T56).
 
 **Acceptance criteria.**
@@ -658,7 +672,7 @@
 3. At least four cases are marked held-out and stored where prompt authors are told not to use them.
 4. The coverage table shows cases per register and category, and names what the missing ten cases must cover.
 5. Every case is labelled synthetic.
-6. The reviewer list exists; a register with no confirmed reviewer is reported to the plan owner at Gate G1 as an open gap.
+6. Each register has a weekly internal evaluation owner; optional independent-review coverage is labelled without making recruitment a G1 gate.
 
 **Requirement references.** PRD §9 (closing paragraph), §10.1; AC-18, AC-19, AC-21 (case basis); strategy/evaluation.md §3; D-60.
 **Prerequisites.** P1-E01-T07.
@@ -677,11 +691,11 @@
 
 **Problem and outcome.** The Director needs relevant context without ineligible items leaking back. After this task current eligible knowledge is indexed and can be retrieved by meaning and by relationship, with eligibility rechecked against the source of truth.
 
-**Scope.** Indexing of eligible knowledge when it is added or changed; retrieval by similarity followed by one to two relationship steps; a recheck of eligibility before results are returned; each result labelled with its epistemic status and provenance; embedding model selected (D-39).
-**Excludes.** Use by the Director (T25), retrieval of documents and past conversations (partly OV), the document-only comparison route (T71, T93), deletion clean-up (T65).
+**Scope.** Indexing of eligible knowledge when it is added or changed; retrieval by similarity followed by one to two relationship steps; a recheck of eligibility before results are returned; each result labelled with its epistemic status and provenance; embedding model selected (D-39); a repeated fixed-fixture comparison of eligible Brain context against document-only inputs.
+**Excludes.** Use by the Director (T25), full retrieval of documents and past conversations (T86), the complete held-out comparison (T71, T93), deletion clean-up (T65).
 
 **Acceptance criteria.**
-1. A query returns relevant active items from the asking workspace with their status labels.
+1. A query returns relevant active items from the asking workspace with their status labels; weekly comparison results identify fixture, build, grounding and usefulness differences.
 2. Candidate, rejected, superseded and retired items are never returned, including in the minute after their state changed.
 3. An item related to a retrieved item is included through its relationship, and not if the relationship is retired.
 4. A query from one workspace never returns another's items; the T15 cross-workspace check is extended to real indexed data.

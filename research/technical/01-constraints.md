@@ -15,7 +15,7 @@
 | R-2 | Precedence when docs conflict: **decision-registry > PRD > technical-architecture > other `project-docs/`**. | Settled (user: "do like the docs said") | Q11, Q14, Q19 |
 | R-3 | Where the docs already specify something, follow them as written. New decisions are made only where the docs are silent or contradict each other beyond what R-2 resolves. | Settled | Q11, Q14 |
 | R-4 | The PRD is not edited unless a change is critical; overrides live in this document. | Settled | user instruction during Q7 |
-| R-5 | **Two standalone repositories, settled and final:** `busmora-backend` (busmora-api, busmora-workers, busmora-ai) and `busmora-frontend` (busmora-web). This supersedes the single monorepo in TA §12.3. | Settled (2026-10-18) | user instruction after 02 |
+| R-5 | **Four repositories:** `busmora-web` (Next.js), `busmora-api` (NestJS), `busmora-ai` (FastAPI, AI activities and Python workflow/publishing workers), and `busmora-docs` (documentation). The three code repositories produce four deployables; workers and AI remain separate images. | Settled (2026-11-15) | project owner; ADR-002 |
 
 ---
 
@@ -43,7 +43,7 @@
 | Q18 | Deletion & retention | Operator-run full workspace deletion; retention rules | Settled | 00 §9 Q16 |
 | Q19 | Doc-derived resolutions | Items 2–14 confirmed; item 1 (cloud provider) **not recorded** | Doc-derived / Deferred | 00 §9 Q13–15, Q19–23; C-13, C-20, C-21, C-22, C-24–C-26 |
 | Q20 | Evaluation | Gates G1, G2, G3, G5 + nine weighted criteria; **G4 (region) withheld** | Settled / Provisional | — |
-| — | Repositories | Two standalone repositories (R-5) | Settled (2026-10-18) | 02 G-R1 |
+| — | Repositories | Four repositories: `busmora-web`, `busmora-api`, `busmora-ai`, `busmora-docs` (R-5) | Settled (2026-11-15) | 02 G-R1 |
 | — | Architecture adopted | B1 + amendment A1 (internal HTTP for quick replies and Brain retrieval); FE-1 now, FE-3 later | Settled (2026-10-18) | [04-decision.md](./04-decision.md) |
 | — | Scoring and TA deviations | Score every option first. Deviations from the technical-architecture doc are reported as G5 exposure, not used to exclude options (§4.3 step 6). | Settled (2026-10-18) | 02 §0.1 |
 
@@ -295,6 +295,6 @@ Gathered by research on 2026-10-16. Most vendor pages show no date. **UNCONFIRME
 | MVP J2 | Form answer → "Brain updated" | Becomes a candidate | BG-2 |
 | MVP J2 / EVAL §4 | Levantine dialect | Dropped | SC-5 |
 | BM §4.2 / §5.1 | Tiers, quotas, daily monitoring, Instant Brain Audit | Out of scope this release | SC-2, SC-4 |
-| TA §12.3 | Monorepo `busmora/` (frontend, platform, workers, ai-service) | Two standalone repositories: `busmora-backend`, `busmora-frontend` | R-5 |
+| TA §12.3 | Monorepo `busmora/` (frontend, platform, workers, ai-service) | Four repositories: `busmora-web`, `busmora-api`, `busmora-ai` (including Python workers), `busmora-docs` | R-5 |
 | TA §3.1 | Temporal TypeScript SDK "(Workflow Client)" | Also runs an activity worker in `busmora-api` | 04 X-1 |
 | TA §1.2 | "Communication via Temporal activities" | Plus internal HTTP api → ai for quick replies and Brain retrieval only | 04 X-2 |

@@ -1,7 +1,8 @@
 # E. Task Descriptions — Phase 2 Build (Weeks 7–13, T25–T52 and additional tasks T65–T91)
 
+> Execution basis: [file 11](./11-execution-contract.md). All Estimate/Range values are manual-equivalent hours; apply 3×–5× compression plus file 01 allowances. Every task joins weekly staging, dogfooding and regression.
 > Part of the [BUSMORA 16-week implementation plan](./README.md). Epics: [D](./03-epics.md). Dependencies and weekly independence checks: [F](./07-dependency-map.md).
-> These are proposed backlog items for review. Nothing here has been started.
+> These are committed backlog tasks; evidence is recorded during execution.
 > Each estimate includes research, decisions inside approved constraints, implementation, tests, peer review, integration with earlier work, expected fixes and the acceptance demonstration. Implementation choices belong to the assignee.
 > Difficulty factors: **V**olume, **U**ncertainty, **I**ntegration, **S**ecurity/data risk, **T** verification difficulty — each Low, Med or High.
 > Every task also meets the shared Definition of Done in the [README](./README.md#definition-of-done-for-every-task): bilingual and keyboard use, running on staging with its secrets, its own audit, usage and notification records, the cross-workspace check extended, and its ledger rows updated. Copy that list into each Jira item on import.
@@ -20,7 +21,7 @@
 
 **Problem and outcome.** A Task currently performs one fixed step. After this task the Director interprets the objective, loads eligible context, plans, uses drafting and analysis specialists as the request warrants, stays inside fixed ceilings and reports what it did.
 
-**Scope.** Planning that varies with the request and context; delegation to drafting and marketing-analysis specialists; use of eligible Brain context and the conversation's history; enforced ceilings on iterations, time and concurrency that the model cannot change; a record of each piece of specialist work actually performed; a text result returned to the conversation.
+**Scope.** Planning that varies with the request and context; delegation to drafting and marketing-analysis specialists; use of eligible Brain context and the conversation's history; enforced ceilings on iterations, time and concurrency that the model cannot change; a record of each piece of specialist work actually performed; a text result returned to the conversation; weekly fixture comparisons with document-only inputs to refine context usefulness without removing committed features.
 **Excludes.** Research (T36), typed document and Post results (T29), clarification forms (T40), usage budgets and extensions (T42), diagnosis recipes (T48).
 
 **Acceptance criteria.**
@@ -36,7 +37,7 @@
 **Independence this week.** Reads Brain records that exist from T17; it does not need T26's onboarding. Returns text, so it does not need T27's Posts.
 **Estimate and difficulty.** 24 h. V High, U High (model behaviour, agent framework), I High, S Med, T High.
 **Completion evidence.** Three contrasting requests run on staging with their recorded work shown, including one stopped by a ceiling.
-**Risks and assumptions.** The most likely task to overrun. If it does, T29 and T36 slip by the same amount.
+**Risks and assumptions.** Model behavior is refined through weekly dogfooding and bounded-work fixtures; integration defects use the reserved AI-assisted repair effort.
 
 ### P2-E04-T26 — Manual setup, confirmation and Brain activation
 
@@ -154,7 +155,7 @@
 **Independence this week.** Creates Post drafts through T27's Week 7 behaviour; it does not need T31's approval.
 **Estimate and difficulty.** 22 h. V Med, U Med, I High, S Med, T Med.
 **Completion evidence.** AC-22 demonstrated, plus a mixed request and a forced save failure.
-**Risks and assumptions.** Register quality is judged by reviewers in T56, not here.
+**Risks and assumptions.** Register quality is checked during weekly dogfooding; T56 expands the accumulated evidence.
 
 ### P2-E04-T30 — Roadmap Discovery draft saved and resumable
 
@@ -312,24 +313,26 @@
 
 **Problem and outcome.** Approved Posts go nowhere. After this task an unchanged approved text or link Post is dispatched at its scheduled time through the approved deterministic path, and marked published only on platform evidence.
 
-**Scope.** Release at the scheduled time; an atomic claim that rechecks version, destination, authorization, cancellation and window immediately before sending; an attempt recorded before the platform is called; dispatch of text and link posts with no AI involvement after approval; platform post identity and read-back stored; states submitted and published; the published Post shown at its actual publication time; cancellation before dispatch.
-**Excludes.** Image posts (T47), uncertain outcomes (T39), overdue and hold handling (T43).
+**Scope.** Release at the scheduled time; an atomic claim that rechecks version, destination, authorization, cancellation and window before dispatch authorization; a durable idempotency key and attempt recorded before browser interaction; Scrapling adaptive extraction and Playwright actions through the client's isolated session with no AI involvement after approval; durable post identity/permalink and matching read-back; states submitted and published; actual publication time; cancellation before dispatch. The [duplicate-prevention contract](./11-execution-contract.md#duplicate-prevention-and-cancellation-boundary) applies from the first live send.
+**Excludes.** Image posts (T47), automated uncertain-outcome reconciliation (T39), expanded overdue and hold actions (T43). A minimal safe uncertainty hold is included now.
 
 **Acceptance criteria.**
-1. An approved text post appears on a tester-mode Page within its lateness allowance, and the Post shows published with the platform's identity and link.
+1. An approved text post appears on a client-authorized Page within its lateness allowance, and the Post shows published with the platform's identity and link.
 2. A Post is shown as published only after the platform confirms it; before that it shows submitted.
 3. A Post changed after approval is not dispatched.
 4. A Post whose connection was disconnected after approval is not dispatched.
 5. A Post cancelled before its time is not dispatched and shows cancelled.
 6. Two workers releasing the same Post result in one attempt.
 7. The published Post is listed at its actual publication time.
+8. Retries/restarts preserve the workspace/Post/version key. The irreversible activity has no automatic retry; an in-flight attempt is not reassigned on a lease/heartbeat timeout. Tests cover a crash before click, after click and before recording the result; unknown outcomes remain held without a second dispatch.
+9. NestJS owns claims and state transitions; the browser worker has no domain-database access. Account/profile mutation is serialized, approved Page/content and live action identity are checked, and durable workflow-start reconciliation cannot launch a second send.
 
 **Requirement references.** FR-33, FR-35, FR-36; NFR-01, NFR-05; AC-12 (text/link, individual approval), AC-53 (actual time); SYS §4.6 (flow 4), §7.3; ADR-005, ADR-006; BTD-ADR-14; D-49.
 **Prerequisites.** P1-E01-T06; P1-E02-T12; P1-E03-T19; P2-E04-T31.
 **Independence this week.** Its own path from approval to platform; no other Week 9 task touches publishing.
 **Estimate and difficulty.** 22 h. V Med, U High (platform behaviour, timing), I High, S High, T High.
-**Completion evidence.** A real scheduled publication on a tester-mode Page with stored evidence, and the changed-after-approval case.
-**Risks and assumptions.** Evidence is at tester-mode access level only and is labelled so. Timeouts are not handled until T39; until then they are treated as failures needing manual review.
+**Completion evidence.** A real scheduled publication on a client-authorized Page with stored evidence, and the changed-after-approval case.
+**Risks and assumptions.** Evidence comes from the client's authorized browser session. Until T39 adds automated reconciliation, ambiguous outcomes are held for manual verification and never blindly resent.
 
 ### P2-E04-T36 — Research report with inspectable citations
 
@@ -388,7 +391,7 @@
 **Independence this week.** Uses records and stores that existed at the end of Week 8. It does not need the Canvas (T33), Discovery (T34), publishing (T35) or research (T36).
 **Estimate and difficulty.** 20 h. V Med, U High (every store), I High, S High, T High.
 **Completion evidence.** One removal of each kind on staging, followed by a recorded search of every derived store.
-**Risks and assumptions.** The number of derived stores is set by the T16 policy; if the policy lists more than this estimate assumes, the task overruns. It runs on top of B's primary task, so B needs about 36 hours this week.
+**Risks and assumptions.** The number of derived stores follows T16; verification and repair effort are tracked against the explicit allowance. Its baseline effort is included in the assignee's total in file 02; apply the AI multiplier and weekly review allowance.
 
 ---
 
@@ -421,34 +424,38 @@
 **Independence this week.** If information is missing it produces a preliminary plan; it does not need T40's clarification forms.
 **Estimate and difficulty.** 22 h. V Med, U High (plan quality), I Med, S Low, T High.
 **Completion evidence.** Plans generated for two contrasting evaluation cases, checked field by field.
-**Risks and assumptions.** Plan usefulness is judged by reviewers in T56. Generic content-first plans are a named risk signal in PRD §11.1.
+**Risks and assumptions.** Plan usefulness is checked in the weekly staging cycle; T56 expands the accumulated evidence. Generic content-first plans are a named risk signal in PRD §11.1.
 
-### P2-E05-T38 — Production access submission to Meta
+### P2-E05-T38 — Production browser-session hardening
 
 | Epic | Week | Assignee | Estimate | Range | Confidence |
 |---|---|---|---|---|---|
 | P2-E05 | 10 | B | 18 h | 14–30 h | Low |
 
-**User story.** As the team, we want our request for production access filed with Meta as soon as the working flow can be shown, so that the external review has the most time possible before the release decision.
+**User story.** As an owner, I want my authorized publishing session to work reliably across browser-worker restarts and to request reconnection when needed, so that scheduled work stays under my control.
 
-**Problem and outcome.** Only app-role users can connect a Page. After this task everything the team controls for production access is prepared and submitted, or the exact missing prerequisite is recorded.
+**Problem and outcome.** T35 provides working browser publication. T38 hardens the runtime, protected session lifecycle and operational diagnostics for the production environment.
 
-**Scope.** The app's review details, registered with the product domain and the production addresses set up in T12 so they do not change after review; links to the public policy pages from T16; a demonstration of the real connect, approve and publish flow on staging; reviewer access instructions; the status of the business verification filed in T03; submission; a log of the platform's responses.
-**Excludes.** The approval itself. Any change to committed formats. Validation with an ordinary owner (T63).
+**Scope.** Pinned compatible Scrapling, Playwright and browser image; isolated workspace/account contexts and adaptive fingerprint storage; encrypted session restoration; session health checks; headless execution with dashboard-launched owner reauthentication; safe handling of UI drift and challenges; bounded browser/Temporal activity lifecycles; redacted diagnostics; configuration template for T60.
+**Excludes.** Unknown-publication reconciliation (T39), advanced held/cancelled states (T43), final client production verification (T63).
 
 **Acceptance criteria.**
-1. Each prerequisite identified in T03 is marked done or blocked, with evidence.
-2. The demonstration shows the real flow on staging, not a mock.
-3. The submission is filed and its reference recorded; or, if a prerequisite outside the team's control is missing, the record names it, its owner and the date it was escalated.
-4. The public pages describe data handling consistently with the T16 policy.
-5. A named person is responsible for checking and answering the platform's responses each week until a decision.
+1. Restarting the worker restores an authorized session without exposing its secrets or mixing workspaces.
+2. An expired/challenged session requests owner reauthentication and performs no publication while authorization is uncertain.
+3. A disconnected connection cannot be restored from cached browser state.
+4. Changed-DOM fixtures adapt correctly or stop before publishing. Ambiguous candidates, stale snapshots, look-alike buttons and Page/content mismatches cannot trigger a click; both Arabic and English layouts are exercised.
+5. The existing T35 text/link path passes with read-back after restoration; session recovery by itself never submits a Post.
+6. Production configuration documents browser/runtime versions, secret isolation and safe diagnostics consistently with T16.
+7. The test evidence contains no cookies, credentials or reusable session material.
+8. Adaptive fingerprints cannot cross workspace/account/locale boundaries. Private browser profiles, temporary files, crash artifacts and browser-control channels are protected and cleaned; no session data leaks into the research crawler.
+9. Browser-action, heartbeat and activity deadlines are documented and tested. Cancellation/rollout drains the old context; timeout alone cannot authorize replacement dispatch. Saved-state restoration and credential rotation preserve the required cookie/local-storage/other state inventory.
 
-**Requirement references.** FR-33; AC-30; PRD §3.1, §11.1 (Facebook), §13.2; SYS ADR-018, R-02, OD-23.
+**Requirement references.** FR-33, FR-56; AC-30, AC-54; NFR-03, NFR-05; [browser publishing contract](./11-execution-contract.md#publishing-through-authenticated-browser-sessions).
 **Prerequisites.** P1-E01-T03; P1-E02-T12, T16; P1-E03-T19; P2-E04-T35.
-**Independence this week.** Shows the flow as it worked at the end of Week 9; needs nothing from T39.
-**Estimate and difficulty.** 18 h. V Med, U High (external requirements, possible rejection), I Low, S Med, T Low.
-**Completion evidence.** The submission reference, or the blocked record.
-**Risks and assumptions.** **Outcome depends on Meta.** A rejection needs rework that is not in the baseline. No legal entity means no submission and a blocked AC-30.
+**Independence this week.** Uses the Week-9 publishing contract; does not require T39 reconciliation output.
+**Estimate and difficulty.** 18 manual-equivalent hours. V Med, U High (browser/session behavior), I Med, S High, T High.
+**Completion evidence.** Restart, isolation, expiry, disconnect and selector-change results; production configuration checklist.
+**Risks and assumptions.** Browser UI and session behavior can change; adapter smoke tests and owner reauthentication handle these as technical cases.
 
 ### P2-E05-T39 — Uncertain publication reconciled, never resent
 
@@ -458,24 +465,26 @@
 
 **User story.** As a business owner, I want the product to find out what really happened when a publish attempt gets no clear answer, so that my post is never published twice and never reported as published when it was not.
 
-**Problem and outcome.** A timeout after dispatch has no safe handling. After this task an attempt with unknown acceptance is marked uncertain, checked against the platform, and either confirmed, failed or held for the owner.
+**Problem and outcome.** T35 already holds unknown outcomes without resending. This task adds automated read-only reconciliation: an attempt with unknown acceptance is checked against the platform and either confirmed, definitely failed or retained as held for the owner.
 
-**Scope.** The uncertain state; reconciliation using platform evidence; holding when the outcome cannot be established; retries only for failures known to be safe to retry, never changing approved details and never beyond the window; owner-facing explanation and actions for an uncertain or failed Post.
+**Scope.** The uncertain state; reconciliation using the authenticated Page history, durable post identity/permalink and matching visible content; holding when the outcome cannot be established; retries only for failures known to be safe to retry, never changing approved details and never beyond the window; owner-facing explanation and actions for an uncertain or failed Post.
 **Excludes.** Overdue, disconnection and cancellation races (T43).
 
 **Acceptance criteria.**
-1. When the platform accepts a post but the response is lost, the Post becomes uncertain, then published after reconciliation, and exactly one post exists on the Page.
+1. When a browser action publishes a post but its confirmation is lost, the Post becomes uncertain, then published after reconciliation, and exactly one post exists on the Page.
 2. When the platform did not accept it, reconciliation leads to a failure the owner can act on, not to an automatic resend outside the safe cases.
 3. When the outcome cannot be determined, the Post is held for the owner with an explanation.
 4. A retry never alters the approved text, media, destination or time and never occurs after the lateness window.
 5. Every attempt and its outcome is kept in the Post's history.
+6. Missing Page-history entries, delayed visibility and identical manually posted content do not prove non-publication or identify this attempt. A match without attributable identity remains uncertain; reconciliation never clicks Publish.
+7. Safe retry requires durable evidence that submission never began, a terminated previous execution, unchanged approved details and valid authorization/window. An unresolved prior version cannot be bypassed by reconnecting or creating another attempt key.
 
 **Requirement references.** FR-36; NFR-01, NFR-05; AC-12 (no duplicate), AC-28 (timeout); SYS §7.3, R-09.
 **Prerequisites.** P2-E04-T35.
 **Independence this week.** Extends the publish path that existed at the end of Week 9.
 **Estimate and difficulty.** 20 h. V Med, U Med, I Med, S High, T High (failures must be induced).
-**Completion evidence.** An induced lost response on a tester-mode Page ending in exactly one post.
-**Risks and assumptions.** Depends on the platform offering usable read-back; where it does not, the Post is held.
+**Completion evidence.** An induced lost response on a client-authorized Page ending in exactly one post.
+**Risks and assumptions.** Depends on the browser adapter finding a durable identity/permalink and matching visible read-back; where it does not, the Post is held.
 
 ### P2-E05-T40 — Choice-first clarification pauses and resumes work
 
@@ -530,10 +539,10 @@
 
 **Requirement references.** FR-10, FR-42, FR-48; NFR-01; AC-23 (detection part), AC-47 (staleness); SYS §3.4.
 **Prerequisites.** P1-E03-T17, T24; P2-E04-T25, T26, T29, T31.
-**Independence this week.** Changes are made through the confirmation and edit behaviour in place since T26. It does not need the proposed Roadmap (T37), the submission (T38), reconciliation (T39) or clarification forms (T40).
+**Independence this week.** Changes are made through the confirmation and edit behaviour in place since T26. It does not need the proposed Roadmap (T37), browser-session hardening (T38), reconciliation (T39) or clarification forms (T40).
 **Estimate and difficulty.** 20 h. V Med, U Med, I High (touches orchestration, documents and Posts), S Med, T Med.
 **Completion evidence.** A price change on staging followed by the marked and unmarked work shown side by side.
-**Risks and assumptions.** It changes work built in T25 and T29; that integration is inside the estimate. It runs on top of D's primary task, so D needs about 40 hours this week.
+**Risks and assumptions.** It changes work built in T25 and T29; that integration is inside the estimate. Its baseline effort is included in the assignee's total in file 02; apply the AI multiplier and weekly review allowance.
 
 ---
 
@@ -612,17 +621,18 @@
 **Acceptance criteria.**
 1. An approved Post not dispatched within its allowance becomes held and is not sent late.
 2. Revoking the Page's authorization before dispatch results in a held Post and a reconnect-needed status, with no send.
-3. Cancelling at the moment of dispatch ends either as cancelled with no post, or as published with a message that the platform had already accepted it and how to remove it manually.
+3. Cancellation/disconnect before atomic dispatch authorization prevents a send. After authorization, the UI shows a stop request until reconciliation establishes cancelled with no submission, verified publication with manual-removal guidance, or uncertainty. It never reports cancelled solely because a Temporal activity timed out.
 4. After disconnecting and reconnecting, a previously overdue or uncertain Post is still held.
 5. A pending Post whose proposed time passes shows expired and can be given a new time as a new version.
-6. Resolving a hold with unchanged details keeps the approval; changing details requires new approval.
-7. Each disconnection and each hold is written to the protected record, which survives a restore of the main data to an earlier point.
+6. Resolving a hold keeps approval only when details and bound authorization generation remain valid. Changed details or revoked authority require fresh approval; reconnecting alone releases nothing.
+7. Each disconnection, hold, unresolved attempt and known publication identity is written to the protected record, which survives a restore of the main data to an earlier point.
+8. Session expiry/challenge automatically activates the T19 dashboard recovery flow. Two reauth windows, disconnect during login and a late old-generation worker result cannot reconnect, overwrite credentials or clear a newer hold.
 
 **Requirement references.** FR-35, FR-36, FR-56; NFR-01, NFR-05; AC-28, AC-54; SYS §3.4 (Post), §4.6 (flow 4), §7.3.
-**Prerequisites.** P1-E03-T19; P2-E04-T35; P2-E05-T39.
+**Prerequisites.** P1-E03-T19; P2-E04-T35; P2-E05-T38, T39.
 **Independence this week.** Publishing only.
 **Estimate and difficulty.** 22 h. V Med, U Med, I Med, S High, T High (races must be induced).
-**Completion evidence.** AC-28 and AC-54 demonstrated on a tester-mode Page.
+**Completion evidence.** AC-28 and AC-54 demonstrated on a client-authorized Page.
 **Risks and assumptions.** None material.
 
 ### P2-E05-T44 — Research evidence quality, stopping and untrusted sources
@@ -683,7 +693,7 @@
 **Independence this week.** Reads records as they stood at the end of Week 10. It does not need Roadmap approval (T41), the research budget (T42), held states (T43) or evidence handling (T44).
 **Estimate and difficulty.** 20 h. V Med, U Low, I Med, S High, T Med.
 **Completion evidence.** An export of a staging workspace opened outside the product and compared with the screens.
-**Risks and assumptions.** The export formats are those the T16 policy names. An active Roadmap is not in the export until T41 exists; adding it belongs to T41's owner under the Definition of Done only if the policy requires it. It runs on top of A's primary task, so A needs about 38 hours this week.
+**Risks and assumptions.** The export formats are those the T16 policy names. An active Roadmap is not in the export until T41 exists; adding it belongs to T41's owner under the Definition of Done only if the policy requires it. Its baseline effort is included in the assignee's total in file 02; apply the AI multiplier and weekly review allowance.
 
 ---
 
@@ -755,21 +765,23 @@
 
 **Problem and outcome.** Only text and link posts publish. After this task a Post with a single owner-supplied image and caption publishes with evidence, and problems the product can detect are shown before approval.
 
-**Scope.** Publishing of one owner image with caption; checks of media and format against the platform's rules before a Post can be marked ready; a written matrix of supported formats and limits; clear messages for unsupported content.
+**Scope.** Publishing of one owner image with caption through the same Scrapling/Playwright worker; checks of media and format before approval and submission; immutable object version/digest bound to approval; scoped download renewal and temporary-file cleanup; matching image/caption read-back; a written matrix of supported formats and limits; clear messages for unsupported content. Follow the [approved image contract](./11-execution-contract.md#approved-image-integrity).
 **Excludes.** Video, stories, reels, carousels, multiple images, generated images.
 
 **Acceptance criteria.**
-1. An approved single-image Post appears on a tester-mode Page with image and caption, and is confirmed with platform evidence.
+1. An approved single-image Post appears on a client-authorized Page with image and caption, and is confirmed with platform evidence.
 2. A Post whose image is missing, removed or outside the platform's limits cannot be submitted for approval, and the reason is shown.
 3. Replacing the image on an approved Post requires new approval.
 4. A request for an unsupported format is refused before approval with a statement of what is supported.
 5. The format matrix is recorded and matches what was actually tested.
+6. Replacing/deleting the object or changing its digest after approval prevents submission. Expired download access can be renewed only for the same authorized immutable object; arbitrary external URLs are not fetched.
+7. Upload timeout before final submission and lost confirmation after submission follow the same no-resend/uncertainty rules as text posts. Read-back verifies both image and caption, accounting for documented platform transformations.
 
 **Requirement references.** FR-31, FR-33, FR-34; AC-12 (each committed format, media rejected before approval); PRD §3.2 (Facebook publishing); ADR-019.
-**Prerequisites.** P1-E03-T21; P2-E04-T31, T35.
+**Prerequisites.** P1-E03-T21; P2-E04-T31, T35; P2-E05-T38, T39, T43.
 **Independence this week.** Publishing only.
 **Estimate and difficulty.** 18 h. V Med, U Med (platform media rules), I Med, S Med, T Med.
-**Completion evidence.** A real image post on a tester-mode Page and a rejected invalid image.
+**Completion evidence.** A real image post on a client-authorized Page and a rejected invalid image.
 **Risks and assumptions.** If the platform no longer supports a committed format, changing it needs a documented release-contract decision (PRD §3.2).
 
 ### P2-E06-T48 — Constraint diagnosis and curated recipes
@@ -828,8 +840,8 @@
 **Prerequisites.** P2-E04-T31, T35; P2-E05-T43, T66.
 **Independence this week.** Accepted on text and link Posts, which exist since T35; it does not need image posts (T47). Context changes are made by the means that existed at the end of Week 11, so it does not need Pending Brain Updates (T46), step launch (T45) or diagnosis (T48).
 **Estimate and difficulty.** 20 h. V Med, U Med, I High, S High, T High (the race at dispatch must be induced).
-**Completion evidence.** AC-23 demonstrated on a tester-mode Page.
-**Risks and assumptions.** It runs on top of C's primary task, so C needs about 38 hours this week.
+**Completion evidence.** AC-23 demonstrated on a client-authorized Page.
+**Risks and assumptions.** Its baseline effort is included in the assignee's total in file 02; apply the AI multiplier and weekly review allowance.
 
 ---
 
@@ -886,11 +898,11 @@
 7. Removing an item starts the clean-up of derived copies (T65) and shows its status; correcting an item marks the work that used it (T66).
 
 **Requirement references.** FR-09, FR-10, FR-12, FR-13, FR-42, FR-43; NFR-01, NFR-09; AC-03 (list part); DS §10.7.
-**Prerequisites.** P1-E03-T17, T24; P2-E04-T26, T65; P2-E05-T66; P2-E06-T46.
+**Prerequisites.** P1-E03-T17, T24; P2-E04-T26, T65; P2-E05-T66, T77; P2-E06-T46.
 **Independence this week.** Brain only. It does not need restore suppression (T69).
 **Estimate and difficulty.** 22 h. V High, U Low, I Med, S High, T Med.
 **Completion evidence.** Correction with history, and removal followed by a retrieval check.
-**Risks and assumptions.** AC-03 stays partly unmet until the graph is built (T77).
+**Risks and assumptions.** The graph already exists from T77 (Week 10); T50's governance changes are regressed through both List and graph paths under the shared DoD.
 
 ### P2-E06-T51 — Notification Bell with exact links
 
@@ -975,13 +987,13 @@
 **Independence this week.** Uses removals made through T65's behaviour. It does not need the Brain List (T50), the Bell (T51), the library (T52) or step reporting (T49).
 **Estimate and difficulty.** 15 h. V Low, U High, I High, S High, T High.
 **Completion evidence.** The recorded staging drill.
-**Risks and assumptions.** A staging restore takes the environment away from the other Week 13 tasks for its duration; the window is agreed on day one. It runs on top of D's primary task, so D needs about 35 hours this week.
+**Risks and assumptions.** A staging restore takes the environment away from the other Week 13 tasks for its duration; the window is agreed on day one. Its baseline effort is included in the assignee's total in file 02; apply the AI multiplier and weekly review allowance.
 
 ---
 
 ## Additional build tasks from the former overflow register (Weeks 7–13, T70–T91)
 
-> Added on 2026-11-14 by the plan owner's instruction to schedule every remaining commitment inside the 16 weeks with no hour limit. They are listed here by week, after the weekly sections above. Each is carried by the named assignee in addition to that person's other tasks in the week. The Definition of Done applies to each.
+> Added on 2026-11-14 by the plan owner's instruction to schedule every remaining commitment inside the 16 weeks under the approved AI-assisted capacity model. They are listed here by week, after the weekly sections above. Each is carried by the named assignee in addition to that person's other tasks in the week. The Definition of Done applies to each.
 
 ### P2-E04-T70 — Owner signs in with Google and accounts link safely
 
@@ -1034,7 +1046,7 @@
 **Independence this week.** Documents only.
 **Estimate and difficulty.** 20 h. V Med, U Low, I Low, S Low, T Low.
 **Completion evidence.** The case library reviewed by a second person.
-**Risks and assumptions.** Gulf cases need a named country and a reviewer (XD-8).
+**Risks and assumptions.** Gulf cases name the target country and receive weekly rubric-based evaluation; optional independent feedback (XD-8) supplements it.
 
 ### P2-E04-T72 — Owner uploads a spreadsheet and it is read safely
 
@@ -1451,7 +1463,7 @@
 **Prerequisites.** P2-E04-T27, T35; P2-E05-T39.
 **Independence this week.** It does not need image posts (T47).
 **Estimate and difficulty.** 10 h. V Low, U Low, I Low, S Med, T Low.
-**Completion evidence.** AC-53 demonstrated on a tester-mode Page.
+**Completion evidence.** AC-53 demonstrated on a client-authorized Page.
 **Risks and assumptions.** None material.
 
 ### P2-E06-T88 — Strategic revision proposed with a clear diff

@@ -84,7 +84,7 @@ Canvas relationship is **Conversation → related Tasks → selected Task**. Rec
 |---|---|---|
 | K-01 | **5 students, 24 weeks (~2,400 productive hours)**, Phase 2 binding release contract, vertical workstream ownership (18 weeks development + 6 weeks stabilization) | D-04, D-05; PRD §13.1 |
 | K-02 | **Four deployables:** `busmora-web`, `busmora-api`, `busmora-workers`, `busmora-ai`. Each may run several **process roles** (same code, different entrypoint); a role is not a new service. | D-26 |
-| K-03 | **Two standalone repositories:** `busmora-backend` (api, workers, ai) and `busmora-frontend` (web) | 01 R-5 |
+| K-03 | **Four repositories:** `busmora-web` (Next.js), `busmora-api` (NestJS), `busmora-ai` (Python AI and workers), `busmora-docs` (documentation) | Project owner, 2026-11-15; ADR-002 |
 | K-04 | `core/prd.md` (v2.0) is the binding release contract. PRD v2.0 takes precedence over the decision registry, technical designs and older supporting documents; conflicts are recorded in §9.5. | PRD §1.2, 01 R-1 |
 | K-05 | **The stack is fixed** (§2.4). Missing tools are filled only by explicit decision. | 01; 04 §9 |
 | K-06 | Single Marketing Director; no admin or marketplace machinery | D-01, D-03 |
@@ -752,7 +752,7 @@ API creates a short-lived one-time server flow with state/PKCE verifier/nonce/al
 
 ### 5.2 Structure and routes
 
-Two repositories remain separate. `busmora-frontend` uses `app/` for client route composition, feature `api/model/ui` modules exposing only index.ts, and shared api/session/streams/i18n/time/UI/forms/graph gateways. Generated OpenAPI types stay in feature API mappers. Frontend §4 gives the full tree.
+The three code repositories and `busmora-docs` remain separate. `busmora-web` uses `app/` for client route composition, feature `api/model/ui` modules exposing only index.ts, and shared api/session/streams/i18n/time/UI/forms/graph gateways. Generated OpenAPI types stay in feature API mappers. Frontend §4 gives the full tree.
 
 | Area | Route and scope |
 |---|---|
@@ -834,8 +834,8 @@ flowchart LR
 flowchart LR
   DTO["NestJS DTOs + controllers<br/>(class-validator, @nestjs/swagger)<br/>signature PR merged first"] --> GEN["CI: generate openapi.json"]
   GEN --> DIFF["CI: oasdiff vs last published"]
-  DIFF --> PUBL["Publish versioned openapi.json<br/>(busmora-backend artifact)"]
-  PUBL --> FE["busmora-frontend pins version<br/>openapi-typescript → types<br/>openapi-fetch + React Query"]
+  DIFF --> PUBL["Publish versioned openapi.json<br/>(busmora-api artifact)"]
+  PUBL --> FE["busmora-web pins version<br/>openapi-typescript → types<br/>openapi-fetch + React Query"]
 ```
 
 - **Contracts defined first** (ADR-015) is met by merging the DTO and controller-signature pull request before the implementation.
@@ -865,13 +865,13 @@ Prospective contract uses only redesigned resources. If old deployed clients exi
 
 Streams also carry heartbeats, and send a **reset** event when a reconnect falls outside the replay window. The client then refetches through queries.
 
-### 6.5 Contracts inside the backend repository
+### 6.5 Contracts across API and AI repositories
 - **Temporal payloads between Python and TypeScript:**
-  - **Pydantic models are canonical**, and JSON Schema is exported from them.
+  - **Pydantic models in `busmora-ai/packages/contracts-py` are canonical**, and JSON Schema is exported from them as a versioned artifact consumed by `busmora-api`.
   - Plain TypeScript types are generated from that schema.
   - Payloads are validated at runtime with **Ajv**; class-validator stays for HTTP DTOs only.
   - **CI checks** that the types haven't drifted and that **schema evolution is additive**: new fields optional, nothing removed or retyped while any in-flight workflow may replay it.
-- **`ai-http`:** FastAPI's OpenAPI spec generates the typed TypeScript client used by `busmora-api`.
+- **`ai-http`:** FastAPI's OpenAPI spec is published from `busmora-ai` as a versioned artifact that generates the typed TypeScript client used by `busmora-api`. Consumers pin artifact versions; CI checks compatibility without cross-repository source imports.
 
 ---
 
@@ -960,15 +960,16 @@ Format: the ADR format of the repository's `domain-modeling` skill (title, conte
 - **Rejected:** treating the deck as canonical. Every deck-only item traced to deleted, superseded specifications.
 - **Consequences:** one consistent design. Implementation details are recorded here; a product-contract change cannot be invented by a technical design. The PRD revision ledger records approved product changes; historical decisions cannot override v2.0.
 
-### ADR-002 — Four deployables and two standalone repositories
-- **Context:** the decision registry fixes four services. The technical architecture showed a single monorepo.
+### ADR-002 — Four deployables and four repositories
+- **Context:** the decision registry fixes four deployables. On 2026-11-15 the project owner replaced the earlier combined-backend/frontend repository split with separate web, API, AI and documentation repositories.
 - **Decision:**
   - Four deployables (`web`, `api`, `workers`, `ai`), each allowed to run several process roles.
-  - **Two standalone repositories:** `busmora-backend` and `busmora-frontend`.
+  - **Four repositories:** `busmora-web` (Next.js), `busmora-api` (NestJS HTTP and platform activities), `busmora-ai` (FastAPI, AI activities and Python workflow/publishing workers), and `busmora-docs` (requirements, designs, planning and evidence).
+  - `busmora-ai` builds separate workers and AI images. Repository ownership does not merge process roles, grant AI access to publishing secrets, or change NestJS domain-write ownership.
 - **Rejected:**
-  - the monorepo, replaced by your decision for clearer ownership;
+  - a monorepo or the earlier combined-backend repository, superseded by the owner's four-repository decision;
   - a fifth deployable for the MCP server; it lives in the worker tier instead.
-- **Consequences:** the frontend depends only on the published API contract. Full-stack local development across the repositories is still to be defined.
+- **Consequences:** web consumes the versioned API contract from `busmora-api`; API consumes versioned Temporal schemas and internal AI OpenAPI artifacts from `busmora-ai`. Each code repository has independent CI and pinned consumer versions. T01/T02 establish the repositories, T05 documents full-stack local startup, and T06 verifies the cross-repository Python/TypeScript contracts. The four deployables and eight process roles remain unchanged.
 
 ### ADR-003 — Backend style: Platform-Centred (api is the single writer)
 - **Context:** three options were benchmarked against the gates and weighted criteria:
@@ -1211,7 +1212,7 @@ Canvas follows selected conversation and related Task, not workspace-global sele
 | OD-14 | Rate-limiting mechanism for public endpoints |
 | OD-15 | Local Temporal for Docker Compose |
 | OD-16 | CI/CD, image registry, production runtime and orchestration, ingress/TLS; environments (dev, staging, prod) |
-| OD-17 | Full-stack local development and end-to-end tests across the two repositories |
+| OD-17 | Full-stack local development and end-to-end tests across the three code repositories |
 | OD-18 | Domain details: CSV/.xlsx templates, recognized fields, parser and media limits; how the crawler discovers open-web pages; typed proposal-group mapping verification (defined in DESIGN-SYSTEM §9.5); length of the Canvas replay grace window; Redis Streams retention |
 | OD-19 | Markdown rendering and sanitization for Deliverables; form library for structured forms; required text/Markdown/CSV/original-media export; designed PDF/Word export excluded from Phase 2 |
 | OD-20 | Current API Workspace is implied by verified session/token (§6.3); only a future multi-workspace UI URL convention is deferred |
