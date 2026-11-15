@@ -1,52 +1,26 @@
-# Task: [JIRA-KEY] — [Summary]
+# [JIRA-KEY] — [Summary]
 
-**Feature**: [[../Overview|Feature Overview]]
-**Initiative**: [[../../../01 - Initiatives/Initiative Name/PRD|Initiative PRD]]
-**Jira Key**: [JIRA-KEY]
-**Status**: Stage 1 In Progress
+- Jira: [issue URL] · Last verified status: [status and date]
+- Business capability: [Vault-root overview link, or None for technical work]
 
----
+## Acceptance criteria and plan
 
-## 1. Ticket Overview
-- **Summary**:
-- **Issue Type**:
-- **Original Acceptance Criteria**:
+[Original acceptance criteria; distinguish agreed clarifications. Brief implementation steps and engineer alignment.]
 
-## 2. Grilling Decisions & Alignment
-- **Decision 1**:
-- **Decision 2**:
+## Decisions
 
-## 3. Approved Implementation Plan
-<!-- Paste the approved step-by-step implementation plan -->
+[Constraints and source links; engineer's hypothesis; grilling outcomes; alternatives and rationale. Link research/benchmark only if created.]
 
-## 4. Test Specifications
-<!-- List observable behaviors to verify test-first -->
+## Changes and verification
 
-## 5. Execution & Verification Log (Stage 1)
-- **Touched Files**:
-  - `<file-path>`:
-- **Tests Performed**:
-  - `<test-file>`:
-- **Skipped Tests & Justifications**:
-- **Deviations from Plan**:
+[Touched repository/files, behavior changes, and deviations.]
 
-## 6. Migration Log (Stage 2)
-- **Audited Scope**:
-- **Approved & Applied Refactorings**:
-- **Nearby Legacy Code Refactored**:
-- **Skipped Findings**:
-- **Regression Verification**:
+| Acceptance criterion | Test/check and command | Red: observed expected failure | Green: observed result |
+|---|---|---|---|
+| [AC] | [behavior check] | [evidence, or reason not applicable] | [actual outcome] |
 
-## 7. Developer & PR Notes
-<!-- Notes requested by the developer during grilling, implementation, or migration to be posted as comments on the PR -->
-- **Note 1**:
-- **Note 2**:
+[Other required checks, skipped checks and reasons, unresolved work.]
 
-## 8. Stage Completion Status
-- [ ] Stage 1: Implement Jira Task
-- [ ] Stage 2: Migration
-- [ ] Stage 3: Finalize Jira Task
+## Delivery
 
-## 9. PR Review Status (When Review Comments Occur)
-- [ ] PR Review Stage 1: Discuss PR Comments
-- [ ] PR Review Stage 2: Finalize PR Comments
+[PR links per repository; review decisions when applicable; actual delivery state. Record merge-to-main evidence (commit and time) and Jira transition receipts only when verified. PR opening means In Review; Done requires verified merge.]

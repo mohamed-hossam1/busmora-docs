@@ -69,4 +69,4 @@ flowchart TD
 
 * [**Domain-Driven Design (`../domain/`)**](../domain/): Tactical aggregates, bounded contexts, domain events, and the canonical [Glossary](../domain/GLOSSARY.md).
 * [**Product & Business Strategy (`../strategy/`)**](../strategy/): Business model, defensibility moat, MVP 24-week boundaries, and historical decision records.
-* [**Research & Benchmarks (`../research/`)**](../research/): Customer discovery findings and technical benchmark evidence behind architectural decisions.
+* [**Task research and benchmarks**](../Vault/02%20-%20Tasks/README.md): Current task findings and empirical evidence. Earlier architecture research is available in [Git history](../README.md#historical-research).

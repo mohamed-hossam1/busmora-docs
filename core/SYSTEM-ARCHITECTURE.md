@@ -1,10 +1,10 @@
 # BusMora — System Architecture
 
 > **Version:** 2.0 · **Status:** Aligned design; open decisions in §9 · **Date:** 2026-10-30
-> **Built from:** [PRD (prd.md)](./prd.md), [strategy/](../strategy/) (supporting strategy, subject to the PRD), [research/technical/](../research/technical/) (00 through 04 benchmark records), and [domain/](../domain/).
+> **Built from:** [PRD (prd.md)](./prd.md), [strategy/](../strategy/) (supporting strategy, subject to the PRD), [historical technical research](../README.md#historical-research) (00 through 04 benchmark records), and [domain/](../domain/).
 > **Scope:** the complete architecture of the first release (the planned 24-week Phase 2 Marketing Director release), plus its planned growth path. This document is self-contained; the source files hold the detailed evidence behind it.
 > **Authority:** PRD v2.0 (30 October 2026) governs product scope and release gates. Existing engineering choices are retained where compatible; older-source conflicts are recorded in §9.5. Design coverage is not implementation or release evidence.
-> **Source aliases:** SYS means this document; BACKEND/BTD and FTD mean the linked technical designs. D/DR = [decision registry](../strategy/decision-registry.md); 01 = [constraints](../research/technical/01-constraints.md); 04 = [architecture decision](../research/technical/04-decision.md); EVAL = [evaluation](../strategy/evaluation.md); BM = [business model](../strategy/business-model-value-proposition.md); MVP = [release scope](../strategy/mvp-definition.md). Historical TA references have been replaced with current design sections.
+> **Source aliases:** SYS means this document; BACKEND/BTD and FTD mean the linked technical designs. D/DR = [decision registry](../strategy/decision-registry.md); 01 = historical constraints; 04 = historical architecture decision (both available through [Git history](../README.md#historical-research)); EVAL = [evaluation](../strategy/evaluation.md); BM = [business model](../strategy/business-model-value-proposition.md); MVP = [release scope](../strategy/mvp-definition.md). Historical TA references have been replaced with current design sections.
 
 ---
 
@@ -1233,7 +1233,7 @@ Accessibility and browser design targets are defined in [DESIGN-SYSTEM.md](./DES
 
 ### 9.5 Source reconciliation and authority
 
-The five core files, `domain/` and `strategy/` are aligned with PRD v2.0. `research/technical/` (00–04) remains a dated historical benchmark record: its v1-era scope (Instagram/X, brand visuals, performance CSV, paid pilot) is rationale for the retained engineering choices, not current scope, and cannot override PRD v2.0.
+The five core files, `domain/` and `strategy/` are aligned with PRD v2.0. The retired `research/technical/` (00–04), available in [Git history](../README.md#historical-research), is a dated historical benchmark record: its v1-era scope (Instagram/X, brand visuals, performance CSV, paid pilot) is rationale for the retained engineering choices, not current scope, and cannot override PRD v2.0.
 
 | Source conflict | Resolved current contract |
 |---|---|
@@ -1468,6 +1468,6 @@ Validated against the revised Markdown files (re-checked after the domain/strate
 | Phase 5 Meta Ads deferred | Pass: future vision in all five documents; no current Ads execution or spending authority. |
 | Requirements and acceptance synchronized | Pass: 57 active FRs, nine NFRs and 57 active ACs mapped; FR-47/AC-26 explicitly retired; all 40 requested redesign checks resolve to active criteria. |
 
-Document checks to keep passing on every change: Mermaid blocks parse; Markdown tables have consistent cells and no blank line inside a table; code fences balance; relative file/heading links resolve; PRD and Appendix A acceptance titles/pass conditions match exactly; requirement IDs and all 40 case mappings resolve; a legacy-term scan finds only intentional retirement/negative checks or the historical `research/technical/` record.
+Document checks to keep passing on every change: Mermaid blocks parse; Markdown tables have consistent cells and no blank line inside a table; code fences balance; relative file/heading links resolve; PRD and Appendix A acceptance titles/pass conditions match exactly; requirement IDs and all 40 case mappings resolve; a legacy-term scan finds only intentional retirement/negative checks or explicitly identified references to the archived technical research.
 
 These checks validate the written specification. The release evidence in A.2 must still be produced against implemented software, real external integrations and the stated evaluation/load conditions. See A.4 and §9.2 for unresolved implementation decisions.
