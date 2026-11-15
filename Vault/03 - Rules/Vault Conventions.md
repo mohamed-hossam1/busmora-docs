@@ -8,9 +8,8 @@ These conventions govern how all team members and AI-agent skills create, find, 
 - `01 - Initiatives/<Initiative Name>/` contains initiative-level context: `PRD.md`, an optional `Benchmark.md`, and `Slices/`.
 - `01 - Initiatives/<Initiative Name>/Slices/` contains lightweight Slice overviews and links only. Do not copy full feature specifications here.
 - `02 - Features/<Feature Name>/` is the single canonical home for a Feature's `Overview.md`, `Requirements.md`, `Technical Design.md`, and `Testing.md`.
-- `02 - Features/<Feature Name>/Tasks/JIRA-123.md` holds the execution record for a Jira task associated with that Feature. Create the `Tasks/` directory and record when needed.
-- `03 - Skills/` contains reusable AI-agent skills and workflow instructions.
-- `04 - Rules/` contains global, team-wide rules. Do not put feature-specific implementation details here.
+- `03 - Rules/` contains global, team-wide rules. Do not put feature-specific implementation details here.
+- Skills are stored outside the Vault in `.agents/skills/` (and `.claude/skills/`).
 - `Templates/` contains reusable starting points for documents.
 
 ## 2. Initiative, Slice, and Feature boundaries
@@ -48,6 +47,7 @@ These conventions govern how all team members and AI-agent skills create, find, 
 
 ## 6. AI-agent and skill boundaries
 
+- **Skills Architecture**: All AI-agent skills are canonically stored under `.agents/skills/` (and `.claude/skills/`), which are recognized directly by AI coding environments.
 - Agents must map relevant Vault context before inspecting the codebase, then inspect only code areas relevant to the task.
 - Read only the feature documents and additional rules needed for the current task; do not load unrelated parts of the Vault without a reason.
 - Skills define workflow execution. Global conventions belong here in Rules, not copied inconsistently into individual skills.

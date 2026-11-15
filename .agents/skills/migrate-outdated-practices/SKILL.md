@@ -50,7 +50,7 @@ Our engineering management system defines explicit Jira status transitions acros
 
 ```text
 Phase 0: Prerequisite Verification (Stage 1 Check)
-Phase 1: Vault Architecture Rules Intake (04 - Rules/)
+Phase 1: Vault Architecture Rules Intake (03 - Rules/)
 Phase 2: Audit Touched Files & Nearby Legacy Code
 Phase 3: Consolidated Migration Proposal [APPROVAL GATE]
 Phase 4: Execute Approved Refactorings
@@ -76,13 +76,13 @@ Phase 7: Uncommitted Review & Stage 2 Handoff
 
 ## Phase 1 — Vault Architecture Rules Intake
 
-Load the governing rules from `$VAULT/04 - Rules/`:
+Load the governing rules from `$VAULT/03 - Rules/`:
 
 1. **Vault Conventions & Lifecycle**:
-   - `04 - Rules/Vault Conventions.md`
-   - `04 - Rules/Documentation Lifecycle.md`
+   - `03 - Rules/Vault Conventions.md`
+   - `03 - Rules/Documentation Lifecycle.md`
 2. **Technical & Architectural Standards**:
-   - Ingest all active technical rules in `$VAULT/04 - Rules/` relevant to the touched technology stack (e.g., API contracts, error handling, typing standards, database operations, observability).
+   - Ingest all active technical rules in `$VAULT/03 - Rules/` relevant to the touched technology stack (e.g., API contracts, error handling, typing standards, database operations, observability).
 3. **Repository Analogs**:
    - Inspect existing modern references in the repository to match established naming, import grouping, and architectural layering.
 
@@ -139,7 +139,7 @@ Present findings grouped by category:
 - **Finding**: [Short descriptive title]
   - **Location**: `path/to/file.ts:line`
   - **Current Pattern**: [Description or brief snippet of the outdated/violating code]
-  - **Target Standard**: [Governing rule from 04 - Rules/ or established project pattern]
+  - **Target Standard**: [Governing rule from 03 - Rules/ or established project pattern]
   - **Proposed Fix**: [Precise refactoring action]
   - **Risk / Blast Radius**: [Low/Medium/High + rationale; confirm no business logic impact]
   - **Verification Plan**: [Specific test suite or typecheck that verifies the fix]
@@ -204,7 +204,7 @@ Append a dedicated section to the record:
 - **Audited Scope**:
   - Touched files and nearby legacy components audited.
 - **Approved & Applied Refactorings**:
-  - `<file-path>`: [Refactoring applied and rule referenced from 04 - Rules/]
+  - `<file-path>`: [Refactoring applied and rule referenced from 03 - Rules/]
 - **Nearby Legacy Code Refactored**:
   - `<file-path>`: [Rationale and scope of legacy cleanup]
 - **Skipped Findings**:

@@ -1,6 +1,6 @@
 # Global Rules
 
-Rules define **what every team member must do**. Keep these global and team-wide. Reusable instructions for how to perform a task belong in `03 - Skills/`.
+Rules define **what every team member must do**. Keep these global and team-wide. Reusable instructions for how to perform a task belong in `.agents/skills/` (and `.claude/skills/`).
 
 ## Initial rules
 

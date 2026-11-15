@@ -39,8 +39,7 @@ $VAULT/
 │       ├── Testing.md
 │       └── Tasks/
 │           └── <JIRA-KEY>.md
-├── 03 - Skills/
-├── 04 - Rules/
+├── 03 - Rules/
 │   ├── Documentation Lifecycle.md
 │   └── Vault Conventions.md
 └── Templates/
@@ -50,7 +49,7 @@ $VAULT/
 Do **not** read the entire Vault or search all initiatives and features indiscriminately. The Vault is inspected during discovery **only** when:
 1. **Explicit Jira Reference**: The Jira ticket mentions a previous ticket or explicitly instructs to check previous ticket work $\rightarrow$ Inspect that referenced ticket's task record or feature documentation in the Vault.
 2. **Linked or Named Vault Resource**: The ticket links to or names a specific Vault directory, initiative, or document.
-3. **Global Conventions**: Team rules located in `04 - Rules/` (such as conventions and coding standards).
+3. **Global Conventions**: Team rules located in `03 - Rules/` (such as conventions and coding standards).
 
 Otherwise, the Vault is primarily used to **document** the developer's benchmark, grilling decisions, plan, and final implementation across the two lifecycle writes.
 
@@ -144,7 +143,7 @@ Inspect the Vault **only** when triggered by ticket references or global rules:
 2. **If a Specific Vault Document / Directory is Linked or Named**:
    - Read only the specific Initiative, Feature, or Architecture note referenced.
 3. **Global Rules**:
-   - Check `$VAULT/04 - Rules/` for universal conventions relevant to the active task (e.g., `Vault Conventions.md`, `Documentation Lifecycle.md`, or stack-specific rules).
+   - Check `$VAULT/03 - Rules/` for universal conventions relevant to the active task (e.g., `Vault Conventions.md`, `Documentation Lifecycle.md`, or stack-specific rules).
 4. **Identify Conflicts**:
    - If a referenced Vault note conflicts with the Jira ticket or existing code, surface the conflict for discussion during grilling.
 
@@ -264,7 +263,7 @@ Now, and only now, write code.
   - If automated transition is unavailable, note in chat that the ticket is now in progress.
 
 ### 7.1 Pre-Coding Standards Check
-- Check relevant rules in `$VAULT/04 - Rules/` and follow closest in-repo analogs.
+- Check relevant rules in `$VAULT/03 - Rules/` and follow closest in-repo analogs.
 
 ### 7.2 Red-Green-Refactor Loop
    - **Red**: Write a focused, failing test for the next observable behavior from the approved plan. Confirm it fails for the expected reason.

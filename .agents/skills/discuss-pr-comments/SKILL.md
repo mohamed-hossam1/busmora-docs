@@ -1,6 +1,6 @@
 ---
 name: discuss-pr-comments
-description: "Execute Stage 1 of the PR Review lifecycle: walk through developer PR comments, grill and extract underlying preferences and standards, codify new rules into Vault (04 - Rules/), implement agreed code fixes, leave code uncommitted, and record PR Review Stage 1 completion in the task record for Stage 2 (finalize-pr-comments)."
+description: "Execute Stage 1 of the PR Review lifecycle: walk through developer PR comments, grill and extract underlying preferences and standards, codify new rules into Vault (03 - Rules/), implement agreed code fixes, leave code uncommitted, and record PR Review Stage 1 completion in the task record for Stage 2 (finalize-pr-comments)."
 ---
 
 # Discuss PR Comments — PR Review Stage 1 Protocol
@@ -27,7 +27,7 @@ Resolve `$VAULT` dynamically at the start of execution:
 $VAULT = <workspace-root>/busmora-docs/Vault (or directory containing 00 - Home.md and 01 - Initiatives/)
 ```
 Canonical destinations:
-- **Codified Rules**: `$VAULT/04 - Rules/<rule-name>.md`
+- **Codified Rules**: `$VAULT/03 - Rules/<rule-name>.md`
 - **Task Record Sync**: `$VAULT/02 - Features/<Feature Name>/Tasks/<JIRA-KEY>.md`
 
 ### 1.3 Core Tenets of PR Review Stage 1
@@ -64,7 +64,7 @@ Phase 0: Grounding & Jira Transition to In Review
 Phase 1: Fetch Developer PR Comments & Codebase Sweep
 Phase 2: Thematic Grouping & Surface First Group
 Phase 3: Interactive One-Question-at-a-Time Discussion (Grilling)
-Phase 4: Codification into Vault Rules (04 - Rules/)
+Phase 4: Codification into Vault Rules (03 - Rules/)
 Phase 5: Implement Approved Code Fixes & Cross-Seam Changes
 Phase 6: Update Task Record & PR Review Stage 1 Handoff
 ```
@@ -107,7 +107,7 @@ Before fetching PR comments:
    - Grep the PR diff and all changed files for any other instances of the same issue.
    - Compile a complete list of affected locations across the PR.
 5. **Vault Rules Cross-Reference**:
-   - Check `$VAULT/04 - Rules/` to see if an existing rule already governs the pattern. Flag whether the comment aligns with an existing rule or introduces a new standard.
+   - Check `$VAULT/03 - Rules/` to see if an existing rule already governs the pattern. Flag whether the comment aligns with an existing rule or introduces a new standard.
 
 ---
 
@@ -176,7 +176,7 @@ Inside the active group, conduct a structured dialogue. Every response adheres t
 
 ---
 
-## Phase 4 — Codification into Vault Rules (04 - Rules/)
+## Phase 4 — Codification into Vault Rules (03 - Rules/)
 
 When the discussion concludes across all groups:
 
@@ -184,8 +184,8 @@ When the discussion concludes across all groups:
    - Present a crisp summary of all decisions reached during the walkthrough.
 2. **Create or Update Vault Rules**:
    - For every new engineering standard or pattern preference extracted from the comments:
-     - Create or update a rule file in `$VAULT/04 - Rules/<rule-name>.md`.
-     - Update `$VAULT/04 - Rules/README.md` to index the new rule.
+     - Create or update a rule file in `$VAULT/03 - Rules/<rule-name>.md`.
+     - Update `$VAULT/03 - Rules/README.md` to index the new rule.
 
 ---
 
@@ -209,7 +209,7 @@ Now, and only now, apply code edits:
    - Under Section 7 (`Developer & PR Notes` / `PR Review Log`), document:
      - All comments discussed and agreed resolutions.
      - Files modified.
-     - New Vault rules codified in `04 - Rules/`.
+     - New Vault rules codified in `03 - Rules/`.
    - Record PR Review Stage 1 completion:
      ```markdown
      ### PR Review Status

@@ -6,8 +6,8 @@ The Vault is a **knowledge and navigation layer, not a mirror of the codebase**.
 
 ## Start here
 
-1. Read [[04 - Rules/Vault Conventions|Vault Conventions]] for the rules governing the Vault.
-2. Read [[04 - Rules/Documentation Lifecycle|Documentation Lifecycle]] to understand when records are created and updated.
+1. Read [[03 - Rules/Vault Conventions|Vault Conventions]] for the rules governing the Vault.
+2. Read [[03 - Rules/Documentation Lifecycle|Documentation Lifecycle]] to understand when records are created and updated.
 3. Check the Jira task: if it references a previous ticket or links to a Vault note, inspect those documents.
 4. Read only the additional rules, decisions, and skill instructions relevant to the task.
 
@@ -15,8 +15,7 @@ The Vault is a **knowledge and navigation layer, not a mirror of the codebase**.
 
 - [[01 - Initiatives/README|Initiatives]] — larger product objectives, PRDs, optional benchmarks, and lightweight Slice overviews.
 - [[02 - Features/README|Features]] — canonical documentation for each feature (`Overview.md`, `Requirements.md`, `Technical Design.md`, `Testing.md`) and per-task execution records (`Tasks/JIRA-123.md`).
-- [[03 - Skills/README|Skills]] — reusable AI-agent workflow instructions. Skills define how work is performed; they are not global policy documents.
-- [[04 - Rules/README|Rules]] — global, team-wide conventions and lifecycle rules that apply across features.
+- [[03 - Rules/README|Rules]] — global, team-wide conventions and lifecycle rules that apply across features.
 - [[Templates/README|Templates]] — starting structures for new documentation.
 
 ## How the concepts relate
@@ -41,7 +40,7 @@ The Vault is a **knowledge and navigation layer, not a mirror of the codebase**.
 4. **Post-Implementation (Write 2)**: Create or update canonical feature documents in `02 - Features/<Feature Name>/` and record task execution in `Tasks/<JIRA-KEY>.md`.
 5. **Migration**: Perform structural refactoring against Vault rules (ticket remains **"In Progress"**).
 6. **Task Finalization**: Consolidate records, commit, push, create PR, and transition Jira ticket to **"Done"**.
-7. **PR Review Stage 1 (Discuss PR Comments)**: When peer developer comments arrive, transition Jira ticket to **"In Review"**, grill/clarify feedback, codify rules in `04 - Rules/`, and implement fixes.
+7. **PR Review Stage 1 (Discuss PR Comments)**: When peer developer comments arrive, transition Jira ticket to **"In Review"**, grill/clarify feedback, codify rules in `03 - Rules/`, and implement fixes.
 8. **PR Review Stage 2 (Finalize PR Comments)**: Verify test suites/build, reply to comments on GitHub, resolve threads, push, and transition Jira ticket back to **"Done"**.
 
 ## General principles

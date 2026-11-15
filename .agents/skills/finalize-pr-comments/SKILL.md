@@ -100,7 +100,7 @@ This is the key extra step of PR Review Stage 2:
 2. **Post Targeted Reply to Each Comment**:
    - For every discussed review comment, post a clear, professional reply on GitHub via `gh api`:
      - State the action taken (e.g., fix applied, contract aligned, pattern updated).
-     - Reference the new or updated Vault rule from `04 - Rules/` if applicable.
+     - Reference the new or updated Vault rule from `03 - Rules/` if applicable.
      - If a comment was intentionally dismissed during the Stage 1 grilling session, explain the agreed architectural rationale.
 3. **Resolve GitHub Review Threads**:
    - Using GitHub GraphQL API, resolve each review thread whose comments have been addressed:
@@ -122,7 +122,7 @@ This is the key extra step of PR Review Stage 2:
      fix(pr-review): [JIRA-KEY] address developer PR review comments
 
      - Implemented agreed fixes from Stage 1 discussion
-     - Codified architectural standards in Vault 04 - Rules/
+     - Codified architectural standards in Vault 03 - Rules/
      - Verified all test suites, typechecks, and build pass cleanly
      ```
    - **No AI attribution**: Never include `Co-Authored-By` or AI model trailers.
