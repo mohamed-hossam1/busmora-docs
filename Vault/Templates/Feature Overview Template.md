@@ -1,37 +1,15 @@
-# [Feature Name]
+# [Business capability]
 
-## Summary
-Describe the capability in a few sentences.
+## Purpose and current behavior
 
-## Parent Initiative
-[[../../01 - Initiatives/Initiative Name/PRD|Initiative PRD]]
+[Who uses it, the value it provides, and its current observable flows/touchpoints. Identify proposed behavior while the change is unmerged.]
 
-## Slice
-Link to the Slice overview.
+## Business rules and boundaries
 
-## Users and Value
-Who uses this feature and what value does it provide?
+[Durable invariants, permissions, failure behavior, limitations, and relevant Arabic/register behavior. Link core/domain specifications instead of copying them.]
 
-## Scope
-### Included
--
+## Related tasks
 
-### Excluded
--
-
-## Dependencies
--
-
-## Acceptance Criteria
-- [ ]
-
-## Status
-Draft / In Review / Ready / Implemented
-
-## Implementation Summary
-Complete or revise this section after implementation.
-
-## Related Documents
-- [[Requirements]]
-- [[Technical Design]]
-- [[Testing]]
+| Task record | Contribution | Verified merge date |
+|---|---|---|
+| [[02 - Tasks/JIRA-KEY/Task|JIRA-KEY]] | [behavior introduced/changed] | [date, or pending] |

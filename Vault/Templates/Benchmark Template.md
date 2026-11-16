@@ -1,45 +1,26 @@
-# [Initiative Name] — Benchmark
+# [JIRA-KEY] — Benchmark
 
-> Optional document. Use when the Initiative needs measurable comparisons or experiments.
+Optional: record an actual experiment, not a vendor comparison presented as measurements.
 
-## Objective
-What question will this benchmark answer?
+## Question and pass criteria
 
-## Hypothesis
--
+[Hypothesis, metrics, agreed thresholds; link governing constraints/research.]
 
-## Candidates / Baselines
-| Candidate | Configuration | Notes |
-|---|---|---|
-| | | |
+## Reproduce
 
-## Dataset and Environment
-- Dataset:
-- Scale:
-- Hardware / hosting:
-- Software versions:
-- Workload:
-
-## Methodology
-Describe repeatable steps, controls, and measurement procedure.
-
-## Metrics
-- Quality:
-- Latency:
-- Throughput:
-- Resource / hosting cost:
-- Other:
+- Sandbox: `scratch/benchmarks/[JIRA-KEY]/` [confirm git-ignore in the experiment repository]
+- Candidates and baseline: [versions and configurations]
+- Environment: [runtime, hardware/hosting, isolation]
+- Workload/data: [provenance, scale, representative real Arabic/dialects/RTL cases where relevant]
+- Procedure: [commands, fixture or retrieval recipe, repetitions, warm-up and controls]
+- Evidence: [relative links to minimal sanitized harness and raw results]
 
 ## Results
-| Candidate | Metric | Result | Conditions |
+
+| Candidate/configuration | Metric | Measured result and variation | Conditions/failures |
 |---|---|---|---|
-| | | | |
+| [candidate] | [metric/unit] | [observed value] | [conditions] |
 
-## Interpretation
-What do the results support? What do they not prove?
+## Interpretation and decision
 
-## Decision / Follow-up
--
-
-## Reproducibility
-Links to code, data, commands, and raw results:
+[What the results support and do not prove; separate estimates/vendor claims; costs and limitations; engineer's agreed decision or pending input. If not run, state the blocker instead of filling the results table.]

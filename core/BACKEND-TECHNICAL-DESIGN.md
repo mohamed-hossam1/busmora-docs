@@ -1,7 +1,7 @@
 # BusMora — Backend Technical Design
 
 > **Version:** 2.0 · **Status:** Aligned design; implementation dependencies remain open · **Date:** 2026-10-30
-> **Scope:** the internal software architecture of the `busmora-backend` repository: `busmora-api` (NestJS), `busmora-workers` (Python), `busmora-ai` (Python).
+> **Scope:** the internal software architecture of `busmora-api` (NestJS) and `busmora-ai` (Python AI and workers). The workers remain a separate deployable built from `busmora-ai`; `busmora-web` and `busmora-docs` complete the four-repository layout.
 > **Builds on:** [SYSTEM-ARCHITECTURE.md](./SYSTEM-ARCHITECTURE.md) (system-level decisions aligned to PRD v2.0), [domain/](../domain/) (language, contexts, model, events), [strategy/](../strategy/), and [prd.md](./prd.md).
 > **Design only:** no code. Folder structures are trees.
 > **Rule kept:** no technology beyond those named in the source documents. Where this design needs something the docs don't name, it's listed as a gap (Appendix A) and not chosen.
@@ -44,8 +44,8 @@ These are fixed by [SYSTEM-ARCHITECTURE.md](./SYSTEM-ARCHITECTURE.md). This docu
 | S-7 | **Data:** PostgreSQL as source of truth, one schema per context. **Drizzle is the single migration toolchain.** Python reads eligibility/provenance views through read-only roles with row-level security. Qdrant and Redis are derived. | Migrations live only in api. Views are the contract with Python. |
 | S-8 | **No message bus.** Audit, usage and notification records are written **in the same transaction** as the change. | In-process domain events with same-transaction handlers. |
 | S-9 | **Auth:** Argon2id; 15-minute JWT; rotating refresh token in an HttpOnly cookie; stream cookie for SSE; 60-second asymmetric service JWT for api → ai; one Temporal API key per role. | Guards and signers live in a shared `platform/auth` area, not in business modules. |
-| S-10 | **Contracts:** code-first OpenAPI from `@nestjs/swagger`, with `oasdiff` in CI. Pydantic is canonical for Temporal payloads: JSON Schema → TypeScript types + Ajv. FastAPI's OpenAPI generates the api's `ai-http` client. | A `contracts/` area in the repo; generated code is never hand-edited. |
-| S-11 | **Two standalone repositories**: this design covers `busmora-backend`. | Frontend concerns stop at the published contract. |
+| S-10 | **Contracts:** code-first OpenAPI from `@nestjs/swagger`, with `oasdiff` in CI. Pydantic is canonical for Temporal payloads: JSON Schema → TypeScript types + Ajv. FastAPI's OpenAPI generates the api's `ai-http` client. | Versioned artifacts cross API/AI repository boundaries; consumers pin versions and never hand-edit generated code. |
+| S-11 | **Four repositories**: `busmora-web`, `busmora-api`, `busmora-ai`, `busmora-docs`; this design covers API and AI/worker code. | Frontend concerns stop at the published contract. |
 
 **Stack used in this design:**
 - **TypeScript:** NestJS 10+, Passport.js + JWT, Argon2id, Drizzle ORM, Temporal TypeScript SDK, ioredis, class-validator, `@nestjs/swagger`, Ajv, `openapi-typescript`/`openapi-fetch` for the generated `ai-http` client.
@@ -290,83 +290,96 @@ usage, audit, notifications ⇢ (subscribe) events of all modules; nobody depend
 
 ## 4. Folder structure
 
-```
-busmora-backend/
-├── apps/                                     # one folder per deployable (D-26); each builds one image
-│   ├── api/                                  # busmora-api — NestJS, TypeScript; sole domain writer
-│   │   ├── src/
-│   │   │   ├── main.http.ts                  # entrypoint for role api-http (REST + SSE)
-│   │   │   ├── main.activities.ts            # entrypoint for role api-activities (Temporal TS activity worker)
-│   │   │   ├── main.cli.ts                   # entrypoint for operator commands (workspace deletion, evaluation seeding)
-│   │   │   ├── http.module.ts                # root wiring for api-http: modules' http adapters + platform
-│   │   │   ├── activities.module.ts          # root wiring for api-activities: modules' activity adapters + platform
-│   │   │   ├── cli.module.ts                 # root wiring for operator commands
-│   │   │   ├── modules/                      # business modules, one per bounded context
-│   │   │   │   ├── identity/                 # Users, Workspaces, sessions, time zone
-│   │   │   │   │   ├── domain/               # aggregates, value objects, domain events, policies (pure TS)
-│   │   │   │   │   ├── application/          # use cases (commands/queries), contract implementation, event handlers
-│   │   │   │   │   │   ├── commands/         # one file per command use case (e.g. register-user)
-│   │   │   │   │   │   ├── queries/          # one file per query use case (read models for HTTP)
-│   │   │   │   │   │   └── handlers/         # subscriptions to other modules' public events (if any)
-│   │   │   │   │   ├── infrastructure/       # persistence for this module only
-│   │   │   │   │   │   ├── schema/           # Drizzle table definitions for this module's PostgreSQL schema
-│   │   │   │   │   │   ├── repositories/     # one repository per aggregate root
-│   │   │   │   │   │   └── mappers/          # row ↔ domain mapping
-│   │   │   │   │   ├── interface/            # adapters that call application use cases
-│   │   │   │   │   │   ├── http/             # controllers + request/response DTOs (class-validator, @nestjs/swagger)
-│   │   │   │   │   │   └── activities/       # Temporal activity implementations owned by this module (if any)
-│   │   │   │   │   ├── contract/             # the ONLY public face of the module (§3.5)
-│   │   │   │   │   │   ├── identity.api.ts   # interface + injection token (e.g. IDENTITY_API)
-│   │   │   │   │   │   ├── identity.types.ts # contract types (plain, serialisable; not domain classes)
-│   │   │   │   │   │   ├── identity.events.ts# public, versioned event contracts (…v1)
-│   │   │   │   │   │   └── identity.errors.ts# contract error codes
-│   │   │   │   │   ├── identity.module.ts    # Nest module: binds the implementation to the token; exports only the token
-│   │   │   │   │   └── index.ts              # re-exports contract/ and nothing else
-│   │   │   │   ├── employee/                 # Employee configuration, Capabilities, frozen configuration (same layout)
-│   │   │   │   ├── conversation/             # Conversations, Messages, Quick Replies (same layout)
-│   │   │   │   ├── tasks/                    # Tasks, Discovery drafts/questions, Roadmaps/steps/revisions, capacity, budgets, Canvas snapshot
-│   │   │   │   ├── brain/                    # Knowledge Items, Relationships, Procedural Rules, Review (same layout)
-│   │   │   │   │   └── infrastructure/
-│   │   │   │   │       └── read-views/       # definitions of the read-only views Python consumes (contract)
-│   │   │   │   ├── crawls/                   # crawl records, Snapshot metadata, retention (same layout)
-│   │   │   │   ├── deliverables/             # Deliverables, Citations, Analysis Uploads (same layout)
-│   │   │   │   ├── publishing/               # Posts, Versions, Approvals (single + bulk), Attempts, claim, Review Sessions (same layout)
-│   │   │   │   ├── connections/              # Connected Accounts, credential envelopes (same layout)
-│   │   │   │   ├── evaluation/               # Scenarios, rounds, runs, scores (same layout; CLI interface)
-│   │   │   │   ├── usage/                    # Usage Records (handlers + queries)
-│   │   │   │   ├── audit/                    # Audit Events (handlers + queries)
-│   │   │   │   └── notifications/            # Notifications (handlers + queries)
-│   │   │   ├── platform/                     # technical capabilities shared by modules; no business rules
-│   │   │   │   ├── auth/                     # JWT strategy, guards (access, stream cookie), refresh rotation, Argon2id, service-JWT signer
-│   │   │   │   ├── tenancy/                  # TenantContext and its propagation (HTTP and activities)
-│   │   │   │   ├── db/                       # Drizzle client, TransactionManager (ambient transaction)
-│   │   │   │   │   ├── migrations/           # the ONE migration history (generated SQL, reviewed in PR)
-│   │   │   │   │   └── roles/                # role, grant and row-level-security definitions for Python read roles
-│   │   │   │   ├── events/                   # in-process domain-event dispatcher; after-commit hooks
-│   │   │   │   ├── temporal/                 # WorkflowGateway port + adapter; worker bootstrap; Ajv payload validation
-│   │   │   │   ├── ai-gateway/               # AiGateway port + adapter over the generated ai-http client
-│   │   │   │   ├── crypto/                   # CredentialCipher port + KMS adapter
-│   │   │   │   ├── storage/                  # BlobStore port + object-storage adapter
-│   │   │   │   ├── mail/                     # Mailer port (provider open)
-│   │   │   │   ├── rate-limit/               # RateLimiter port + guard (mechanism open)
-│   │   │   │   ├── streams/                  # SSE gateway: Redis Streams reader, replay, heartbeats, reset
-│   │   │   │   ├── idempotency/              # Idempotency-Key store + interceptor
-│   │   │   │   ├── errors/                   # domain-error base, error codes catalogue, exception filter, envelope
-│   │   │   │   ├── http/                     # validation pipe, /v1 versioning, pagination, OpenAPI setup
-│   │   │   │   ├── config/                   # typed config schema, validated at startup
-│   │   │   │   ├── logging/                  # structured logger, redaction, trace propagation
-│   │   │   │   └── clock/                    # Clock port + system adapter
-│   │   │   └── generated/                    # machine-generated; never edited by hand
-│   │   │       ├── temporal-contracts/       # TS types generated from contracts/temporal JSON Schema
-│   │   │       └── ai-http-client/           # TS client generated from contracts/ai-http OpenAPI
-│   │   └── test/
-│   │       ├── fakes/                        # second adapters for every port (Temporal, AI, KMS, storage, mail, clock, rate limit)
-│   │       ├── builders/                     # aggregate and request builders; seeded-workspace helpers
-│   │       ├── domain/                       # pure unit tests per module (mirrors modules/*/domain)
-│   │       ├── integration/                  # use-case tests against real PostgreSQL (Docker Compose)
-│   │       ├── http/                         # end-to-end HTTP tests per module (app + test database)
-│   │       ├── activities/                   # activity tests in the Temporal TS test environment
-│   │       └── architecture/                 # import-boundary and dependency-direction checks
+Paths below are relative to the named repository. `apps/api/` belongs to `busmora-api`; `apps/workers/`, `apps/ai/` and `packages/contracts-py/` belong to `busmora-ai`. Each repository has independent build, dependency and CI configuration. Worker and AI images stay separate even though they share one repository.
+
+```text
+busmora-api/
+├── apps/
+│   └── api/                                  # busmora-api — NestJS, TypeScript; sole domain writer
+│       ├── src/
+│       │   ├── main.http.ts                  # entrypoint for role api-http (REST + SSE)
+│       │   ├── main.activities.ts            # entrypoint for role api-activities (Temporal TS activity worker)
+│       │   ├── main.cli.ts                   # entrypoint for operator commands (workspace deletion, evaluation seeding)
+│       │   ├── http.module.ts                # root wiring for api-http: modules' http adapters + platform
+│       │   ├── activities.module.ts          # root wiring for api-activities: modules' activity adapters + platform
+│       │   ├── cli.module.ts                 # root wiring for operator commands
+│       │   ├── modules/                      # business modules, one per bounded context
+│       │   │   ├── identity/                 # Users, Workspaces, sessions, time zone
+│       │   │   │   ├── domain/               # aggregates, value objects, domain events, policies (pure TS)
+│       │   │   │   ├── application/          # use cases (commands/queries), contract implementation, event handlers
+│       │   │   │   │   ├── commands/         # one file per command use case (e.g. register-user)
+│       │   │   │   │   ├── queries/          # one file per query use case (read models for HTTP)
+│       │   │   │   │   └── handlers/         # subscriptions to other modules' public events (if any)
+│       │   │   │   ├── infrastructure/       # persistence for this module only
+│       │   │   │   │   ├── schema/           # Drizzle table definitions for this module's PostgreSQL schema
+│       │   │   │   │   ├── repositories/     # one repository per aggregate root
+│       │   │   │   │   └── mappers/          # row ↔ domain mapping
+│       │   │   │   ├── interface/            # adapters that call application use cases
+│       │   │   │   │   ├── http/             # controllers + request/response DTOs (class-validator, @nestjs/swagger)
+│       │   │   │   │   └── activities/       # Temporal activity implementations owned by this module (if any)
+│       │   │   │   ├── contract/             # the ONLY public face of the module (§3.5)
+│       │   │   │   │   ├── identity.api.ts   # interface + injection token (e.g. IDENTITY_API)
+│       │   │   │   │   ├── identity.types.ts # contract types (plain, serialisable; not domain classes)
+│       │   │   │   │   ├── identity.events.ts# public, versioned event contracts (…v1)
+│       │   │   │   │   └── identity.errors.ts# contract error codes
+│       │   │   │   ├── identity.module.ts    # Nest module: binds the implementation to the token; exports only the token
+│       │   │   │   └── index.ts              # re-exports contract/ and nothing else
+│       │   │   ├── employee/                 # Employee configuration, Capabilities, frozen configuration (same layout)
+│       │   │   ├── conversation/             # Conversations, Messages, Quick Replies (same layout)
+│       │   │   ├── tasks/                    # Tasks, Discovery drafts/questions, Roadmaps/steps/revisions, capacity, budgets, Canvas snapshot
+│       │   │   ├── brain/                    # Knowledge Items, Relationships, Procedural Rules, Review (same layout)
+│       │   │   │   └── infrastructure/
+│       │   │   │       └── read-views/       # definitions of the read-only views Python consumes (contract)
+│       │   │   ├── crawls/                   # crawl records, Snapshot metadata, retention (same layout)
+│       │   │   ├── deliverables/             # Deliverables, Citations, Analysis Uploads (same layout)
+│       │   │   ├── publishing/               # Posts, Versions, Approvals (single + bulk), Attempts, claim, Review Sessions (same layout)
+│       │   │   ├── connections/              # Connected Accounts, credential envelopes (same layout)
+│       │   │   ├── evaluation/               # Scenarios, rounds, runs, scores (same layout; CLI interface)
+│       │   │   ├── usage/                    # Usage Records (handlers + queries)
+│       │   │   ├── audit/                    # Audit Events (handlers + queries)
+│       │   │   └── notifications/            # Notifications (handlers + queries)
+│       │   ├── platform/                     # technical capabilities shared by modules; no business rules
+│       │   │   ├── auth/                     # JWT strategy, guards (access, stream cookie), refresh rotation, Argon2id, service-JWT signer
+│       │   │   ├── tenancy/                  # TenantContext and its propagation (HTTP and activities)
+│       │   │   ├── db/                       # Drizzle client, TransactionManager (ambient transaction)
+│       │   │   │   ├── migrations/           # the ONE migration history (generated SQL, reviewed in PR)
+│       │   │   │   └── roles/                # role, grant and row-level-security definitions for Python read roles
+│       │   │   ├── events/                   # in-process domain-event dispatcher; after-commit hooks
+│       │   │   ├── temporal/                 # WorkflowGateway port + adapter; worker bootstrap; Ajv payload validation
+│       │   │   ├── ai-gateway/               # AiGateway port + adapter over the generated ai-http client
+│       │   │   ├── crypto/                   # CredentialCipher port + KMS adapter
+│       │   │   ├── storage/                  # BlobStore port + object-storage adapter
+│       │   │   ├── mail/                     # Mailer port (provider open)
+│       │   │   ├── rate-limit/               # RateLimiter port + guard (mechanism open)
+│       │   │   ├── streams/                  # SSE gateway: Redis Streams reader, replay, heartbeats, reset
+│       │   │   ├── idempotency/              # Idempotency-Key store + interceptor
+│       │   │   ├── errors/                   # domain-error base, error codes catalogue, exception filter, envelope
+│       │   │   ├── http/                     # validation pipe, /v1 versioning, pagination, OpenAPI setup
+│       │   │   ├── config/                   # typed config schema, validated at startup
+│       │   │   ├── logging/                  # structured logger, redaction, trace propagation
+│       │   │   └── clock/                    # Clock port + system adapter
+│       │   └── generated/                    # machine-generated; never edited by hand
+│       │       ├── temporal-contracts/       # TS types generated from contracts/temporal JSON Schema
+│       │       └── ai-http-client/           # TS client generated from contracts/ai-http OpenAPI
+│       └── test/
+│           ├── fakes/                        # second adapters for every port (Temporal, AI, KMS, storage, mail, clock, rate limit)
+│           ├── builders/                     # aggregate and request builders; seeded-workspace helpers
+│           ├── domain/                       # pure unit tests per module (mirrors modules/*/domain)
+│           ├── integration/                  # use-case tests against real PostgreSQL (Docker Compose)
+│           ├── http/                         # end-to-end HTTP tests per module (app + test database)
+│           ├── activities/                   # activity tests in the Temporal TS test environment
+│           └── architecture/                 # import-boundary and dependency-direction checks
+├── contracts/
+│   ├── api/                                  # public OpenAPI generated here; versioned artifact for busmora-web
+│   ├── temporal/                             # pinned JSON Schema artifact from busmora-ai
+│   └── ai-http/                              # pinned internal OpenAPI artifact from busmora-ai
+├── deploy/
+│   └── compose/                              # local stores + API and pinned AI/worker images; documented dev overrides
+├── scripts/                                  # contract consumption, drift checks, database seeding, local setup
+└── ci/                                       # API build and compatibility checks
+
+busmora-ai/
+├── apps/
 │   ├── workers/                              # busmora-workers — Python; sequencing + publish
 │   │   ├── src/busmora_workers/
 │   │   │   ├── main_workflows.py             # entrypoint for role workers-workflows
@@ -425,18 +438,15 @@ busmora-backend/
 │           └── fakes/                        # fake LLM, fake vector store, fake crawler, fake views
 ├── packages/
 │   └── contracts-py/                         # CANONICAL Pydantic models: Temporal payloads, Canvas signal envelope
-├── contracts/                                # generated artefacts, committed, verified in CI
-│   ├── temporal/                             # JSON Schema exported from contracts-py
-│   ├── ai-http/                              # OpenAPI exported from ai-http
-│   └── api/                                  # openapi.json generated from busmora-api; published for the frontend
-├── evaluation/                               # Scenario definitions, seeded-workspace data, rubrics (EVAL §3–§5)
-├── deploy/
-│   └── compose/                              # Docker Compose: all backend roles + PostgreSQL, Redis, Qdrant, object storage
-├── scripts/                                  # contract generation, drift checks, seeding, local setup
-├── ci/                                       # pipeline definitions (CI tooling open, OD-16)
-└── docs/
-    └── adr/                                  # internal ADRs (seeded from §13)
+├── contracts/                                # generated, verified and published as versioned artifacts
+│   ├── temporal/                             # JSON Schema exported from contracts-py for busmora-api
+│   └── ai-http/                              # OpenAPI exported from ai-http for busmora-api
+├── evaluation/                               # executable fixtures/runners; specs and evidence in busmora-docs
+├── scripts/                                  # contract export, compatibility checks, local Python setup
+└── ci/                                       # separate workers and AI image builds; Python checks
 ```
+
+`busmora-docs` holds shared requirements, architecture decisions and execution evidence. `busmora-web` has the separate frontend tree in the Frontend Technical Design. Cross-repository contracts use pinned published artifacts, never imports from sibling source directories.
 
 ---
 
@@ -1077,7 +1087,7 @@ Evaluation follows PRD §10: held-out contrast cases and four registers, ≥80% 
 | 6 | **Expose and consume through the contract** | `publishing/contract/publishing.events.ts`; consuming modules' `application/handlers` | Map the internal `PostRescheduled` event to a new public `PostRescheduled.v1` contract. Adding an event is additive, so no existing consumer changes. `audit` subscribes to `PostRescheduled.v1` and appends an Audit Event; `notifications` needs nothing. No other module imports anything new from `publishing` except this public event. |
 | 7 | **Persistence** | `publishing/infrastructure` | If new columns are needed (e.g. `schedule_revision`), add them to the module's Drizzle schema, generate the migration into `platform/db/migrations`, and review the SQL. Expand-only. |
 | 8 | **Contract first (API)** | `publishing/interface/http` | Add the `RescheduleRequest` DTO (`{version,postVersionId,scheduledTime:{instant,zone,latenessAllowanceMinutes}}`, validated) and the response DTO. Add `POST /v1/posts/{id}/reschedule` with the `Idempotency-Key` requirement and error codes (`INVALID_TRANSITION`, `STALE_VERSION`). **Merge this signature PR first.** CI regenerates `openapi.json` and `oasdiff` confirms it is additive. |
-| 9 | **Temporal contract (if a workflow or activity changes)** | `packages/contracts-py` → `contracts/temporal` → `apps/api/src/generated` | Change the Pydantic model (additive), export JSON Schema, regenerate TS types. CI checks for drift and additivity. |
+| 9 | **Temporal contract (if a workflow or activity changes)** | `busmora-ai/packages/contracts-py` → versioned `busmora-ai/contracts/temporal` artifact → `busmora-api/apps/api/src/generated` | Change the Pydantic model (additive), export JSON Schema, regenerate TS types. CI checks for drift and additivity. |
 | 10 | **Workflow change (if any)** | `workers/workflows/post_release.py` | Reuse the existing workflow with the new Scheduled Time. If its logic changes, guard the change with Temporal versioning and add a replay test with a recorded history. |
 | 11 | **Activity change (if any)** | `publishing/interface/activities` | `platform.claim_post` already checks state and version, so nothing changes. Any new activity must be idempotent per (workflow id, step). |
 | 12 | **AI involvement (if the feature needs it)** | `ai/domain` + `ai/application` + `ai/entrypoints/activities` | Add the use case behind a port, register the activity on the right task queue, emit Canvas signals only through `CanvasSink`, version any prompt. (Not needed for this example.) |
@@ -1216,7 +1226,7 @@ Format: the `domain-modeling` skill's ADR format (title; context, decision, why;
 - **Context:** workers, ai and api exchange Temporal payloads. Pydantic is canonical (SYS ADR-014).
 - **Decision:**
   - `packages/contracts-py` holds every cross-language payload and the Canvas envelope.
-  - Workers and ai import it. JSON Schema is exported into `contracts/temporal`, and TS types are generated into api.
+  - Workers and ai import it within `busmora-ai`. JSON Schema is exported into `busmora-ai/contracts/temporal` and published as a versioned artifact; `busmora-api` pins it and generates TS types into its API app.
 - **Considered:** models duplicated in each Python app. Rejected: drift between workers and ai.
 - **Consequences:** a payload change touches one package, regenerates artefacts, and must pass the additivity check.
 
@@ -1302,7 +1312,7 @@ These are not decided here. They are needed to build, and the docs don't name a 
 |---|---|---|---|
 | G-1 | Test frameworks for TS and Python; end-to-end and load tools | §10 | OD-12 |
 | G-2 | Import-boundary / static-analysis tooling to enforce §2.3 and §3.3 in CI | §10 architecture tests | new |
-| G-3 | TypeScript package/workspace tooling and Python packaging for a polyglot repo with `packages/contracts-py` | §4 | new |
+| G-3 | Independent TypeScript tooling for `busmora-api` and Python packaging for `busmora-ai` with `packages/contracts-py`; versioned artifact exchange | §4 | new |
 | G-4 | Object-storage client libraries (TS and Python) | `platform/storage`, `ai/adapters/blob` | OD-2, OD-4 |
 | G-5 | KMS client libraries (TS encrypt, Python decrypt) | `platform/crypto`, `workers/publish/secrets` | OD-2 |
 | G-6 | Python Redis client (Canvas signals, crawl cache) | `ai/adapters/canvas`, `ai/adapters/crawler` | new |

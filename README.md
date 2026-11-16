@@ -27,16 +27,6 @@ busmora-docs/
 │   ├── evaluation.md             # ~24-Case Scenario Library & PRD §10.2 Release Gates
 │   ├── decision-registry.md      # Decision Registry (D-01 to D-70)
 │   └── README.md
-├── research/                     # Discovery, Benchmarks & Deep Analysis
-│   ├── product/                  # Customer & Market Research
-│   │   └── product-discovery-summary.md # Pain points, interviews, competition
-│   ├── technical/                # Historical Architecture Benchmarks (v1-era scope)
-│   │   ├── 00-requirements-analysis.md # Historical audit & gap analysis
-│   │   ├── 01-constraints.md     # Binding constraints & hard gates (G1–G5)
-│   │   ├── 02-options.md         # Deep options analysis (B1–B3, FE-1–FE-3)
-│   │   ├── 03-benchmark.md       # Objective benchmark & scoring matrix
-│   │   └── 04-decision.md        # Architectural decision record (B1+A1, FE-1)
-│   └── README.md
 ├── diagrams/                     # Architecture & Workflow Diagrams (Excalidraw)
 │   ├── project-draw.excalidraw
 │   └── README.md
@@ -44,11 +34,10 @@ busmora-docs/
 │   └── 1-BusMora.html
 └── Vault/                        # Obsidian Knowledge Base & Execution Engine
     ├── 00 - Home.md
-    ├── 01 - Initiatives/
-    ├── 02 - Features/
-    ├── 03 - Skills/
-    ├── 04 - Rules/
-    └── Templates/
+    ├── 01 - Rules/
+    ├── 02 - Tasks/                # Execution history by Jira key
+    ├── 03 - Features/             # Current business capabilities
+    └── Templates/                # Task, research, benchmark, feature overview
 ```
 
 ---
@@ -87,29 +76,38 @@ Business models, release boundaries, and decision records are in [**`strategy/`*
 
 ---
 
-## 4. Research & Benchmarks (`research/`)
+## 4. Engineering Workflow and Vault
 
-Discovery findings and architecture trade-off exploration records are in [**`research/`**](./research/README.md):
+The engineer drives decisions; the AI challenges assumptions, checks system constraints before research, compares independently gathered candidates with the engineer, and benchmarks measurable claims in an isolated sandbox. Implementation uses acceptance-driven Red → Green → Refactor.
 
-* [**Product Discovery**](./research/product/product-discovery-summary.md) — The pain points ("Manual Work Multipliers", "Editing Trap", "Tool Amnesia"), customer profiles, and vision.
-* [**Technical Research & Decisions**](./research/technical/) — 5-stage benchmark process: [00 Requirements Analysis](./research/technical/00-requirements-analysis.md), [01 Constraints & Criteria](./research/technical/01-constraints.md), [02 Architecture Options](./research/technical/02-options.md), [03 Options Benchmark](./research/technical/03-benchmark.md), and [04 Final Decision Record](./research/technical/04-decision.md).
+Start at [Vault Home](./Vault/00%20-%20Home.md) or the [Task Lifecycle Protocol](./Vault/01%20-%20Rules/Task%20Lifecycle%20Protocol.md).
 
----
+- [Rules](./Vault/01%20-%20Rules/README.md): shared conventions and lifecycle milestones.
+- [Tasks](./Vault/02%20-%20Tasks/README.md): one `Task.md` per Jira ticket, with optional `research.md`, `benchmark.md`, and `evidence/`.
+- [Features](./Vault/03%20-%20Features/README.md): one living `Overview.md` per stable business capability. Technical tasks create no feature folder.
+- [Templates](./Vault/Templates/README.md): four compact starting points.
 
-## 5. Team Knowledge Base (`Vault/`)
+Jira stays **To Do** during discovery, becomes **In Progress** immediately before implementation code/tests, and becomes **In Review** when the PR opens. **Done requires verified merge into main** of all required delivery PRs.
 
-The team uses the **Obsidian Vault** as an interactive knowledge and execution tracking layer:
-* [**00 - Home.md**](./Vault/00%20-%20Home.md) — Entry point and navigation map.
-* [**01 - Initiatives/**](./Vault/01%20-%20Initiatives/README.md) — High-level initiatives and PRD tracking.
-* [**02 - Features/**](./Vault/02%20-%20Features/README.md) — Canonical feature overviews, requirements, and per-task Jira records.
-* [**03 - Skills/**](./Vault/03%20-%20Skills/README.md) — AI-agent implementation and PR review workflow skills.
-* [**04 - Rules/**](./Vault/04%20-%20Rules/README.md) — Global documentation lifecycle and team conventions.
+Experiment in git-ignored `scratch/benchmarks/<JIRA-KEY>/` with isolated dependencies; preserve useful reproducibility material in the task's optional evidence folder. Confirm ignoring in the repository where the experiment runs.
+
+Workflow skills live once in `.agents/skills/`; `.claude/skills/` links to those sources. Implementation, conditional migration, delivery, and PR-review skills share the Vault protocol instead of maintaining competing lifecycle rules.
+
+### Historical research
+
+The retired top-level `research/` documents remain available in Git history at commit `7408b51703a8699bb9296439ffcb98e214902cc8`. For example:
+
+```bash
+rtk git show 7408b51703a8699bb9296439ffcb98e214902cc8:research/technical/01-constraints.md
+```
+
+The same commit contains the former `research/product/` and `research/technical/00`–`04` records. Historical source aliases **01** (constraints) and **04** (architecture decision) in core specifications refer to those records; they are historical rationale, not current product scope. New task research belongs with its Jira task. Current contracts remain in `core/`, `domain/`, and `strategy/`.
 
 ---
 
 ## Key Architecture Highlights
 
-1. **Two Standalone Repositories:** `busmora-backend` (NestJS, Temporal Python workers, FastAPI AI service) and `busmora-frontend` (Next.js web application), communicating strictly through versioned OpenAPI contracts.
+1. **Four Repositories:** `busmora-web` (Next.js), `busmora-api` (NestJS), `busmora-ai` (FastAPI, AI activities and Temporal Python workers), and `busmora-docs` (requirements, architecture, planning and evidence). Code repositories exchange versioned HTTP/activity contracts; the workers remain a separate deployable built from `busmora-ai`.
 2. **Platform-Centred with Sole Domain Writer:** `busmora-api` (NestJS) is the single owner and only writer of all PostgreSQL domain tables. Python services are stateless compute behind Temporal and never write domain tables.
 3. **Dual-Memory Business Brain:** Semantic memory (PostgreSQL concept graph + Qdrant vectors) grounds factual knowledge; procedural memory grounds formatting and dialect style rules learned from human edits.
 4. **Governed Safe Publishing:** The Social Poster agent acts only before approval; publishing is deterministic, byte-for-byte, idempotent dispatch through MCP tools in the worker tier, verified by reading the post back from the platform.

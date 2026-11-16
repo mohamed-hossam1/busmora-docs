@@ -1,6 +1,6 @@
 # Bounded Contexts
 
-> Sources: [core/prd.md](../core/prd.md) (PRD v2.0, authoritative), [SYSTEM-ARCHITECTURE.md](../core/SYSTEM-ARCHITECTURE.md) §3.2, [strategy/](../strategy/), and the historical [00-requirements-analysis.md](../research/technical/00-requirements-analysis.md) / [01-constraints.md](../research/technical/01-constraints.md). Vocabulary: [GLOSSARY.md](./GLOSSARY.md).
+> Sources: [core/prd.md](../core/prd.md) (PRD v2.0, authoritative), [SYSTEM-ARCHITECTURE.md](../core/SYSTEM-ARCHITECTURE.md) §3.2, [strategy/](../strategy/), and the historical requirements analysis (00) / constraints (01) available in [Git history](../README.md#historical-research). Vocabulary: [GLOSSARY.md](./GLOSSARY.md).
 > Contexts are **language and ownership boundaries**, not deployables. Their mapping onto the four services (D-26) is in SYSTEM-ARCHITECTURE §4.4.
 
 ## 1. Classification

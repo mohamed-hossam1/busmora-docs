@@ -27,7 +27,7 @@ flowchart TD
 * **Key Sections:** email-link and Google sign-in (FR-50), confirmed essential intake (FR-04–06), independent Director Chat (`/employee`) with conversation-local Canvas, five diagnostic lenses as guidance (offer/audience, destination, conversion, acquisition, existing customers — FR-14), saved Roadmap Discovery and a complete step plan with real dependencies (FR-16, FR-51–54), dynamic multi-source research with per-task budget governance (FR-27), text-first content in 4 registers (Egyptian, Gulf, MSA, English), Posts in Scheduling with governed Facebook Page publishing, exact-version binding and canonical ScheduledTime (`{ instant, zone, latenessAllowanceMinutes }`, FR-33–36, FR-55), CSV & Excel `.xlsx` for explicitly requested one-off analysis only (FR-38–40, FR-47 retired), context staleness holds (FR-48), honest unsupported execution handoffs (FR-49), and explicit absence of daily/performance dashboards (FR-58).
 
 ### 2. [Design System (`DESIGN-SYSTEM.md`)](./DESIGN-SYSTEM.md)
-* **Scope:** Design tokens, UI component specifications, typography scales, color palettes, and strict RTL/LTR bidirectional layout rules for `busmora-frontend`.
+* **Scope:** Design tokens, UI component specifications, typography scales, color palettes, and strict RTL/LTR bidirectional layout rules for `busmora-web`.
 
 ### 3. [System Architecture v2.0 (`SYSTEM-ARCHITECTURE.md`)](./SYSTEM-ARCHITECTURE.md)
 * **Scope:** Canonical system-level topology, deployable units, inter-process communication, and security posture for the 24-week Phase 2 release built by 5 students (~2,400 hours).
@@ -39,7 +39,7 @@ flowchart TD
   * **Security & Multi-Tenancy:** Row-Level Security (RLS) tenant isolation and envelope encryption (AWS KMS / Tink) for OAuth credentials.
 
 ### 4. [Backend Technical Design (`BACKEND-TECHNICAL-DESIGN.md`)](./BACKEND-TECHNICAL-DESIGN.md)
-* **Scope:** Internal software design and code organization of `busmora-backend`.
+* **Scope:** Internal software design and code organization of `busmora-api` and `busmora-ai`, including the Python workers.
 * **Key Mechanisms:**
   * **NestJS Modular Monolith:** 13 business modules strictly matching the bounded contexts.
   * **Encapsulated Contracts:** Modules communicate exclusively through public `contract/` interfaces; direct cross-module table access is strictly prohibited.
@@ -48,7 +48,7 @@ flowchart TD
   * **Durable Orchestration:** Temporal workflows for background campaigns, market intelligence crawling, and Facebook publishing.
 
 ### 5. [Frontend Technical Design (`FRONTEND-TECHNICAL-DESIGN.md`)](./FRONTEND-TECHNICAL-DESIGN.md)
-* **Scope:** Internal client architecture and state management of `busmora-frontend`.
+* **Scope:** Internal client architecture and state management of `busmora-web`.
 * **Key Mechanisms:**
   * **Client-Side Rendered (CSR):** Next.js 14+ SPA optimized for interactive workspace state, Marketing Director Chat, and continuous SSE streaming.
   * **Prepared for Workspace Event Shell (FE-3):** Modular context-based directory structure (`features/brain`, `features/publishing`, `features/chat`, `features/roadmap`) ready for event-driven multi-panel canvas.
@@ -69,4 +69,4 @@ flowchart TD
 
 * [**Domain-Driven Design (`../domain/`)**](../domain/): Tactical aggregates, bounded contexts, domain events, and the canonical [Glossary](../domain/GLOSSARY.md).
 * [**Product & Business Strategy (`../strategy/`)**](../strategy/): Business model, defensibility moat, MVP 24-week boundaries, and historical decision records.
-* [**Research & Benchmarks (`../research/`)**](../research/): Customer discovery findings and technical benchmark evidence behind architectural decisions.
+* [**Task research and benchmarks**](../Vault/02%20-%20Tasks/README.md): Current task findings and empirical evidence. Earlier architecture research is available in [Git history](../README.md#historical-research).
