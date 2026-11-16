@@ -11,7 +11,7 @@ Optional: record an actual experiment, not a vendor comparison presented as meas
 - Sandbox: `scratch/benchmarks/[JIRA-KEY]/` [confirm git-ignore in the experiment repository]
 - Candidates and baseline: [versions and configurations]
 - Environment: [runtime, hardware/hosting, isolation]
-- Workload/data: [provenance, scale, representative test cases where relevant]
+- Workload/data: [provenance, scale, representative real Arabic/dialects/RTL cases where relevant]
 - Procedure: [commands, fixture or retrieval recipe, repetitions, warm-up and controls]
 - Evidence: [relative links to minimal sanitized harness and raw results]
 

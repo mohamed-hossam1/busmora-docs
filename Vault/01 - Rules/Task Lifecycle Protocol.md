@@ -14,7 +14,7 @@ Challenge every tool, library, or algorithm prescribed by the ticket: why it fit
 
 Before searching for candidates, read the relevant sections of `busmora-docs/core/`, the team rules here, and the target repository's instructions and runtime configuration. Record the constraints and source links in `Task.md` or, when needed, `research.md`.
 
-Apply the project's architectural invariants, boundaries, and system constraints. Reject incompatible candidates before benchmarking them. Conflicts between the brief, code, and specifications must be surfaced, not silently resolved.
+Apply the BusMora boundaries: NestJS runs ESM-only; `busmora-api` is the sole writer of PostgreSQL domain tables; Python performs stateless compute and has no domain write authority. Check other constraints relevant to the decision, including tenant isolation, contracts, and Arabic-first UX. Reject incompatible candidates before benchmarking them. Conflicts between the brief, code, and specifications must be surfaced, not silently resolved.
 
 For a tool or approach choice, the engineer and AI search independently in parallel, then compare their candidate sets. Invite the engineer's findings while doing the AI's research. Preserve attribution; never invent the engineer's findings or label AI research as two independent searches. Mark missing input pending and agree the selection with the engineer; an explicit waiver can be recorded. Routine work with no meaningful selection does not require a research exercise.
 
@@ -22,11 +22,11 @@ Use current primary sources, record versions and source dates, and distinguish d
 
 ## 3. Measure claims in an isolated sandbox
 
-When selection depends on measurable claims such as latency, throughput, resource consumption, or domain-specific accuracy, run an actual comparison. A README claim or a weighted opinion table is not a benchmark. Agree the criteria and pass thresholds before running it.
+When selection depends on measurable claims such as latency, performance, cost, Arabic NLP quality, or RTL support, run an actual comparison. A README claim or a weighted opinion table is not a benchmark. Agree the criteria and pass thresholds before running it.
 
 Use `scratch/benchmarks/<JIRA-KEY>/` in the repository running the experiment, with isolated dependencies and configuration. Confirm the path is git-ignored there before creating experiment files; the docs repository's ignore rule does not cover sibling repositories. Do not alter production manifests or lockfiles for an experiment.
 
-Use representative workloads and realistic, non-sensitive data samples. Record versions, environment, data provenance, commands, repetitions, warm-up conditions, metrics, failures, and limitations. Compare candidates under the same conditions. Label estimates, vendor claims, and measurements separately.
+Use representative workloads and real, non-sensitive Arabic samples when language or layout matters, including relevant dialects and mixed Arabic/Latin text. Record versions, environment, data provenance, commands, repetitions, warm-up conditions, metrics, failures, and limitations. Compare candidates under the same conditions. Label estimates, vendor claims, and measurements separately.
 
 Save useful conclusions in `02 - Tasks/<JIRA-KEY>/benchmark.md`. Preserve the minimal sanitized harness, fixture or data retrieval recipe, and raw results needed to reproduce the decision in optional `evidence/`; disposable dependencies and full experiment output stay ignored. If measurement cannot run, record the blocker and uncertainty and agree the next step; do not claim benchmark verification.
 

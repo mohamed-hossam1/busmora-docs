@@ -11,7 +11,7 @@ Optional: use when the findings need more space than `Task.md`.
 - Engineer: [candidates, sources, rationale; pending if not supplied]
 - AI: [independently found candidates, sources, versions, access dates]
 
-| Candidate | Constraint fit | Domain / functional fit | Evidence and trade-offs |
+| Candidate | Constraint fit | Arabic/regional fit when relevant | Evidence and trade-offs |
 |---|---|---|---|
 | [option/baseline] | [pass/reject and why] | [known/unknown] | [source; claim versus measured fact] |
 

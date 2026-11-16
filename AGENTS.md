@@ -12,12 +12,14 @@ Every agent must strictly adhere to the team rules located in [`Vault/01 - Rules
 
 - **Next.js & Frontend UI Rules:**
   - [`Vault/01 - Rules/Next.js UI Agent Rules.md`](./Vault/01%20-%20Rules/Next.js%20UI%20Agent%20Rules.md): Next.js UI conventions, Feature-Based Architecture, centralized `ROUTES` registry, and strict RTL/interaction completeness.
+  - [`Vault/01 - Rules/Next.js Multilingual and SEO Rules.md`](./Vault/01%20-%20Rules/Next.js%20Multilingual%20and%20SEO%20Rules.md): Mandatory Arabic/English locale URLs, server-rendered public content, version-aware `next-intl`, RTL/LTR, navigation, SEO and verification. Public rendering follows this scoped rule; the protected application's client data model remains unchanged.
 - **NestJS & Backend Rules:**
   - [`Vault/01 - Rules/NestJS Backend Agent Rules.md`](./Vault/01%20-%20Rules/NestJS%20Backend%20Agent%20Rules.md): Module ownership, explicit trust boundaries, transactional consistency on writes, and testing risky paths.
 - **Engineering Workflow & Lifecycle:**
   - [`Vault/01 - Rules/Task Lifecycle Protocol.md`](./Vault/01%20-%20Rules/Task%20Lifecycle%20Protocol.md): Jira milestones, discovery guidelines, and acceptance-driven TDD from Red to Green.
   - [`Vault/01 - Rules/Documentation Lifecycle.md`](./Vault/01%20-%20Rules/Documentation%20Lifecycle.md): Lifecycle of task execution records, research evidence, and living feature capability overviews.
   - [`Vault/01 - Rules/Vault Conventions.md`](./Vault/01%20-%20Rules/Vault%20Conventions.md): Canonical vault navigation, link conventions, and strict separation between facts, decisions, and assumptions.
+  - [`Vault/01 - Rules/Workspace Hygiene and Cleanup Rules.md`](./Vault/01%20-%20Rules/Workspace%20Hygiene%20and%20Cleanup%20Rules.md): Mandatory post-task cleanup, dead-code pruning, eliminating file duplicates, and zero-debris working tree.
 
 ---
 

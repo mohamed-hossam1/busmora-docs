@@ -6,7 +6,7 @@
 
 ## Business rules and boundaries
 
-[Durable invariants, permissions, failure behavior, and limitations. Link core/domain specifications instead of copying them.]
+[Durable invariants, permissions, failure behavior, limitations, and relevant Arabic/register behavior. Link core/domain specifications instead of copying them.]
 
 ## Related tasks
 

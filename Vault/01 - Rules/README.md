@@ -8,6 +8,9 @@ Rules define **what every team member must do**. Keep these global and team-wide
 - [[Documentation Lifecycle|Documentation Lifecycle]]
 - [[Vault Conventions|Vault Conventions]]
 - [[Next.js UI Agent Rules|Next.js UI Agent Rules]]
+- [[Next.js Multilingual and SEO Rules|Next.js Multilingual and SEO Rules]]
 - [[NestJS Backend Agent Rules|NestJS Backend Agent Rules]]
+- [[Workspace Hygiene and Cleanup Rules|Workspace Hygiene and Cleanup Rules]]
 
 Add and agree on additional rules with the team before treating them as mandatory.
+

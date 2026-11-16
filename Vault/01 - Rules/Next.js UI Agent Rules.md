@@ -2,6 +2,8 @@
 
 These rules govern UI decisions that may not be obvious from reading the code. Do not repeat framework documentation or existing project configuration. Product requirements live in the project's own docs.
 
+For frontend localization, public-page rendering, navigation and metadata, also follow [[Next.js Multilingual and SEO Rules]]. Arabic/English support and crawlable public content are mandatory for affected public routes; preserve the protected application's existing data-fetching boundaries.
+
 ## Design decisions
 
 1. **Preserve the existing visual language.** When a task does not specify a new design, follow the closest existing page/component for typography, spacing, color, radius, icon style, and interaction patterns. Do not introduce a new visual style.
@@ -14,6 +16,7 @@ These rules govern UI decisions that may not be obvious from reading the code. D
 5. **Do not change global styling for a local problem.** Avoid broad CSS overrides, new design tokens, or modifications to shared primitives unless the task explicitly requires that impact.
 6. **Keep Client Component boundaries narrow in App Router.** Use `'use client'` for the actual interactive subtree, not a whole page/layout merely to support one interactive child. Follow the repository's routing mode if it is not App Router.
 7. **Do not introduce another UI system.** Avoid new component libraries, icon packs, CSS frameworks, or animation dependencies unless explicitly approved.
+8. **Install shadcn components via CLI only — Never copy-paste.** Whenever a shadcn component is needed, the agent is strictly prohibited from manually writing, copying, or hallucinating component code into `shared/ui`. The agent MUST execute the official CLI command (e.g. `bunx --bun shadcn@latest add <component>` or `npx shadcn@latest add <component>`) to ensure it is installed deterministically according to `components.json`, with the correct Tailwind configuration, Radix primitives, and dependencies.
 
 ## Architecture: Feature-Based Architecture
 
